@@ -79,7 +79,7 @@ export function MultipleChoiceQuestion({ question, onAnswered }: Props) {
               key={option}
               onClick={() => choose(option)}
               disabled={!!selected}
-              className={`w-full text-left px-4 py-3 rounded-lg border font-medium transition-colors ${style}`}
+              className={`w-full text-left px-4 py-4 rounded-lg border font-medium transition-colors ${style}`}
             >
               {direction === 'en-th' ? (
                 <ThaiWord text={option} size="sm" align="left" mutedSecondary={false} />

@@ -117,7 +117,7 @@ export function WordsPage() {
               <Card key={word.id} className="flex items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-thai text-lg">{word.thai}</span>
+                    <span className="font-thai text-2xl">{word.thai}</span>
                     <span className="text-txt-tertiary text-xs">{word.pronunciation ?? word.romanization}</span>
                   </div>
                   <div className="text-txt-secondary text-sm truncate">{word.english}</div>
