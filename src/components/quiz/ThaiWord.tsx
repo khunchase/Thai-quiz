@@ -7,9 +7,9 @@ interface ThaiWordProps {
 }
 
 const SIZE_CLASSES = {
-  lg: { primary: 'text-4xl', secondary: 'text-xl' },
-  md: { primary: 'text-3xl', secondary: 'text-lg' },
-  sm: { primary: 'text-xl', secondary: 'text-sm' },
+  lg: { primary: 'text-4xl', secondary: 'text-4xl' },
+  md: { primary: 'text-3xl', secondary: 'text-3xl' },
+  sm: { primary: 'text-xl', secondary: 'text-xl' },
 };
 
 /**
