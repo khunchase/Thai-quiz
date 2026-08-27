@@ -14,9 +14,12 @@ account or backend required.
   fixed via Settings.
 - **Spaced repetition** — an SM-2 scheduler tracks per-word ease/interval so
   words you struggle with resurface sooner.
-- **100-word starter deck** across 11 categories (greetings, numbers, family,
-  food, colors, time, verbs, places, animals, adjectives, pronouns), plus a
-  Words tab to add, edit, and delete your own words and categories.
+- **926-word starter deck** across 23 categories (greetings, numbers, family,
+  food, colors, time, verbs, places, animals, adjectives, pronouns, body
+  parts, health, clothing, weather & nature, transportation, technology,
+  shopping, work, school, emotions, household items, and directions/question
+  words), plus a Words tab to add, edit, and delete your own words and
+  categories.
 - **Audio pronunciation** via the browser's built-in speech synthesis
   (`th-TH` voice when available).
 - **Thai script practice mode** — hides romanization hints so you read the
