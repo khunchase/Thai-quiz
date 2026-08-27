@@ -1,22 +1,15 @@
 import { useState } from 'react';
 import { useSettingsStore } from '../stores/settings-store';
 import { useProgressStore } from '../stores/progress-store';
-import type { QuestionType, Direction } from '../types/quiz';
+import type { Direction } from '../types/quiz';
 import { Card } from '../components/ui/Card';
 import { GhostButton, SecondaryButton } from '../components/ui/Button';
 import { AccountCard } from '../components/AccountCard';
-
-const TYPE_LABELS: Record<QuestionType, string> = {
-  'multiple-choice': 'Multiple choice',
-  typed: 'Typed answer',
-  flashcard: 'Flashcard',
-};
 
 const SESSION_LENGTHS = [10, 15, 20, 30];
 
 export function SettingsPage() {
   const settings = useSettingsStore((s) => s.settings);
-  const toggleQuestionType = useSettingsStore((s) => s.toggleQuestionType);
   const updateSettings = useSettingsStore((s) => s.updateSettings);
   const resetProgress = useProgressStore((s) => s.resetProgress);
   const [confirmReset, setConfirmReset] = useState(false);
@@ -26,23 +19,6 @@ export function SettingsPage() {
       <h1 className="text-2xl font-bold">Settings</h1>
 
       <AccountCard />
-
-      <Card>
-        <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Question types</div>
-        <div className="flex flex-col gap-2">
-          {(Object.keys(TYPE_LABELS) as QuestionType[]).map((type) => (
-            <label key={type} className="flex items-center justify-between py-1">
-              <span>{TYPE_LABELS[type]}</span>
-              <input
-                type="checkbox"
-                checked={settings.enabledTypes.includes(type)}
-                onChange={() => toggleQuestionType(type)}
-                className="w-5 h-5 accent-accent"
-              />
-            </label>
-          ))}
-        </div>
-      </Card>
 
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Direction</div>

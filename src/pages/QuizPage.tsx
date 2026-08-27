@@ -50,7 +50,6 @@ export function QuizPage() {
       words,
       reviewStates,
       sessionLength: settings.sessionLength,
-      enabledTypes: settings.enabledTypes,
       direction: settings.direction,
       categoryFilter: selectedCategories.length ? selectedCategories : undefined,
     });
@@ -127,10 +126,6 @@ export function QuizPage() {
         <div className="flex justify-between text-sm">
           <span className="text-txt-secondary">Session length</span>
           <span className="font-semibold">{settings.sessionLength} words</span>
-        </div>
-        <div className="flex justify-between text-sm mt-2">
-          <span className="text-txt-secondary">Question types</span>
-          <span className="font-semibold">{settings.enabledTypes.length} enabled</span>
         </div>
         <div className="flex justify-between text-sm mt-2">
           <span className="text-txt-secondary">Direction</span>

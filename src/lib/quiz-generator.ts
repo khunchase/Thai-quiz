@@ -1,19 +1,14 @@
 import type { Word } from '../types/word';
 import type { ReviewState } from '../types/progress';
-import type { Direction, QuestionType, QuizQuestion } from '../types/quiz';
+import type { Direction, QuizQuestion } from '../types/quiz';
 import { isDue } from './srs';
 
 export interface GenerateQuizOptions {
   words: Word[];
   reviewStates: Record<string, ReviewState>;
   sessionLength: number;
-  enabledTypes: QuestionType[];
   direction: Direction | 'both';
   categoryFilter?: string[];
-}
-
-function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -64,23 +59,20 @@ export function buildMultipleChoiceOptions(word: Word, direction: Direction, all
 
 export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
   const sessionWords = selectSessionWords(options);
-  const { enabledTypes, direction, words: allWords } = options;
-  const types = enabledTypes.length ? enabledTypes : (['multiple-choice'] as QuestionType[]);
+  const { direction, words: allWords } = options;
 
+  // Every question is multiple choice: recognizing the answer among options
+  // is far more approachable than typing or recalling it from memory,
+  // in either direction.
   return sessionWords.map((word, index) => {
     const qDirection: Direction = direction === 'both' ? (Math.random() < 0.5 ? 'th-en' : 'en-th') : direction;
-    // English -> Thai always uses multiple choice: recognizing Thai script
-    // among options is far more approachable than typing or recalling it.
-    const type = qDirection === 'en-th' ? 'multiple-choice' : pickRandom(types);
     const question: QuizQuestion = {
       id: `${word.id}-${index}-${Date.now()}`,
       word,
-      type,
+      type: 'multiple-choice',
       direction: qDirection,
+      options: buildMultipleChoiceOptions(word, qDirection, allWords),
     };
-    if (type === 'multiple-choice') {
-      question.options = buildMultipleChoiceOptions(word, qDirection, allWords);
-    }
     return question;
   });
 }
