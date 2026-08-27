@@ -60,6 +60,9 @@ export function gradeForTyped(correct: boolean): Grade {
   return correct ? 5 : 0;
 }
 
+/** Explicit "I don't know" give-up — worse than a wrong guess, no recall at all. */
+export const GRADE_GIVE_UP: Grade = 0;
+
 export type FlashcardRating = 'again' | 'hard' | 'good' | 'easy';
 
 export function gradeForFlashcard(rating: FlashcardRating): Grade {

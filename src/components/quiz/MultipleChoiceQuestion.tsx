@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import type { QuizQuestion, Grade } from '../../types/quiz';
-import { gradeForMultipleChoice } from '../../lib/srs';
+import { gradeForMultipleChoice, GRADE_GIVE_UP } from '../../lib/srs';
 import { AudioButton } from './AudioButton';
+import { ThaiWord } from './ThaiWord';
+import { GhostButton } from '../ui/Button';
 import { useSettingsStore } from '../../stores/settings-store';
 
 interface Props {
@@ -9,8 +11,10 @@ interface Props {
   onAnswered: (grade: Grade, correct: boolean, userAnswer?: string) => void;
 }
 
+const GAVE_UP = Symbol('gave-up');
+
 export function MultipleChoiceQuestion({ question, onAnswered }: Props) {
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | typeof GAVE_UP | null>(null);
   const scriptPractice = useSettingsStore((s) => s.settings.scriptPracticeMode);
   const { word, direction, options = [] } = question;
 
@@ -25,11 +29,23 @@ export function MultipleChoiceQuestion({ question, onAnswered }: Props) {
     window.setTimeout(() => onAnswered(gradeForMultipleChoice(correct), correct, option), 550);
   }
 
+  function giveUp() {
+    if (selected) return;
+    setSelected(GAVE_UP);
+    window.setTimeout(() => onAnswered(GRADE_GIVE_UP, false), 550);
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="text-center py-6">
-        <div className={`text-4xl font-semibold ${direction === 'th-en' ? 'font-thai' : ''}`}>{promptText}</div>
-        {showRomanization && <div className="text-txt-secondary text-sm mt-2">{word.romanization}</div>}
+        {direction === 'th-en' ? (
+          <ThaiWord text={promptText} size="lg" />
+        ) : (
+          <div className="text-4xl font-semibold">{promptText}</div>
+        )}
+        {showRomanization && (
+          <div className="text-txt-secondary text-sm mt-2">{word.pronunciation ?? word.romanization}</div>
+        )}
         {direction === 'th-en' && (
           <div className="flex justify-center mt-3">
             <AudioButton text={word.thai} />
@@ -51,15 +67,22 @@ export function MultipleChoiceQuestion({ question, onAnswered }: Props) {
               key={option}
               onClick={() => choose(option)}
               disabled={!!selected}
-              className={`w-full text-left px-4 py-3 rounded-lg border font-medium transition-colors ${style} ${
-                direction === 'en-th' ? 'font-thai text-xl' : ''
-              }`}
+              className={`w-full text-left px-4 py-3 rounded-lg border font-medium transition-colors ${style}`}
             >
-              {option}
+              {direction === 'en-th' ? (
+                <ThaiWord text={option} size="sm" align="left" mutedSecondary={false} />
+              ) : (
+                option
+              )}
             </button>
           );
         })}
       </div>
+      {!selected && (
+        <GhostButton onClick={giveUp} className="self-center">
+          I don't know
+        </GhostButton>
+      )}
     </div>
   );
 }

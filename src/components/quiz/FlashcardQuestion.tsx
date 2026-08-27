@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import type { QuizQuestion, Grade } from '../../types/quiz';
 import { gradeForFlashcard, type FlashcardRating } from '../../lib/srs';
 import { AudioButton } from './AudioButton';
+import { ThaiWord } from './ThaiWord';
 
 interface Props {
   question: QuizQuestion;
@@ -37,7 +38,11 @@ export function FlashcardQuestion({ question, onAnswered }: Props) {
           className="relative h-56 [transform-style:preserve-3d] cursor-pointer"
         >
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg bg-app-card border border-border [backface-visibility:hidden]">
-            <div className={`text-4xl font-semibold ${direction === 'th-en' ? 'font-thai' : ''}`}>{front}</div>
+            {direction === 'th-en' ? (
+              <ThaiWord text={front} size="lg" />
+            ) : (
+              <div className="text-4xl font-semibold">{front}</div>
+            )}
             {direction === 'th-en' && <AudioButton text={word.thai} />}
             <div className="text-txt-tertiary text-xs">Tap to flip</div>
           </div>
@@ -45,11 +50,13 @@ export function FlashcardQuestion({ question, onAnswered }: Props) {
             className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-lg bg-app-card-light border border-border-accent [backface-visibility:hidden]"
             style={{ transform: 'rotateY(180deg)' }}
           >
-            <div className={`text-3xl font-semibold text-accent ${direction === 'en-th' ? 'font-thai' : ''}`}>
-              {back}
-            </div>
+            {direction === 'en-th' ? (
+              <ThaiWord text={back} size="md" mutedSecondary={false} className="text-accent" />
+            ) : (
+              <div className="text-3xl font-semibold text-accent">{back}</div>
+            )}
             {direction === 'en-th' && <AudioButton text={word.thai} />}
-            <div className="text-txt-secondary text-sm">{word.romanization}</div>
+            <div className="text-txt-secondary text-sm">{word.pronunciation ?? word.romanization}</div>
           </div>
         </motion.div>
       </div>
