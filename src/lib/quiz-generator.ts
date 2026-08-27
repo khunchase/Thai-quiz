@@ -69,7 +69,9 @@ export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
 
   return sessionWords.map((word, index) => {
     const qDirection: Direction = direction === 'both' ? (Math.random() < 0.5 ? 'th-en' : 'en-th') : direction;
-    const type = pickRandom(types);
+    // English -> Thai always uses multiple choice: recognizing Thai script
+    // among options is far more approachable than typing or recalling it.
+    const type = qDirection === 'en-th' ? 'multiple-choice' : pickRandom(types);
     const question: QuizQuestion = {
       id: `${word.id}-${index}-${Date.now()}`,
       word,
