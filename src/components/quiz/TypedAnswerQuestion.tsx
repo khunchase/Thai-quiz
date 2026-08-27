@@ -14,9 +14,16 @@ interface Props {
 
 type Result = 'correct' | 'incorrect' | 'gave-up';
 
+interface Pending {
+  grade: Grade;
+  correct: boolean;
+  answer?: string;
+}
+
 export function TypedAnswerQuestion({ question, onAnswered }: Props) {
   const [value, setValue] = useState('');
   const [result, setResult] = useState<Result | null>(null);
+  const [pending, setPending] = useState<Pending | null>(null);
   const scriptPractice = useSettingsStore((s) => s.settings.scriptPracticeMode);
   const { word, direction } = question;
 
@@ -28,13 +35,18 @@ export function TypedAnswerQuestion({ question, onAnswered }: Props) {
     if (result || !value.trim()) return;
     const correct = isTypedAnswerCorrect(value, correctAnswer);
     setResult(correct ? 'correct' : 'incorrect');
-    window.setTimeout(() => onAnswered(gradeForTyped(correct), correct, value), 900);
+    setPending({ grade: gradeForTyped(correct), correct, answer: value });
   }
 
   function giveUp() {
     if (result) return;
     setResult('gave-up');
-    window.setTimeout(() => onAnswered(GRADE_GIVE_UP, false), 900);
+    setPending({ grade: GRADE_GIVE_UP, correct: false });
+  }
+
+  function next() {
+    if (!pending) return;
+    onAnswered(pending.grade, pending.correct, pending.answer);
   }
 
   return (
@@ -86,6 +98,7 @@ export function TypedAnswerQuestion({ question, onAnswered }: Props) {
           </GhostButton>
         </div>
       )}
+      {pending && <AccentButton onClick={next}>Next question</AccentButton>}
     </div>
   );
 }

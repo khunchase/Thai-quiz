@@ -3,7 +3,7 @@ import type { QuizQuestion, Grade } from '../../types/quiz';
 import { gradeForMultipleChoice, GRADE_GIVE_UP } from '../../lib/srs';
 import { AudioButton } from './AudioButton';
 import { ThaiWord } from './ThaiWord';
-import { GhostButton } from '../ui/Button';
+import { AccentButton, GhostButton } from '../ui/Button';
 import { useSettingsStore } from '../../stores/settings-store';
 
 interface Props {
@@ -13,8 +13,15 @@ interface Props {
 
 const GAVE_UP = Symbol('gave-up');
 
+interface Pending {
+  grade: Grade;
+  correct: boolean;
+  answer?: string;
+}
+
 export function MultipleChoiceQuestion({ question, onAnswered }: Props) {
   const [selected, setSelected] = useState<string | typeof GAVE_UP | null>(null);
+  const [pending, setPending] = useState<Pending | null>(null);
   const scriptPractice = useSettingsStore((s) => s.settings.scriptPracticeMode);
   const { word, direction, options = [] } = question;
 
@@ -26,13 +33,18 @@ export function MultipleChoiceQuestion({ question, onAnswered }: Props) {
     if (selected) return;
     setSelected(option);
     const correct = option === correctText;
-    window.setTimeout(() => onAnswered(gradeForMultipleChoice(correct), correct, option), 550);
+    setPending({ grade: gradeForMultipleChoice(correct), correct, answer: option });
   }
 
   function giveUp() {
     if (selected) return;
     setSelected(GAVE_UP);
-    window.setTimeout(() => onAnswered(GRADE_GIVE_UP, false), 550);
+    setPending({ grade: GRADE_GIVE_UP, correct: false });
+  }
+
+  function next() {
+    if (!pending) return;
+    onAnswered(pending.grade, pending.correct, pending.answer);
   }
 
   return (
@@ -82,6 +94,9 @@ export function MultipleChoiceQuestion({ question, onAnswered }: Props) {
         <GhostButton onClick={giveUp} className="self-center">
           I don't know
         </GhostButton>
+      )}
+      {pending && (
+        <AccentButton onClick={next}>Next question</AccentButton>
       )}
     </div>
   );
