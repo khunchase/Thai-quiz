@@ -75,18 +75,30 @@ export function MultipleChoiceQuestion({ question, onAnswered }: Props) {
             else style = 'bg-app-card border-border text-txt-tertiary';
           }
           return (
-            <button
+            <div
               key={option}
+              role="button"
+              tabIndex={0}
               onClick={() => choose(option)}
-              disabled={!!selected}
-              className={`w-full text-left px-4 py-4 rounded-lg border font-medium transition-colors ${style}`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  choose(option);
+                }
+              }}
+              className={`w-full text-left px-4 py-4 rounded-lg border font-medium transition-colors flex items-center gap-3 ${
+                selected ? 'cursor-default' : 'cursor-pointer'
+              } ${style}`}
             >
-              {direction === 'en-th' ? (
-                <ThaiWord text={option} size="sm" align="left" mutedSecondary={false} />
-              ) : (
-                option
-              )}
-            </button>
+              <div className="flex-1 min-w-0">
+                {direction === 'en-th' ? (
+                  <ThaiWord text={option} size="sm" align="left" mutedSecondary={false} />
+                ) : (
+                  option
+                )}
+              </div>
+              {direction === 'en-th' && <AudioButton text={option} className="shrink-0" />}
+            </div>
           );
         })}
       </div>
