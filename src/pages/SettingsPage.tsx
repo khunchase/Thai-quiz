@@ -4,6 +4,7 @@ import { useProgressStore } from '../stores/progress-store';
 import type { QuestionType, Direction } from '../types/quiz';
 import { Card } from '../components/ui/Card';
 import { GhostButton, SecondaryButton } from '../components/ui/Button';
+import { AccountCard } from '../components/AccountCard';
 
 const TYPE_LABELS: Record<QuestionType, string> = {
   'multiple-choice': 'Multiple choice',
@@ -23,6 +24,8 @@ export function SettingsPage() {
   return (
     <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Settings</h1>
+
+      <AccountCard />
 
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Question types</div>

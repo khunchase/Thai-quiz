@@ -16,6 +16,14 @@ interface ProgressStore {
   lastActiveDate: string | null;
   recordAnswer: (wordId: string, grade: Grade, correct: boolean) => void;
   resetProgress: () => void;
+  hydrate: (data: {
+    reviewStates: Record<string, ReviewState>;
+    dailyLog: Record<string, DailyLogEntry>;
+    xp: number;
+    currentStreak: number;
+    longestStreak: number;
+    lastActiveDate: string | null;
+  }) => void;
 }
 
 export const useProgressStore = create<ProgressStore>()(
@@ -64,6 +72,8 @@ export const useProgressStore = create<ProgressStore>()(
 
       resetProgress: () =>
         set({ reviewStates: {}, dailyLog: {}, xp: 0, currentStreak: 0, longestStreak: 0, lastActiveDate: null }),
+
+      hydrate: (data) => set(data),
     }),
     {
       name: 'thai-quiz-progress',

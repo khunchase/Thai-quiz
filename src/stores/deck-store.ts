@@ -14,6 +14,7 @@ interface DeckStore {
   deleteWord: (id: string) => void;
   addCategory: (name: string, icon: string) => Category;
   deleteCategory: (id: string) => void;
+  hydrate: (data: { customWords: Word[]; customCategories: Category[] }) => void;
 }
 
 export const useDeckStore = create<DeckStore>()(
@@ -46,6 +47,8 @@ export const useDeckStore = create<DeckStore>()(
           customCategories: state.customCategories.filter((c) => c.id !== id),
           customWords: state.customWords.filter((w) => w.categoryId !== id),
         })),
+
+      hydrate: (data) => set(data),
     }),
     {
       name: 'thai-quiz-deck',
