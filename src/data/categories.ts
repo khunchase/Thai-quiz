@@ -24,4 +24,5 @@ export const BUILTIN_CATEGORIES: Category[] = [
   { id: 'emotions', name: 'Emotions & Feelings', icon: '😊' },
   { id: 'household', name: 'Household Items & Furniture', icon: '🛋️' },
   { id: 'directions', name: 'Directions & Question Words', icon: '🧭' },
+  { id: 'cutep', name: 'CU-TEP Vocabulary', icon: '📘' },
 ];
