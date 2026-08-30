@@ -55,7 +55,9 @@ body {
 #root {
   max-width: 480px;
   margin: 0 auto;
-  min-height: 100svh;
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   position: relative;

@@ -15,7 +15,7 @@ export function SettingsPage() {
   const [confirmReset, setConfirmReset] = useState(false);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+    <div className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Settings</h1>
 
       <AccountCard />

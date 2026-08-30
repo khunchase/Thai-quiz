@@ -48,23 +48,23 @@ export function MultipleChoiceQuestion({ question, onAnswered }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="text-center py-6">
+    <div className="flex flex-col gap-4">
+      <div className="text-center py-3">
         {direction === 'th-en' ? (
           <ThaiWord text={promptText} size="lg" />
         ) : (
           <div className="text-4xl font-semibold">{promptText}</div>
         )}
         {showRomanization && (
-          <div className="text-txt-secondary text-sm mt-2">{word.pronunciation ?? word.romanization}</div>
+          <div className="text-txt-secondary text-sm mt-1">{word.pronunciation ?? word.romanization}</div>
         )}
         {direction === 'th-en' && (
-          <div className="flex justify-center mt-3">
+          <div className="flex justify-center mt-2">
             <AudioButton text={word.thai} />
           </div>
         )}
       </div>
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-2">
         {options.map((option) => {
           const isCorrectOption = option === correctText;
           const isSelected = option === selected;

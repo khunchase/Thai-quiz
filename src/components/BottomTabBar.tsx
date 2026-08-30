@@ -11,7 +11,7 @@ export function BottomTabBar() {
   const { currentTab, setTab } = useNavigationStore();
 
   return (
-    <div className="flex border-t border-divider bg-app-bg pb-[env(safe-area-inset-bottom)]">
+    <div className="flex shrink-0 border-t border-divider bg-app-bg pb-[env(safe-area-inset-bottom)]">
       {tabs.map((tab) => {
         const isSelected = currentTab === tab.id;
         return (

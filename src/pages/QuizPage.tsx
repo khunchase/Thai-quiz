@@ -71,7 +71,7 @@ export function QuizPage() {
   if (phase === 'active' && questions[index]) {
     const progressPct = (index / questions.length) * 100;
     return (
-      <div className="flex-1 flex flex-col p-4 gap-4 overflow-y-auto">
+      <div className="flex-1 min-h-0 flex flex-col p-3 gap-3 overflow-y-auto">
         <div className="flex items-center justify-between">
           <GhostButton onClick={() => setPhase('start')}>✕</GhostButton>
           <div className="text-txt-secondary text-sm font-semibold">
@@ -88,7 +88,7 @@ export function QuizPage() {
   if (phase === 'summary') {
     const correctCount = answers.filter((a) => a.correct).length;
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-6 gap-6 text-center">
+      <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-6 gap-6 text-center overflow-y-auto">
         <div className="text-5xl">{correctCount === answers.length ? '🎉' : '👍'}</div>
         <div>
           <div className="text-2xl font-bold">
@@ -102,7 +102,7 @@ export function QuizPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col p-4 gap-5 overflow-y-auto">
+    <div className="flex-1 min-h-0 flex flex-col p-4 gap-5 overflow-y-auto">
       <div>
         <h1 className="text-2xl font-bold">Thai Word Quiz</h1>
         <p className="text-txt-secondary text-sm mt-1">{dueCount} words ready for review</p>
