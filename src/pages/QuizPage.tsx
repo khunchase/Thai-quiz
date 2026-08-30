@@ -80,7 +80,12 @@ export function QuizPage() {
           <div className="w-9" />
         </div>
         <ProgressBar value={progressPct} />
-        <QuestionRenderer key={questions[index].id} question={questions[index]} onAnswered={handleAnswered} />
+        <QuestionRenderer
+          key={questions[index].id}
+          question={questions[index]}
+          onAnswered={handleAnswered}
+          onMarkWord={recordAnswer}
+        />
       </div>
     );
   }

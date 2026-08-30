@@ -1,6 +1,6 @@
 import type { Word } from '../types/word';
 import type { ReviewState } from '../types/progress';
-import type { Direction, QuizQuestion } from '../types/quiz';
+import type { Direction, MultipleChoiceOption, QuizQuestion } from '../types/quiz';
 import { isDue } from './srs';
 
 export interface GenerateQuizOptions {
@@ -44,17 +44,25 @@ function targetText(word: Word, direction: Direction): string {
   return direction === 'th-en' ? word.english : word.thai;
 }
 
-export function buildMultipleChoiceOptions(word: Word, direction: Direction, allWords: Word[]): string[] {
+export function buildMultipleChoiceOptions(
+  word: Word,
+  direction: Direction,
+  allWords: Word[]
+): MultipleChoiceOption[] {
   const sameCategory = shuffle(allWords.filter((w) => w.id !== word.id && w.categoryId === word.categoryId));
   const others = shuffle(allWords.filter((w) => w.id !== word.id && w.categoryId !== word.categoryId));
   const distractorPool = [...sameCategory, ...others];
 
-  const options = new Set<string>([targetText(word, direction)]);
+  const seenText = new Set<string>([targetText(word, direction)]);
+  const options: MultipleChoiceOption[] = [{ text: targetText(word, direction), word }];
   for (const candidate of distractorPool) {
-    if (options.size >= 4) break;
-    options.add(targetText(candidate, direction));
+    if (options.length >= 4) break;
+    const text = targetText(candidate, direction);
+    if (seenText.has(text)) continue;
+    seenText.add(text);
+    options.push({ text, word: candidate });
   }
-  return shuffle([...options]);
+  return shuffle(options);
 }
 
 export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
