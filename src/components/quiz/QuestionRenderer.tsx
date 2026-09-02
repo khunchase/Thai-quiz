@@ -1,6 +1,7 @@
 import type { QuizQuestion, Grade } from '../../types/quiz';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { TypedAnswerQuestion } from './TypedAnswerQuestion';
+import { TypedThaiQuestion } from './TypedThaiQuestion';
 import { FlashcardQuestion } from './FlashcardQuestion';
 
 interface Props {
@@ -15,6 +16,8 @@ export function QuestionRenderer({ question, onAnswered, onMarkWord }: Props) {
       return <MultipleChoiceQuestion question={question} onAnswered={onAnswered} onMarkWord={onMarkWord} />;
     case 'typed':
       return <TypedAnswerQuestion question={question} onAnswered={onAnswered} />;
+    case 'typed-thai':
+      return <TypedThaiQuestion question={question} onAnswered={onAnswered} />;
     case 'flashcard':
       return <FlashcardQuestion question={question} onAnswered={onAnswered} />;
   }

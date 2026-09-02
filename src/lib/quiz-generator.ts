@@ -1,6 +1,6 @@
 import type { Word } from '../types/word';
 import type { ReviewState } from '../types/progress';
-import type { Direction, MultipleChoiceOption, QuizQuestion } from '../types/quiz';
+import type { Direction, MultipleChoiceOption, QuestionType, QuizQuestion } from '../types/quiz';
 import { isDue } from './srs';
 
 export interface GenerateQuizOptions {
@@ -10,6 +10,8 @@ export interface GenerateQuizOptions {
   direction: Direction | 'both';
   categoryFilter?: string[];
   levelFilter?: number;
+  /** Force every question to this type instead of the default multiple-choice. */
+  forceType?: QuestionType;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -69,11 +71,21 @@ export function buildMultipleChoiceOptions(
 
 export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
   const sessionWords = selectSessionWords(options);
-  const { direction, words: allWords } = options;
+  const { direction, words: allWords, forceType } = options;
 
-  // Every question is multiple choice: recognizing the answer among options
-  // is far more approachable than typing or recalling it from memory,
-  // in either direction.
+  // Typing Thai script only makes sense when Thai is the target of the question.
+  if (forceType === 'typed-thai') {
+    return sessionWords.map((word, index) => ({
+      id: `${word.id}-${index}-${Date.now()}`,
+      word,
+      type: 'typed-thai',
+      direction: 'en-th',
+    }));
+  }
+
+  // Otherwise, every question is multiple choice: recognizing the answer
+  // among options is far more approachable than typing or recalling it
+  // from memory, in either direction.
   return sessionWords.map((word, index) => {
     const qDirection: Direction = direction === 'both' ? (Math.random() < 0.5 ? 'th-en' : 'en-th') : direction;
     const question: QuizQuestion = {

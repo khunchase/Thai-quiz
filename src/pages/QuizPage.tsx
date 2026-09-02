@@ -31,6 +31,7 @@ export function QuizPage() {
   const [phase, setPhase] = useState<Phase>('start');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
+  const [typeThaiMode, setTypeThaiMode] = useState(false);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -60,6 +61,7 @@ export function QuizPage() {
       direction: settings.direction,
       categoryFilter: selectedCategories.length ? selectedCategories : undefined,
       levelFilter: selectedLevel ?? undefined,
+      forceType: typeThaiMode ? 'typed-thai' : undefined,
     });
     setQuestions(quiz);
     setIndex(0);
@@ -168,20 +170,49 @@ export function QuizPage() {
       </Card>
 
       <Card>
+        <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Quiz Mode</div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setTypeThaiMode(false)}
+            className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              !typeThaiMode ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+            }`}
+          >
+            Multiple Choice
+          </button>
+          <button
+            onClick={() => setTypeThaiMode(true)}
+            className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              typeThaiMode ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+            }`}
+          >
+            ⌨️ Type Thai
+          </button>
+        </div>
+        {typeThaiMode && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            You'll see the English word (and pronunciation) and type the actual Thai script.
+          </div>
+        )}
+      </Card>
+
+      <Card>
         <div className="flex justify-between text-sm">
           <span className="text-txt-secondary">Session length</span>
           <span className="font-semibold">{settings.sessionLength} words</span>
         </div>
-        <div className="flex justify-between text-sm mt-2">
-          <span className="text-txt-secondary">Direction</span>
-          <span className="font-semibold">
-            {settings.direction === 'both'
-              ? 'Thai ↔ English'
-              : settings.direction === 'th-en'
-                ? 'Thai → English'
-                : 'English → Thai'}
-          </span>
-        </div>
+        {!typeThaiMode && (
+          <div className="flex justify-between text-sm mt-2">
+            <span className="text-txt-secondary">Direction</span>
+            <span className="font-semibold">
+              {settings.direction === 'both'
+                ? 'Thai ↔ English'
+                : settings.direction === 'th-en'
+                  ? 'Thai → English'
+                  : 'English → Thai'}
+            </span>
+          </div>
+        )}
       </Card>
 
       <div className="mt-auto">

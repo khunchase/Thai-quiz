@@ -1,6 +1,6 @@
 import type { Word } from './word';
 
-export type QuestionType = 'multiple-choice' | 'typed' | 'flashcard';
+export type QuestionType = 'multiple-choice' | 'typed' | 'typed-thai' | 'flashcard';
 export type Direction = 'th-en' | 'en-th';
 
 /** One displayed choice, carrying its source word so it can be graded

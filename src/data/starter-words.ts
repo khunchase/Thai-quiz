@@ -1166,4 +1166,15 @@ export const STARTER_WORDS: Word[] = [
   { id: 'cutep-noun-vulnerability', thai: 'ความเปราะบาง', romanization: 'khwaam-pro-bang', pronunciation: 'khwaam-prò-baang', english: 'vulnerability', categoryId: 'cutep', level: 5 },
   { id: 'cutep-noun-cognizance', thai: 'ความตระหนักรู้', romanization: 'khwaam-tra-nak-ru', pronunciation: 'khwaam-trà-nàk-rúu', english: 'cognizance', categoryId: 'cutep', level: 5 },
   { id: 'cutep-noun-connotation', thai: 'ความหมายแฝง', romanization: 'khwaam-mai-faeng', pronunciation: 'khwaam-mǎai-fǎeng', english: 'connotation', categoryId: 'cutep', level: 5 },
+
+  { id: 'numeral-0', thai: '๐', romanization: 'soon', pronunciation: 'sǔun', english: 'zero (0)', categoryId: 'numerals', level: 1 },
+  { id: 'numeral-1', thai: '๑', romanization: 'neung', pronunciation: 'nèung', english: 'one (1)', categoryId: 'numerals', level: 1 },
+  { id: 'numeral-2', thai: '๒', romanization: 'song', pronunciation: 'sǒng', english: 'two (2)', categoryId: 'numerals', level: 1 },
+  { id: 'numeral-3', thai: '๓', romanization: 'sam', pronunciation: 'sǎam', english: 'three (3)', categoryId: 'numerals', level: 1 },
+  { id: 'numeral-4', thai: '๔', romanization: 'si', pronunciation: 'sìi', english: 'four (4)', categoryId: 'numerals', level: 1 },
+  { id: 'numeral-5', thai: '๕', romanization: 'ha', pronunciation: 'hâa', english: 'five (5)', categoryId: 'numerals', level: 1 },
+  { id: 'numeral-6', thai: '๖', romanization: 'hok', pronunciation: 'hòk', english: 'six (6)', categoryId: 'numerals', level: 1 },
+  { id: 'numeral-7', thai: '๗', romanization: 'jet', pronunciation: 'jèt', english: 'seven (7)', categoryId: 'numerals', level: 1 },
+  { id: 'numeral-8', thai: '๘', romanization: 'paet', pronunciation: 'pàet', english: 'eight (8)', categoryId: 'numerals', level: 1 },
+  { id: 'numeral-9', thai: '๙', romanization: 'kao', pronunciation: 'kâo', english: 'nine (9)', categoryId: 'numerals', level: 1 },
 ];

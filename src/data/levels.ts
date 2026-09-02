@@ -19,6 +19,7 @@ export const LEVELS: LevelInfo[] = [
 export const CATEGORY_LEVEL: Record<string, number> = {
   greetings: 1,
   numbers: 1,
+  numerals: 1,
   family: 1,
   colors: 1,
   pronouns: 1,

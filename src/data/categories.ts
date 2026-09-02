@@ -3,6 +3,7 @@ import type { Category } from '../types/word';
 export const BUILTIN_CATEGORIES: Category[] = [
   { id: 'greetings', name: 'Greetings & Basics', icon: '👋' },
   { id: 'numbers', name: 'Numbers', icon: '🔢' },
+  { id: 'numerals', name: 'Thai Numerals (๐-๙)', icon: '🔟' },
   { id: 'family', name: 'Family', icon: '👪' },
   { id: 'food', name: 'Food & Drink', icon: '🍜' },
   { id: 'colors', name: 'Colors', icon: '🎨' },
