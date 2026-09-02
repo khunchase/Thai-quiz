@@ -4,6 +4,8 @@ import { useProgressStore } from '../stores/progress-store';
 import { useSettingsStore } from '../stores/settings-store';
 import { generateQuiz } from '../lib/quiz-generator';
 import { isDue } from '../lib/srs';
+import { isLevelUnlocked, levelMasteryCount } from '../lib/word-level';
+import { LEVELS } from '../data/levels';
 import type { QuizQuestion, Grade } from '../types/quiz';
 import { QuestionRenderer } from '../components/quiz/QuestionRenderer';
 import { AccentButton, GhostButton } from '../components/ui/Button';
@@ -28,6 +30,7 @@ export function QuizPage() {
 
   const [phase, setPhase] = useState<Phase>('start');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -45,6 +48,10 @@ export function QuizPage() {
     setSelectedCategories((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
   }
 
+  function selectLevel(level: number) {
+    setSelectedLevel((prev) => (prev === level ? null : level));
+  }
+
   function startQuiz() {
     const quiz = generateQuiz({
       words,
@@ -52,6 +59,7 @@ export function QuizPage() {
       sessionLength: settings.sessionLength,
       direction: settings.direction,
       categoryFilter: selectedCategories.length ? selectedCategories : undefined,
+      levelFilter: selectedLevel ?? undefined,
     });
     setQuestions(quiz);
     setIndex(0);
@@ -112,6 +120,38 @@ export function QuizPage() {
         <h1 className="text-2xl font-bold">Thai Word Quiz</h1>
         <p className="text-txt-secondary text-sm mt-1">{dueCount} words ready for review</p>
       </div>
+
+      <Card>
+        <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Level</div>
+        <div className="flex flex-wrap gap-2">
+          {LEVELS.map((l) => {
+            const unlocked = isLevelUnlocked(l.level, words, reviewStates);
+            const { mastered, total } = levelMasteryCount(l.level, words, reviewStates);
+            return (
+              <button
+                key={l.level}
+                disabled={!unlocked}
+                onClick={() => selectLevel(l.level)}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+                  !unlocked
+                    ? 'bg-app-surface text-txt-disabled cursor-not-allowed'
+                    : selectedLevel === l.level
+                      ? 'bg-accent text-app-bg'
+                      : 'bg-app-surface text-txt-secondary'
+                }`}
+              >
+                {unlocked ? `Lv.${l.level} ${l.name}` : `🔒 Lv.${l.level} ${l.name}`}
+                {unlocked && total > 0 && ` (${mastered}/${total})`}
+              </button>
+            );
+          })}
+        </div>
+        {selectedLevel && !isLevelUnlocked(selectedLevel + 1, words, reviewStates) && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            Master every word in this level to unlock the next one.
+          </div>
+        )}
+      </Card>
 
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Categories</div>

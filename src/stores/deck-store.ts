@@ -9,8 +9,11 @@ import { generateId } from '../lib/id';
 interface DeckStore {
   customWords: Word[];
   customCategories: Category[];
-  addWord: (input: { thai: string; romanization: string; english: string; categoryId: string }) => Word;
-  updateWord: (id: string, updates: Partial<Pick<Word, 'thai' | 'romanization' | 'english' | 'categoryId'>>) => void;
+  addWord: (input: { thai: string; romanization: string; english: string; categoryId: string; level: number }) => Word;
+  updateWord: (
+    id: string,
+    updates: Partial<Pick<Word, 'thai' | 'romanization' | 'english' | 'categoryId' | 'level'>>
+  ) => void;
   deleteWord: (id: string) => void;
   addCategory: (name: string, icon: string) => Category;
   deleteCategory: (id: string) => void;

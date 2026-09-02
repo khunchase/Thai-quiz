@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Word } from '../types/word';
 import { useAllWords, useAllCategories, useDeckStore } from '../stores/deck-store';
+import { LEVELS } from '../data/levels';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { AccentButton, GhostButton, SecondaryButton } from '../components/ui/Button';
@@ -19,14 +20,20 @@ export function WordsPage() {
   const [showAddWord, setShowAddWord] = useState(false);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ thai: '', romanization: '', english: '', categoryId: categories[0]?.id ?? '' });
+  const [form, setForm] = useState({
+    thai: '',
+    romanization: '',
+    english: '',
+    categoryId: categories[0]?.id ?? '',
+    level: 1,
+  });
   const [categoryForm, setCategoryForm] = useState({ name: '', icon: '📁' });
 
   const visibleWords = filter ? words.filter((w) => w.categoryId === filter) : words;
   const filterCategory = filter ? categories.find((c) => c.id === filter) : null;
 
   function resetForm() {
-    setForm({ thai: '', romanization: '', english: '', categoryId: filter ?? categories[0]?.id ?? '' });
+    setForm({ thai: '', romanization: '', english: '', categoryId: filter ?? categories[0]?.id ?? '', level: 1 });
   }
 
   function submitWord() {
@@ -39,7 +46,13 @@ export function WordsPage() {
   }
 
   function startEdit(word: Word) {
-    setForm({ thai: word.thai, romanization: word.romanization, english: word.english, categoryId: word.categoryId });
+    setForm({
+      thai: word.thai,
+      romanization: word.romanization,
+      english: word.english,
+      categoryId: word.categoryId,
+      level: word.level,
+    });
     setEditingId(word.id);
     setShowAddWord(true);
   }
@@ -122,7 +135,7 @@ export function WordsPage() {
                   </div>
                   <div className="text-txt-secondary text-sm truncate">{word.english}</div>
                   <div className="text-txt-tertiary text-[10px] mt-1">
-                    {category?.icon} {category?.name}
+                    {category?.icon} {category?.name} · Lv.{word.level} {LEVELS[word.level - 1]?.name}
                   </div>
                 </div>
                 <AudioButton text={word.thai} />
@@ -172,6 +185,17 @@ export function WordsPage() {
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.icon} {c.name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={form.level}
+              onChange={(e) => setForm((f) => ({ ...f, level: Number(e.target.value) }))}
+              className="h-11 rounded-lg bg-app-surface border border-border px-3"
+            >
+              {LEVELS.map((l) => (
+                <option key={l.level} value={l.level}>
+                  Lv.{l.level} — {l.name}
                 </option>
               ))}
             </select>

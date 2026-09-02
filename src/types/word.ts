@@ -17,5 +17,7 @@ export interface Word {
   pronunciation?: string;
   english: string;
   categoryId: string;
+  /** Difficulty tier 1 (basic) - 5 (advanced). Gates quiz access via progression. */
+  level: number;
   custom?: boolean;
 }
