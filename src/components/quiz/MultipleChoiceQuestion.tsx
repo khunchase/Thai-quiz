@@ -28,7 +28,7 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord }: Pro
   const [selected, setSelected] = useState<string | typeof GAVE_UP | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
   const [reviewed, setReviewed] = useState<Record<string, ReviewStatus>>({});
-  const [popupWord, setPopupWord] = useState<Word | null>(null);
+  const [detailWord, setDetailWord] = useState<Word | null>(null);
   const scriptPractice = useSettingsStore((s) => s.settings.scriptPracticeMode);
   const { word, direction, options = [] } = question;
 
@@ -55,15 +55,12 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord }: Pro
     onAnswered(pending.grade, pending.correct, pending.answer);
   }
 
-  function handleSwipe(option: MultipleChoiceOption, direction: ReviewStatus) {
-    if (reviewed[option.word.id]) return;
-    setReviewed((r) => ({ ...r, [option.word.id]: direction }));
-    if (direction === 'known') {
-      onMarkWord?.(option.word.id, GRADE_KNOWN, true);
-    } else {
-      onMarkWord?.(option.word.id, GRADE_GIVE_UP, false);
-      setPopupWord(option.word);
-    }
+  function reviewWord(wordId: string, status: ReviewStatus) {
+    if (reviewed[wordId]) return;
+    setReviewed((r) => ({ ...r, [wordId]: status }));
+    if (status === 'known') onMarkWord?.(wordId, GRADE_KNOWN, true);
+    else onMarkWord?.(wordId, GRADE_GIVE_UP, false);
+    setDetailWord(null);
   }
 
   return (
@@ -95,10 +92,9 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord }: Pro
               isCorrectOption={isCorrectOption}
               isSelected={isSelected}
               answered={answered}
-              swipeEnabled={answered}
               reviewStatus={reviewed[option.word.id]}
               onSelect={() => choose(option.text)}
-              onSwipe={(dir) => handleSwipe(option, dir)}
+              onOpenDetail={() => setDetailWord(option.word)}
             />
           );
         })}
@@ -110,29 +106,18 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord }: Pro
       )}
       {answered && (
         <div className="text-txt-tertiary text-xs text-center -mt-2">
-          Swipe a word right if you know it, left to learn it
+          Tap a word to see details, then swipe to mark it known or to learn
         </div>
       )}
       {pending && <AccentButton onClick={next}>Next question</AccentButton>}
 
-      {popupWord && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"
-          onClick={() => setPopupWord(null)}
-        >
-          <div
-            className="bg-app-card-light border border-border-accent rounded-lg p-6 max-w-xs w-full flex flex-col items-center gap-3"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ThaiWord text={popupWord.thai} size="md" />
-            <div className="text-txt-secondary text-sm">{popupWord.pronunciation ?? popupWord.romanization}</div>
-            <div className="text-txt-primary text-lg font-semibold text-center">{popupWord.english}</div>
-            <AudioButton text={popupWord.thai} />
-            <AccentButton size="medium" onClick={() => setPopupWord(null)}>
-              Got it
-            </AccentButton>
-          </div>
-        </div>
+      {detailWord && (
+        <WordDetailPopup
+          word={detailWord}
+          reviewStatus={reviewed[detailWord.id]}
+          onClose={() => setDetailWord(null)}
+          onReview={(status) => reviewWord(detailWord.id, status)}
+        />
       )}
     </div>
   );
@@ -144,13 +129,10 @@ interface OptionCardProps {
   isCorrectOption: boolean;
   isSelected: boolean;
   answered: boolean;
-  swipeEnabled: boolean;
   reviewStatus?: ReviewStatus;
   onSelect: () => void;
-  onSwipe: (direction: ReviewStatus) => void;
+  onOpenDetail: () => void;
 }
-
-const SWIPE_THRESHOLD = 70;
 
 function OptionCard({
   option,
@@ -158,18 +140,10 @@ function OptionCard({
   isCorrectOption,
   isSelected,
   answered,
-  swipeEnabled,
   reviewStatus,
   onSelect,
-  onSwipe,
+  onOpenDetail,
 }: OptionCardProps) {
-  const x = useMotionValue(0);
-  const tint = useTransform(
-    x,
-    [-100, 0, 100],
-    ['rgba(255, 92, 92, 0.25)', 'rgba(0, 0, 0, 0)', 'rgba(74, 222, 128, 0.25)']
-  );
-
   let style = 'bg-app-card border-border text-txt-primary';
   if (answered) {
     if (isCorrectOption) style = 'bg-success/15 border-success text-success';
@@ -177,55 +151,113 @@ function OptionCard({
     else style = 'bg-app-card border-border text-txt-tertiary';
   }
 
-  const draggable = swipeEnabled && !reviewStatus;
+  const handleActivate = answered ? onOpenDetail : onSelect;
 
   return (
     <div
-      role={swipeEnabled ? undefined : 'button'}
-      tabIndex={swipeEnabled ? undefined : 0}
-      onClick={swipeEnabled ? undefined : onSelect}
-      onKeyDown={
-        swipeEnabled
-          ? undefined
-          : (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onSelect();
-              }
-            }
-      }
-      className={`relative w-full rounded-lg border font-medium transition-colors overflow-hidden ${
-        swipeEnabled ? 'cursor-default' : 'cursor-pointer'
-      } ${style} ${reviewStatus ? 'opacity-50' : ''}`}
+      role="button"
+      tabIndex={0}
+      onClick={handleActivate}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleActivate();
+        }
+      }}
+      className={`w-full rounded-lg border font-medium transition-colors overflow-hidden cursor-pointer px-4 py-4 flex items-center gap-3 ${style} ${
+        reviewStatus ? 'opacity-50' : ''
+      }`}
     >
+      <div className="flex-1 min-w-0">
+        {direction === 'en-th' ? (
+          <ThaiWord text={option.text} size="sm" align="left" mutedSecondary={false} />
+        ) : (
+          option.text
+        )}
+      </div>
+      {direction === 'en-th' && <AudioButton text={option.text} className="shrink-0" />}
+      {reviewStatus === 'known' && (
+        <span className="text-success text-lg shrink-0" aria-label="Marked as known">
+          ✓
+        </span>
+      )}
+      {reviewStatus === 'learn' && (
+        <span className="text-warning text-lg shrink-0" aria-label="Marked to learn">
+          📖
+        </span>
+      )}
+    </div>
+  );
+}
+
+interface WordDetailPopupProps {
+  word: Word;
+  reviewStatus?: ReviewStatus;
+  onClose: () => void;
+  onReview: (status: ReviewStatus) => void;
+}
+
+const SWIPE_THRESHOLD = 100;
+
+function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPopupProps) {
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-220, 220], [-12, 12]);
+  const tint = useTransform(
+    x,
+    [-160, 0, 160],
+    ['rgba(255, 92, 92, 0.3)', 'rgba(0, 0, 0, 0)', 'rgba(74, 222, 128, 0.3)']
+  );
+  const learnOpacity = useTransform(x, [-120, -20], [1, 0]);
+  const knownOpacity = useTransform(x, [20, 120], [0, 1]);
+
+  const draggable = !reviewStatus;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6" onClick={onClose}>
       <motion.div
         drag={draggable ? 'x' : false}
-        style={draggable ? { x, background: tint, touchAction: 'pan-y' } : undefined}
+        style={draggable ? { x, rotate, background: tint, touchAction: 'pan-y' } : undefined}
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.85}
         onDragEnd={(_, info) => {
-          if (info.offset.x > SWIPE_THRESHOLD) onSwipe('known');
-          else if (info.offset.x < -SWIPE_THRESHOLD) onSwipe('learn');
+          if (info.offset.x > SWIPE_THRESHOLD) onReview('known');
+          else if (info.offset.x < -SWIPE_THRESHOLD) onReview('learn');
         }}
-        className="px-4 py-4 flex items-center gap-3"
+        onClick={(e) => e.stopPropagation()}
+        className={`relative bg-app-card-light border border-border-accent rounded-2xl p-6 max-w-xs w-full flex flex-col items-center gap-3 ${
+          draggable ? 'cursor-grab active:cursor-grabbing' : ''
+        }`}
       >
-        <div className="flex-1 min-w-0">
-          {direction === 'en-th' ? (
-            <ThaiWord text={option.text} size="sm" align="left" mutedSecondary={false} />
-          ) : (
-            option.text
-          )}
-        </div>
-        {direction === 'en-th' && <AudioButton text={option.text} className="shrink-0" />}
-        {reviewStatus === 'known' && (
-          <span className="text-success text-lg shrink-0" aria-label="Marked as known">
-            ✓
-          </span>
-        )}
-        {reviewStatus === 'learn' && (
-          <span className="text-warning text-lg shrink-0" aria-label="Marked to learn">
-            📖
-          </span>
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-app-surface text-txt-secondary text-sm"
+        >
+          ✕
+        </button>
+        <ThaiWord text={word.thai} size="md" />
+        <div className="text-txt-secondary text-sm">{word.pronunciation ?? word.romanization}</div>
+        <div className="text-txt-primary text-lg font-semibold text-center">{word.english}</div>
+        <AudioButton text={word.thai} />
+
+        {draggable ? (
+          <>
+            <div className="flex items-center justify-between w-full text-xs mt-2">
+              <motion.span style={{ opacity: learnOpacity }} className="text-warning font-semibold">
+                ← learn it
+              </motion.span>
+              <motion.span style={{ opacity: knownOpacity }} className="text-success font-semibold">
+                know it →
+              </motion.span>
+            </div>
+            <div className="text-txt-tertiary text-[11px] -mt-1">Swipe the card to mark this word</div>
+          </>
+        ) : (
+          <div
+            className={`text-xs font-semibold mt-2 ${reviewStatus === 'known' ? 'text-success' : 'text-warning'}`}
+          >
+            {reviewStatus === 'known' ? '✓ Marked as known' : '📖 Marked to learn'}
+          </div>
         )}
       </motion.div>
     </div>
