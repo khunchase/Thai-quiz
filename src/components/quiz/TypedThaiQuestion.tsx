@@ -62,7 +62,7 @@ export function TypedThaiQuestion({ question, onAnswered }: Props) {
           autoFocus
           lang="th"
           placeholder="พิมพ์คำภาษาไทย — type the Thai word"
-          className={`w-full h-14 rounded-lg bg-app-card border px-4 text-2xl font-thai-looped outline-none ${
+          className={`w-full h-20 rounded-lg bg-app-card border px-4 text-4xl font-thai-looped outline-none ${
             result === 'correct'
               ? 'border-success text-success'
               : result === 'incorrect' || result === 'gave-up'
