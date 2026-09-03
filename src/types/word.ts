@@ -5,6 +5,12 @@ export interface Category {
   custom?: boolean;
 }
 
+export interface WordPart {
+  thai: string;
+  romanization: string;
+  english: string;
+}
+
 export interface Word {
   id: string;
   thai: string;
@@ -20,4 +26,6 @@ export interface Word {
   /** Difficulty tier 1 (basic) - 5 (advanced). Gates quiz access via progression. */
   level: number;
   custom?: boolean;
+  /** For transparent compounds, the component words this word is built from. */
+  breakdown?: WordPart[];
 }

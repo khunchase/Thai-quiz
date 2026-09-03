@@ -240,6 +240,25 @@ function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPo
         <div className="text-txt-primary text-lg font-semibold text-center">{word.english}</div>
         <AudioButton text={word.thai} />
 
+        {word.breakdown && word.breakdown.length > 1 && (
+          <div className="w-full border-t border-border pt-3">
+            <div className="text-txt-tertiary text-[10px] uppercase tracking-wide mb-2 text-center">Breakdown</div>
+            <div className="flex items-center justify-center flex-wrap gap-x-2 gap-y-1">
+              {word.breakdown.map((part, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  {i > 0 && <span className="text-txt-tertiary text-sm">+</span>}
+                  <div className="text-center">
+                    <div className="font-thai-looped text-lg">{part.thai}</div>
+                    <div className="text-txt-tertiary text-[10px]">
+                      {part.romanization} · {part.english}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {draggable ? (
           <>
             <div className="flex items-center justify-between w-full text-xs mt-2">
