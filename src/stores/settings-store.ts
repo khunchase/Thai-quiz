@@ -1,16 +1,13 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Direction } from '../types/quiz';
 
 export interface QuizSettings {
-  direction: Direction | 'both';
   sessionLength: number;
   scriptPracticeMode: boolean;
   audioEnabled: boolean;
 }
 
 const DEFAULT_SETTINGS: QuizSettings = {
-  direction: 'both',
   sessionLength: 15,
   scriptPracticeMode: false,
   audioEnabled: true,

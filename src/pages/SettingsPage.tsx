@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useSettingsStore } from '../stores/settings-store';
 import { useProgressStore } from '../stores/progress-store';
-import type { Direction } from '../types/quiz';
 import { Card } from '../components/ui/Card';
 import { GhostButton, SecondaryButton } from '../components/ui/Button';
 import { AccountCard } from '../components/AccountCard';
@@ -19,23 +18,6 @@ export function SettingsPage() {
       <h1 className="text-2xl font-bold">Settings</h1>
 
       <AccountCard />
-
-      <Card>
-        <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Direction</div>
-        <div className="flex gap-2">
-          {(['both', 'th-en', 'en-th'] as (Direction | 'both')[]).map((dir) => (
-            <button
-              key={dir}
-              onClick={() => updateSettings({ direction: dir })}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold ${
-                settings.direction === dir ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
-              }`}
-            >
-              {dir === 'both' ? 'Both' : dir === 'th-en' ? 'TH → EN' : 'EN → TH'}
-            </button>
-          ))}
-        </div>
-      </Card>
 
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Session length</div>

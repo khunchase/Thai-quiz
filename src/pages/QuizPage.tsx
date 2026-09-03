@@ -6,7 +6,7 @@ import { generateQuiz } from '../lib/quiz-generator';
 import { isDue } from '../lib/srs';
 import { isLevelUnlocked, levelMasteryCount } from '../lib/word-level';
 import { LEVELS } from '../data/levels';
-import type { QuizQuestion, Grade } from '../types/quiz';
+import type { QuizQuestion, Grade, Direction } from '../types/quiz';
 import { QuestionRenderer } from '../components/quiz/QuestionRenderer';
 import { AccentButton, GhostButton } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -32,6 +32,7 @@ export function QuizPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
   const [typeThaiMode, setTypeThaiMode] = useState(false);
+  const [direction, setDirection] = useState<Direction | 'both'>('both');
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -58,7 +59,7 @@ export function QuizPage() {
       words,
       reviewStates,
       sessionLength: settings.sessionLength,
-      direction: settings.direction,
+      direction,
       categoryFilter: selectedCategories.length ? selectedCategories : undefined,
       levelFilter: selectedLevel ?? undefined,
       forceType: typeThaiMode ? 'typed-thai' : undefined,
@@ -196,23 +197,30 @@ export function QuizPage() {
         )}
       </Card>
 
+      {!typeThaiMode && (
+        <Card>
+          <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Direction</div>
+          <div className="flex gap-2">
+            {(['both', 'th-en', 'en-th'] as (Direction | 'both')[]).map((dir) => (
+              <button
+                key={dir}
+                onClick={() => setDirection(dir)}
+                className={`flex-1 py-2 rounded-lg text-sm font-semibold ${
+                  direction === dir ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+                }`}
+              >
+                {dir === 'both' ? 'Both' : dir === 'th-en' ? 'TH → EN' : 'EN → TH'}
+              </button>
+            ))}
+          </div>
+        </Card>
+      )}
+
       <Card>
         <div className="flex justify-between text-sm">
           <span className="text-txt-secondary">Session length</span>
           <span className="font-semibold">{settings.sessionLength} words</span>
         </div>
-        {!typeThaiMode && (
-          <div className="flex justify-between text-sm mt-2">
-            <span className="text-txt-secondary">Direction</span>
-            <span className="font-semibold">
-              {settings.direction === 'both'
-                ? 'Thai ↔ English'
-                : settings.direction === 'th-en'
-                  ? 'Thai → English'
-                  : 'English → Thai'}
-            </span>
-          </div>
-        )}
       </Card>
 
       <div className="mt-auto">
