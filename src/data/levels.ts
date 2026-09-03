@@ -30,6 +30,7 @@ export const CATEGORY_LEVEL: Record<string, number> = {
   verbs: 2,
   adjectives: 2,
   body: 2,
+  stories: 2,
 
   places: 3,
   clothing: 3,
