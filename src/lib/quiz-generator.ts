@@ -9,7 +9,6 @@ export interface GenerateQuizOptions {
   sessionLength: number;
   direction: Direction | 'both';
   categoryFilter?: string[];
-  levelFilter?: number[];
   /** Force every question to this type instead of the default multiple-choice. */
   forceType?: QuestionType;
 }
@@ -25,9 +24,8 @@ function shuffle<T>(arr: T[]): T[] {
 
 /** Prioritizes due reviews, then never-seen words, then not-yet-due reviews. */
 export function selectSessionWords(options: GenerateQuizOptions): Word[] {
-  const { words, reviewStates, sessionLength, categoryFilter, levelFilter } = options;
-  let pool = categoryFilter?.length ? words.filter((w) => categoryFilter.includes(w.categoryId)) : words;
-  if (levelFilter?.length) pool = pool.filter((w) => levelFilter.includes(w.level));
+  const { words, reviewStates, sessionLength, categoryFilter } = options;
+  const pool = categoryFilter?.length ? words.filter((w) => categoryFilter.includes(w.categoryId)) : words;
 
   const due: Word[] = [];
   const unseen: Word[] = [];

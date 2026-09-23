@@ -5,8 +5,6 @@ import { useSettingsStore } from '../stores/settings-store';
 import { useNavigationStore } from '../stores/navigation-store';
 import { generateQuiz } from '../lib/quiz-generator';
 import { isDue } from '../lib/srs';
-import { isLevelUnlocked, levelMasteryCount } from '../lib/word-level';
-import { LEVELS } from '../data/levels';
 import type { QuizQuestion, Grade, Direction } from '../types/quiz';
 import { QuestionRenderer } from '../components/quiz/QuestionRenderer';
 import { AccentButton } from '../components/ui/Button';
@@ -31,9 +29,6 @@ export function QuizPage() {
 
   const [phase, setPhase] = useState<Phase>('start');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => categories.map((c) => c.id));
-  const [selectedLevels, setSelectedLevels] = useState<number[]>(() =>
-    LEVELS.filter((l) => isLevelUnlocked(l.level, words, reviewStates)).map((l) => l.level)
-  );
   const [typeThaiMode, setTypeThaiMode] = useState(false);
   const [direction, setDirection] = useState<Direction | 'both'>('both');
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -65,32 +60,14 @@ export function QuizPage() {
     setSelectedCategories(allCategoriesSelected ? [] : categories.map((c) => c.id));
   }
 
-  const unlockedLevels = useMemo(
-    () => LEVELS.filter((l) => isLevelUnlocked(l.level, words, reviewStates)).map((l) => l.level),
-    [words, reviewStates]
-  );
-  const anyLevelLocked = unlockedLevels.length < LEVELS.length;
-
-  function toggleLevel(level: number) {
-    if (!unlockedLevels.includes(level)) return;
-    setSelectedLevels((prev) => (prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]));
-  }
-
-  const allLevelsSelected = selectedLevels.length === unlockedLevels.length;
-
-  function toggleSelectAllLevels() {
-    setSelectedLevels(allLevelsSelected ? [] : unlockedLevels);
-  }
-
   function startQuiz() {
-    if (selectedCategories.length === 0 || selectedLevels.length === 0) return;
+    if (selectedCategories.length === 0) return;
     const quiz = generateQuiz({
       words,
       reviewStates,
       sessionLength: settings.sessionLength,
       direction,
       categoryFilter: allCategoriesSelected ? undefined : selectedCategories,
-      levelFilter: allLevelsSelected ? undefined : selectedLevels,
       forceType: typeThaiMode ? 'typed-thai' : undefined,
     });
     setQuestions(quiz);
@@ -156,46 +133,6 @@ export function QuizPage() {
         <h1 className="text-2xl font-bold">Thai Word Quiz</h1>
         <p className="text-txt-secondary text-sm mt-1">{dueCount} words ready for review</p>
       </div>
-
-      <Card>
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Level</div>
-          <button onClick={toggleSelectAllLevels} className="text-accent text-xs font-semibold">
-            {allLevelsSelected ? 'Deselect All' : 'Select All'}
-          </button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {LEVELS.map((l) => {
-            const unlocked = unlockedLevels.includes(l.level);
-            const { mastered, total } = levelMasteryCount(l.level, words, reviewStates);
-            return (
-              <button
-                key={l.level}
-                disabled={!unlocked}
-                onClick={() => toggleLevel(l.level)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                  !unlocked
-                    ? 'bg-app-surface text-txt-disabled cursor-not-allowed'
-                    : selectedLevels.includes(l.level)
-                      ? 'bg-accent text-app-bg'
-                      : 'bg-app-surface text-txt-secondary'
-                }`}
-              >
-                {unlocked ? `Lv.${l.level} ${l.name}` : `🔒 Lv.${l.level} ${l.name}`}
-                {unlocked && total > 0 && ` (${mastered}/${total})`}
-              </button>
-            );
-          })}
-        </div>
-        {selectedLevels.length === 0 && (
-          <div className="text-danger text-[11px] mt-2">Select at least one level to start a quiz.</div>
-        )}
-        {anyLevelLocked && (
-          <div className="text-txt-tertiary text-[11px] mt-2">
-            Master every word in a level to unlock the next one.
-          </div>
-        )}
-      </Card>
 
       <Card>
         <div className="flex items-center justify-between mb-3">
@@ -270,7 +207,7 @@ export function QuizPage() {
       </Card>
 
       <div className="mt-auto">
-        <AccentButton onClick={startQuiz} disabled={selectedCategories.length === 0 || selectedLevels.length === 0}>
+        <AccentButton onClick={startQuiz} disabled={selectedCategories.length === 0}>
           Start Quiz
         </AccentButton>
       </div>

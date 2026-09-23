@@ -5,7 +5,6 @@ import { useProgressStore } from '../stores/progress-store';
 import { useSettingsStore, singleThaiFontClass } from '../stores/settings-store';
 import { useNavigationStore } from '../stores/navigation-store';
 import { buildWordBooks, bookMasteryCount, type WordBook } from '../lib/word-books';
-import { LEVELS } from '../data/levels';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { AccentButton, GhostButton, SecondaryButton } from '../components/ui/Button';
@@ -37,7 +36,6 @@ export function WordsPage() {
     romanization: '',
     english: '',
     categoryId: categories[0]?.id ?? '',
-    level: 1,
   });
   const [categoryForm, setCategoryForm] = useState({ name: '', icon: '📁' });
 
@@ -51,7 +49,7 @@ export function WordsPage() {
   const wordBooks = buildWordBooks(words, categories);
 
   function resetForm() {
-    setForm({ thai: '', romanization: '', english: '', categoryId: filter ?? categories[0]?.id ?? '', level: 1 });
+    setForm({ thai: '', romanization: '', english: '', categoryId: filter ?? categories[0]?.id ?? '' });
   }
 
   function submitWord() {
@@ -69,7 +67,6 @@ export function WordsPage() {
       romanization: word.romanization,
       english: word.english,
       categoryId: word.categoryId,
-      level: word.level,
     });
     setEditingId(word.id);
     setShowAddWord(true);
@@ -201,7 +198,7 @@ export function WordsPage() {
                     </div>
                     <div className="text-txt-secondary text-sm truncate">{word.english}</div>
                     <div className="text-txt-tertiary text-[10px] mt-1">
-                      {category?.icon} {category?.name} · Lv.{word.level} {LEVELS[word.level - 1]?.name}
+                      {category?.icon} {category?.name}
                     </div>
                   </div>
                   <AudioButton text={word.thai} />
@@ -253,17 +250,6 @@ export function WordsPage() {
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.icon} {c.name}
-                </option>
-              ))}
-            </select>
-            <select
-              value={form.level}
-              onChange={(e) => setForm((f) => ({ ...f, level: Number(e.target.value) }))}
-              className="h-11 rounded-lg bg-app-surface border border-border px-3"
-            >
-              {LEVELS.map((l) => (
-                <option key={l.level} value={l.level}>
-                  Lv.{l.level} — {l.name}
                 </option>
               ))}
             </select>
