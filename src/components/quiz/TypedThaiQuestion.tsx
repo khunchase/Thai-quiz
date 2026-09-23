@@ -5,7 +5,7 @@ import { isThaiAnswerCorrect } from '../../lib/answer';
 import { AccentButton, GhostButton } from '../ui/Button';
 import { AudioButton } from './AudioButton';
 import { ThaiWord } from './ThaiWord';
-import { useSettingsStore } from '../../stores/settings-store';
+import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 
 interface Props {
   question: QuizQuestion;
@@ -25,6 +25,7 @@ export function TypedThaiQuestion({ question, onAnswered }: Props) {
   const [result, setResult] = useState<Result | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
   const scriptPractice = useSettingsStore((s) => s.settings.scriptPracticeMode);
+  const fontStyle = useSettingsStore((s) => s.settings.thaiFontStyle);
   const { word } = question;
 
   const showHint = !scriptPractice;
@@ -62,7 +63,7 @@ export function TypedThaiQuestion({ question, onAnswered }: Props) {
           autoFocus
           lang="th"
           placeholder="พิมพ์คำภาษาไทย — type the Thai word"
-          className={`w-full h-20 rounded-lg bg-app-card border px-4 text-4xl font-thai-looped outline-none ${
+          className={`w-full h-20 rounded-lg bg-app-card border px-4 text-4xl ${singleThaiFontClass(fontStyle)} outline-none ${
             result === 'correct'
               ? 'border-success text-success'
               : result === 'incorrect' || result === 'gave-up'

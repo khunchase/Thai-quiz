@@ -1,11 +1,18 @@
 import { useState } from 'react';
-import { useSettingsStore } from '../stores/settings-store';
+import { useSettingsStore, type ThaiFontStyle } from '../stores/settings-store';
 import { useProgressStore } from '../stores/progress-store';
 import { Card } from '../components/ui/Card';
 import { GhostButton, SecondaryButton } from '../components/ui/Button';
 import { AccountCard } from '../components/AccountCard';
+import { ThaiWord } from '../components/quiz/ThaiWord';
 
 const SESSION_LENGTHS = [10, 15, 20, 30];
+
+const FONT_STYLES: { id: ThaiFontStyle; label: string }[] = [
+  { id: 'both', label: 'Both' },
+  { id: 'looped', label: 'Looped' },
+  { id: 'loopless', label: 'Loopless' },
+];
 
 export function SettingsPage() {
   const settings = useSettingsStore((s) => s.settings);
@@ -33,6 +40,33 @@ export function SettingsPage() {
               {len}
             </button>
           ))}
+        </div>
+      </Card>
+
+      <Card>
+        <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Thai font style</div>
+        <div className="flex gap-2">
+          {FONT_STYLES.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => updateSettings({ thaiFontStyle: f.id })}
+              className={`flex-1 py-2 rounded-lg text-sm font-semibold ${
+                settings.thaiFontStyle === f.id ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex justify-center py-4">
+          <ThaiWord text="สวัสดี" size="sm" />
+        </div>
+        <div className="text-txt-tertiary text-[11px] text-center -mt-2">
+          {settings.thaiFontStyle === 'both'
+            ? 'Shows traditional (looped) and modern (loopless) letterforms together'
+            : settings.thaiFontStyle === 'looped'
+              ? 'Traditional letterforms everywhere'
+              : 'Modern, simplified letterforms everywhere'}
         </div>
       </Card>
 

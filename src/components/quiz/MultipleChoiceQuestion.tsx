@@ -6,7 +6,7 @@ import { gradeForMultipleChoice, GRADE_GIVE_UP, GRADE_KNOWN } from '../../lib/sr
 import { AudioButton } from './AudioButton';
 import { ThaiWord } from './ThaiWord';
 import { AccentButton, GhostButton } from '../ui/Button';
-import { useSettingsStore } from '../../stores/settings-store';
+import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 
 interface Props {
   question: QuizQuestion;
@@ -200,6 +200,7 @@ interface WordDetailPopupProps {
 const SWIPE_THRESHOLD = 100;
 
 function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPopupProps) {
+  const fontStyle = useSettingsStore((s) => s.settings.thaiFontStyle);
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-220, 220], [-12, 12]);
   const tint = useTransform(
@@ -251,7 +252,7 @@ function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPo
                 <div key={i} className="flex items-center gap-3">
                   {i > 0 && <span className="text-txt-tertiary text-lg">+</span>}
                   <div className="text-center">
-                    <div className="font-thai-looped text-3xl">{part.thai}</div>
+                    <div className={`${singleThaiFontClass(fontStyle)} text-3xl`}>{part.thai}</div>
                     <div className="text-txt-secondary text-sm mt-0.5">{part.romanization}</div>
                     <div className="text-txt-tertiary text-sm">{part.english}</div>
                   </div>

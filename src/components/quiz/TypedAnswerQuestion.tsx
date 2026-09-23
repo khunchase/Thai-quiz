@@ -5,7 +5,7 @@ import { isTypedAnswerCorrect } from '../../lib/answer';
 import { AccentButton, GhostButton } from '../ui/Button';
 import { AudioButton } from './AudioButton';
 import { ThaiWord } from './ThaiWord';
-import { useSettingsStore } from '../../stores/settings-store';
+import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 
 interface Props {
   question: QuizQuestion;
@@ -25,6 +25,7 @@ export function TypedAnswerQuestion({ question, onAnswered }: Props) {
   const [result, setResult] = useState<Result | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
   const scriptPractice = useSettingsStore((s) => s.settings.scriptPracticeMode);
+  const fontStyle = useSettingsStore((s) => s.settings.thaiFontStyle);
   const { word, direction } = question;
 
   const promptText = direction === 'th-en' ? word.thai : word.english;
@@ -84,7 +85,8 @@ export function TypedAnswerQuestion({ question, onAnswered }: Props) {
         />
         {(result === 'incorrect' || result === 'gave-up') && (
           <div className="text-danger text-sm mt-2">
-            Correct answer: <span className={direction === 'en-th' ? 'font-thai' : ''}>{correctAnswer}</span>
+            Correct answer:{' '}
+            <span className={direction === 'en-th' ? singleThaiFontClass(fontStyle) : ''}>{correctAnswer}</span>
           </div>
         )}
       </div>

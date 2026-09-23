@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Word } from '../types/word';
 import { useAllWords, useAllCategories, useDeckStore } from '../stores/deck-store';
+import { useSettingsStore, singleThaiFontClass } from '../stores/settings-store';
 import { LEVELS } from '../data/levels';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -15,6 +16,7 @@ export function WordsPage() {
   const deleteWord = useDeckStore((s) => s.deleteWord);
   const addCategory = useDeckStore((s) => s.addCategory);
   const deleteCategory = useDeckStore((s) => s.deleteCategory);
+  const fontStyle = useSettingsStore((s) => s.settings.thaiFontStyle);
 
   const [filter, setFilter] = useState<string | null>(null);
   const [showAddWord, setShowAddWord] = useState(false);
@@ -130,7 +132,7 @@ export function WordsPage() {
               <Card key={word.id} className="flex items-center gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-thai text-2xl">{word.thai}</span>
+                    <span className={`${singleThaiFontClass(fontStyle)} text-2xl`}>{word.thai}</span>
                     <span className="text-txt-tertiary text-xs">{word.pronunciation ?? word.romanization}</span>
                   </div>
                   <div className="text-txt-secondary text-sm truncate">{word.english}</div>
@@ -163,7 +165,7 @@ export function WordsPage() {
               value={form.thai}
               onChange={(e) => setForm((f) => ({ ...f, thai: e.target.value }))}
               placeholder="Thai script (e.g. สวัสดี)"
-              className="h-11 rounded-lg bg-app-surface border border-border px-3 font-thai"
+              className={`h-11 rounded-lg bg-app-surface border border-border px-3 ${singleThaiFontClass(fontStyle)}`}
             />
             <input
               value={form.romanization}
