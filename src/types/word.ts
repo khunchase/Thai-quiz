@@ -11,6 +11,12 @@ export interface WordPart {
   english: string;
 }
 
+export interface ExampleSentence {
+  thai: string;
+  romanization: string;
+  english: string;
+}
+
 export interface Word {
   id: string;
   thai: string;
@@ -28,4 +34,6 @@ export interface Word {
   custom?: boolean;
   /** For transparent compounds, the component words this word is built from. */
   breakdown?: WordPart[];
+  /** Shown on the back of the flashcard when available. */
+  exampleSentence?: ExampleSentence;
 }

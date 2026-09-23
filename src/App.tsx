@@ -18,6 +18,7 @@ const tabContent = {
 function App() {
   const currentTab = useNavigationStore((s) => s.currentTab);
   const isQuizActive = useNavigationStore((s) => s.isQuizActive);
+  const isFlashcardActive = useNavigationStore((s) => s.isFlashcardActive);
 
   useEffect(() => {
     useAuthStore.getState().init();
@@ -27,7 +28,7 @@ function App() {
   return (
     <div className="h-full flex flex-col bg-app-bg text-txt-primary">
       {tabContent[currentTab]}
-      {!isQuizActive && <BottomTabBar />}
+      {!isQuizActive && !isFlashcardActive && <BottomTabBar />}
     </div>
   );
 }
