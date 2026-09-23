@@ -30,7 +30,7 @@ export function QuizPage() {
   const settings = useSettingsStore((s) => s.settings);
 
   const [phase, setPhase] = useState<Phase>('start');
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => categories.map((c) => c.id));
   const [selectedLevel, setSelectedLevel] = useState<number | null>(null);
   const [typeThaiMode, setTypeThaiMode] = useState(false);
   const [direction, setDirection] = useState<Direction | 'both'>('both');
@@ -57,17 +57,24 @@ export function QuizPage() {
     setSelectedCategories((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
   }
 
+  const allCategoriesSelected = selectedCategories.length === categories.length;
+
+  function toggleSelectAllCategories() {
+    setSelectedCategories(allCategoriesSelected ? [] : categories.map((c) => c.id));
+  }
+
   function selectLevel(level: number) {
     setSelectedLevel((prev) => (prev === level ? null : level));
   }
 
   function startQuiz() {
+    if (selectedCategories.length === 0) return;
     const quiz = generateQuiz({
       words,
       reviewStates,
       sessionLength: settings.sessionLength,
       direction,
-      categoryFilter: selectedCategories.length ? selectedCategories : undefined,
+      categoryFilter: allCategoriesSelected ? undefined : selectedCategories,
       levelFilter: selectedLevel ?? undefined,
       forceType: typeThaiMode ? 'typed-thai' : undefined,
     });
@@ -168,17 +175,22 @@ export function QuizPage() {
       </Card>
 
       <Card>
-        <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Categories</div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Categories</div>
+          <button onClick={toggleSelectAllCategories} className="text-accent text-xs font-semibold">
+            {allCategoriesSelected ? 'Deselect All' : 'Select All'}
+          </button>
+        </div>
         <div className="flex flex-wrap gap-2">
-          <Badge active={selectedCategories.length === 0} onClick={() => setSelectedCategories([])}>
-            All
-          </Badge>
           {categories.map((c) => (
             <Badge key={c.id} active={selectedCategories.includes(c.id)} onClick={() => toggleCategory(c.id)}>
               {c.icon} {c.name}
             </Badge>
           ))}
         </div>
+        {selectedCategories.length === 0 && (
+          <div className="text-danger text-[11px] mt-2">Select at least one category to start a quiz.</div>
+        )}
       </Card>
 
       <Card>
@@ -235,7 +247,9 @@ export function QuizPage() {
       </Card>
 
       <div className="mt-auto">
-        <AccentButton onClick={startQuiz}>Start Quiz</AccentButton>
+        <AccentButton onClick={startQuiz} disabled={selectedCategories.length === 0}>
+          Start Quiz
+        </AccentButton>
       </div>
     </div>
   );
