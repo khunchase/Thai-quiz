@@ -1,14 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAllWords, useAllCategories } from '../stores/deck-store';
 import { useProgressStore } from '../stores/progress-store';
 import { useSettingsStore } from '../stores/settings-store';
+import { useNavigationStore } from '../stores/navigation-store';
 import { generateQuiz } from '../lib/quiz-generator';
 import { isDue } from '../lib/srs';
 import { isLevelUnlocked, levelMasteryCount } from '../lib/word-level';
 import { LEVELS } from '../data/levels';
 import type { QuizQuestion, Grade, Direction } from '../types/quiz';
 import { QuestionRenderer } from '../components/quiz/QuestionRenderer';
-import { AccentButton, GhostButton } from '../components/ui/Button';
+import { AccentButton } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { Badge } from '../components/ui/Badge';
@@ -36,6 +37,12 @@ export function QuizPage() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
+  const setQuizActive = useNavigationStore((s) => s.setQuizActive);
+
+  useEffect(() => {
+    setQuizActive(phase === 'active');
+    return () => setQuizActive(false);
+  }, [phase, setQuizActive]);
 
   const dueCount = useMemo(
     () =>
@@ -83,12 +90,16 @@ export function QuizPage() {
     const progressPct = (index / questions.length) * 100;
     return (
       <div className="flex-1 min-h-0 flex flex-col p-3 gap-3 overflow-y-auto">
-        <div className="flex items-center justify-between">
-          <GhostButton onClick={() => setPhase('start')}>✕</GhostButton>
+        <div className="flex items-center justify-between gap-3">
+          <button
+            onClick={() => setPhase('start')}
+            className="px-4 py-2 rounded-lg bg-app-surface text-danger font-semibold text-sm shrink-0"
+          >
+            ✕ End Quiz
+          </button>
           <div className="text-txt-secondary text-sm font-semibold">
             {index + 1} / {questions.length}
           </div>
-          <div className="w-9" />
         </div>
         <ProgressBar value={progressPct} />
         <QuestionRenderer

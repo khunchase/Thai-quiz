@@ -216,7 +216,7 @@ function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPo
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6" onClick={onClose}>
       <motion.div
         drag={draggable ? 'x' : false}
-        style={draggable ? { x, rotate, background: tint, touchAction: 'pan-y' } : undefined}
+        style={draggable ? { x, rotate, touchAction: 'pan-y' } : undefined}
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.85}
         onDragEnd={(_, info) => {
@@ -224,14 +224,17 @@ function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPo
           else if (info.offset.x < -SWIPE_THRESHOLD) onReview('learn');
         }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative bg-app-card-light border border-border-accent rounded-2xl p-6 max-w-xs w-full flex flex-col items-center gap-3 ${
+        className={`relative bg-app-card-light border border-border-accent rounded-2xl p-6 max-w-xs w-full flex flex-col items-center gap-3 overflow-hidden ${
           draggable ? 'cursor-grab active:cursor-grabbing' : ''
         }`}
       >
+        {draggable && (
+          <motion.div className="absolute inset-0 pointer-events-none" style={{ background: tint }} />
+        )}
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-app-surface text-txt-secondary text-sm"
+          className="absolute z-10 top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-app-surface text-txt-secondary text-sm"
         >
           ✕
         </button>
@@ -242,16 +245,15 @@ function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPo
 
         {word.breakdown && word.breakdown.length > 1 && (
           <div className="w-full border-t border-border pt-3">
-            <div className="text-txt-tertiary text-[10px] uppercase tracking-wide mb-2 text-center">Breakdown</div>
-            <div className="flex items-center justify-center flex-wrap gap-x-2 gap-y-1">
+            <div className="text-txt-tertiary text-xs uppercase tracking-wide mb-2 text-center">Breakdown</div>
+            <div className="flex items-center justify-center flex-wrap gap-x-3 gap-y-2">
               {word.breakdown.map((part, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  {i > 0 && <span className="text-txt-tertiary text-sm">+</span>}
+                <div key={i} className="flex items-center gap-3">
+                  {i > 0 && <span className="text-txt-tertiary text-lg">+</span>}
                   <div className="text-center">
-                    <div className="font-thai-looped text-lg">{part.thai}</div>
-                    <div className="text-txt-tertiary text-[10px]">
-                      {part.romanization} · {part.english}
-                    </div>
+                    <div className="font-thai-looped text-3xl">{part.thai}</div>
+                    <div className="text-txt-secondary text-sm mt-0.5">{part.romanization}</div>
+                    <div className="text-txt-tertiary text-sm">{part.english}</div>
                   </div>
                 </div>
               ))}
