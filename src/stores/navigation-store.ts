@@ -11,6 +11,9 @@ interface NavigationStore {
   /** Hides the bottom tab bar while a flashcard deck session is in progress. */
   isFlashcardActive: boolean;
   setFlashcardActive: (active: boolean) => void;
+  /** Hides the bottom tab bar while reading a story. */
+  isStoryActive: boolean;
+  setStoryActive: (active: boolean) => void;
 }
 
 export const useNavigationStore = create<NavigationStore>((set) => ({
@@ -20,4 +23,6 @@ export const useNavigationStore = create<NavigationStore>((set) => ({
   setQuizActive: (active) => set({ isQuizActive: active }),
   isFlashcardActive: false,
   setFlashcardActive: (active) => set({ isFlashcardActive: active }),
+  isStoryActive: false,
+  setStoryActive: (active) => set({ isStoryActive: active }),
 }));
