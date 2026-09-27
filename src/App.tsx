@@ -5,12 +5,14 @@ import { initSync } from './lib/sync';
 import { BottomTabBar } from './components/BottomTabBar';
 import { QuizPage } from './pages/QuizPage';
 import { WordsPage } from './pages/WordsPage';
+import { StoriesPage } from './pages/StoriesPage';
 import { ProgressPage } from './pages/ProgressPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 const tabContent = {
   quiz: <QuizPage />,
   words: <WordsPage />,
+  stories: <StoriesPage />,
   progress: <ProgressPage />,
   settings: <SettingsPage />,
 };

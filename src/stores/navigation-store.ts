@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type Tab = 'quiz' | 'words' | 'progress' | 'settings';
+export type Tab = 'quiz' | 'words' | 'stories' | 'progress' | 'settings';
 
 interface NavigationStore {
   currentTab: Tab;

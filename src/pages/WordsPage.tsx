@@ -5,16 +5,13 @@ import { useProgressStore } from '../stores/progress-store';
 import { useSettingsStore, singleThaiFontClass } from '../stores/settings-store';
 import { useNavigationStore } from '../stores/navigation-store';
 import { buildWordBooks, bookMasteryCount, type WordBook } from '../lib/word-books';
-import { STORIES } from '../data/stories';
-import type { Story } from '../types/story';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { AccentButton, GhostButton, SecondaryButton } from '../components/ui/Button';
 import { AudioButton } from '../components/quiz/AudioButton';
 import { FlashcardDeck } from '../components/flashcards/FlashcardDeck';
-import { StoryReader } from '../components/stories/StoryReader';
 
-type ViewMode = 'list' | 'flashcards' | 'stories';
+type ViewMode = 'list' | 'flashcards';
 
 export function WordsPage() {
   const words = useAllWords();
@@ -27,11 +24,9 @@ export function WordsPage() {
   const fontStyle = useSettingsStore((s) => s.settings.thaiFontStyle);
   const reviewStates = useProgressStore((s) => s.reviewStates);
   const setFlashcardActive = useNavigationStore((s) => s.setFlashcardActive);
-  const setStoryActive = useNavigationStore((s) => s.setStoryActive);
 
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [activeBook, setActiveBook] = useState<WordBook | null>(null);
-  const [activeStory, setActiveStory] = useState<Story | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
   const [showAddWord, setShowAddWord] = useState(false);
   const [showAddCategory, setShowAddCategory] = useState(false);
@@ -48,11 +43,6 @@ export function WordsPage() {
     setFlashcardActive(activeBook !== null);
     return () => setFlashcardActive(false);
   }, [activeBook, setFlashcardActive]);
-
-  useEffect(() => {
-    setStoryActive(activeStory !== null);
-    return () => setStoryActive(false);
-  }, [activeStory, setStoryActive]);
 
   const visibleWords = filter ? words.filter((w) => w.categoryId === filter) : words;
   const filterCategory = filter ? categories.find((c) => c.id === filter) : null;
@@ -93,10 +83,6 @@ export function WordsPage() {
     return <FlashcardDeck words={activeBook.words} bookName={activeBook.name} onExit={() => setActiveBook(null)} />;
   }
 
-  if (activeStory) {
-    return <StoryReader story={activeStory} onExit={() => setActiveStory(null)} />;
-  }
-
   return (
     <div className="flex-1 min-h-0 flex flex-col overflow-y-auto">
       <div className="p-4 flex flex-col gap-4">
@@ -124,36 +110,7 @@ export function WordsPage() {
           >
             🗂️ Flashcards
           </button>
-          <button
-            onClick={() => setViewMode('stories')}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              viewMode === 'stories' ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
-            }`}
-          >
-            📖 Stories
-          </button>
         </div>
-
-        {viewMode === 'stories' && (
-          <div className="flex flex-col gap-2">
-            {STORIES.map((story) => (
-              <Card key={story.id} onClick={() => setActiveStory(story)} className="flex items-center gap-3">
-                <div className="text-2xl shrink-0">📖</div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold truncate">{story.title.english}</div>
-                  <div className={`${singleThaiFontClass(fontStyle)} text-txt-secondary text-sm truncate`}>
-                    {story.title.thai}
-                  </div>
-                  <div className="text-txt-tertiary text-xs mt-0.5">{story.sentences.length} sentences</div>
-                </div>
-                <div className="text-txt-tertiary text-lg shrink-0">›</div>
-              </Card>
-            ))}
-            {STORIES.length === 0 && (
-              <div className="text-center text-txt-tertiary text-sm py-8">No stories yet.</div>
-            )}
-          </div>
-        )}
 
         {viewMode === 'flashcards' && (
           <div className="flex flex-col gap-2">

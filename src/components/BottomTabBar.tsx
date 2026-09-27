@@ -3,6 +3,7 @@ import { useNavigationStore, type Tab } from '../stores/navigation-store';
 const tabs: { id: Tab; label: string; icon: string }[] = [
   { id: 'quiz', label: 'Quiz', icon: '📝' },
   { id: 'words', label: 'Words', icon: '📚' },
+  { id: 'stories', label: 'Stories', icon: '📖' },
   { id: 'progress', label: 'Progress', icon: '📊' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },
 ];
