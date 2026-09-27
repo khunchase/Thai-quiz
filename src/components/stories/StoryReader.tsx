@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import type { Story } from '../../types/story';
-import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 import { AudioButton } from '../quiz/AudioButton';
-import { ThaiWord } from '../quiz/ThaiWord';
 import { AccentButton, GhostButton } from '../ui/Button';
 import { ProgressBar } from '../ui/ProgressBar';
 
@@ -12,7 +10,6 @@ interface Props {
 }
 
 export function StoryReader({ story, onExit }: Props) {
-  const fontStyle = useSettingsStore((s) => s.settings.thaiFontStyle);
   const [index, setIndex] = useState(0);
 
   const sentence = story.sentences[index];
@@ -47,7 +44,7 @@ export function StoryReader({ story, onExit }: Props) {
         {sentence.newParagraph && index > 0 && <div className="h-2" />}
 
         <div className="bg-app-card-light border border-border-accent rounded-2xl p-5 flex flex-col items-center gap-2 text-center">
-          <ThaiWord text={sentence.thai} size="md" />
+          <div className="font-thai-looped font-semibold text-3xl">{sentence.thai}</div>
           <AudioButton text={sentence.thai} />
           <div className="text-txt-primary text-base mt-1">{sentence.english}</div>
         </div>
@@ -63,7 +60,7 @@ export function StoryReader({ story, onExit }: Props) {
                 className="bg-app-card rounded-lg border border-border p-3 flex items-start gap-3"
               >
                 <div className="shrink-0 text-center w-24">
-                  <div className={`${singleThaiFontClass(fontStyle)} text-xl leading-tight`}>{word.thai}</div>
+                  <div className="font-thai-looped text-xl leading-tight">{word.thai}</div>
                   <div className="text-txt-secondary text-xs mt-0.5">{word.pronunciation || word.romanization}</div>
                 </div>
                 <div className="flex-1 min-w-0">
