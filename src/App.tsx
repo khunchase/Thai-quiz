@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 import { useNavigationStore } from './stores/navigation-store';
+import { usePwaStore } from './stores/pwa-store';
 import { useAuthStore } from './stores/auth-store';
 import { initSync } from './lib/sync';
 import { BottomTabBar } from './components/BottomTabBar';
@@ -22,6 +24,21 @@ function App() {
   const isQuizActive = useNavigationStore((s) => s.isQuizActive);
   const isFlashcardActive = useNavigationStore((s) => s.isFlashcardActive);
   const isStoryActive = useNavigationStore((s) => s.isStoryActive);
+  const setPwaStatus = usePwaStore((s) => s.setStatus);
+
+  const {
+    offlineReady: [offlineReady],
+    needRefresh: [needRefresh],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onRegisteredSW(_url, registration) {
+      registration?.update();
+    },
+  });
+
+  useEffect(() => {
+    setPwaStatus(offlineReady, needRefresh, updateServiceWorker);
+  }, [offlineReady, needRefresh, updateServiceWorker, setPwaStatus]);
 
   useEffect(() => {
     useAuthStore.getState().init();

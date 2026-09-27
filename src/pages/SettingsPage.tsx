@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSettingsStore, type ThaiFontStyle } from '../stores/settings-store';
 import { useProgressStore } from '../stores/progress-store';
+import { usePwaStore } from '../stores/pwa-store';
 import { Card } from '../components/ui/Card';
 import { GhostButton, SecondaryButton } from '../components/ui/Button';
 import { AccountCard } from '../components/AccountCard';
@@ -19,12 +20,38 @@ export function SettingsPage() {
   const updateSettings = useSettingsStore((s) => s.updateSettings);
   const resetProgress = useProgressStore((s) => s.resetProgress);
   const [confirmReset, setConfirmReset] = useState(false);
+  const offlineReady = usePwaStore((s) => s.offlineReady);
+  const needRefresh = usePwaStore((s) => s.needRefresh);
+  const updateServiceWorker = usePwaStore((s) => s.updateServiceWorker);
 
   return (
     <div className="flex-1 min-h-0 overflow-y-auto p-4 flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Settings</h1>
 
       <AccountCard />
+
+      <Card>
+        <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Offline mode</div>
+        {offlineReady ? (
+          <div className="flex items-center gap-2 text-success text-sm font-semibold">
+            <span>✓</span>
+            <span>Ready — words, flashcards, and stories work without wifi</span>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <div className="text-txt-secondary text-sm">
+              Studying works offline once the app has been cached. Keep this screen open on wifi for a moment to
+              finish caching.
+            </div>
+          </div>
+        )}
+        {needRefresh && (
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="text-txt-secondary text-xs">An update is ready.</div>
+            <SecondaryButton onClick={() => updateServiceWorker?.(true)}>Update now</SecondaryButton>
+          </div>
+        )}
+      </Card>
 
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Session length</div>
