@@ -10,7 +10,6 @@ import { ThaiWord } from '../components/quiz/ThaiWord';
 const SESSION_LENGTHS = [10, 15, 20, 30];
 
 const FONT_STYLES: { id: ThaiFontStyle; label: string }[] = [
-  { id: 'both', label: 'Both' },
   { id: 'looped', label: 'Looped' },
   { id: 'loopless', label: 'Loopless' },
 ];
@@ -89,11 +88,9 @@ export function SettingsPage() {
           <ThaiWord text="สวัสดี" size="sm" />
         </div>
         <div className="text-txt-tertiary text-[11px] text-center -mt-2">
-          {settings.thaiFontStyle === 'both'
-            ? 'Shows traditional (looped) and modern (loopless) letterforms together'
-            : settings.thaiFontStyle === 'looped'
-              ? 'Traditional letterforms everywhere'
-              : 'Modern, simplified letterforms everywhere'}
+          {settings.thaiFontStyle === 'looped'
+            ? 'Traditional letterforms everywhere'
+            : 'Modern, simplified letterforms everywhere'}
         </div>
       </Card>
 

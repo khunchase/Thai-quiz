@@ -1,13 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-/**
- * 'both' shows looped (traditional) and loopless (modern) side by side —
- * see ThaiWord. 'looped' / 'loopless' pick one style everywhere, including
- * single-line spots (typing input, word list, breakdown parts) that can't
- * show both at once.
- */
-export type ThaiFontStyle = 'both' | 'looped' | 'loopless';
+/** Thai letterform style used everywhere: looped (traditional) or loopless (modern). */
+export type ThaiFontStyle = 'looped' | 'loopless';
 
 export interface QuizSettings {
   sessionLength: number;
@@ -20,10 +15,9 @@ const DEFAULT_SETTINGS: QuizSettings = {
   sessionLength: 15,
   scriptPracticeMode: false,
   audioEnabled: true,
-  thaiFontStyle: 'both',
+  thaiFontStyle: 'looped',
 };
 
-/** Font class for contexts that can only show one Thai font style at a time. */
 export function singleThaiFontClass(style: ThaiFontStyle): string {
   return style === 'loopless' ? 'font-thai' : 'font-thai-looped';
 }
@@ -46,6 +40,13 @@ export const useSettingsStore = create<SettingsStore>()(
     {
       name: 'thai-quiz-settings',
       storage: createJSONStorage(() => localStorage),
+      version: 1,
+      // v0 had a 'both' style that stacked looped above loopless; it's now looped-only.
+      migrate: (persisted, version) => {
+        const state = persisted as { settings: Omit<QuizSettings, 'thaiFontStyle'> & { thaiFontStyle: string } };
+        if (version < 1 && state.settings.thaiFontStyle === 'both') state.settings.thaiFontStyle = 'looped';
+        return state as unknown as SettingsStore;
+      },
     }
   )
 );

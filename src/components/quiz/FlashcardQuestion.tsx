@@ -51,7 +51,7 @@ export function FlashcardQuestion({ question, onAnswered }: Props) {
             style={{ transform: 'rotateY(180deg)' }}
           >
             {direction === 'en-th' ? (
-              <ThaiWord text={back} size="md" mutedSecondary={false} className="text-accent" />
+              <ThaiWord text={back} size="md" className="text-accent" />
             ) : (
               <div className="text-3xl font-semibold text-accent">{back}</div>
             )}

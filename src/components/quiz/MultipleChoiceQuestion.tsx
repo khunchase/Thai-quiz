@@ -172,7 +172,7 @@ function OptionCard({
       <div className="flex-1 min-w-0 px-4 py-4 flex items-center gap-3">
         <div className="flex-1 min-w-0">
           {direction === 'en-th' ? (
-            <ThaiWord text={option.text} size="sm" align="left" mutedSecondary={false} />
+            <ThaiWord text={option.text} size="sm" align="left" />
           ) : (
             option.text
           )}
