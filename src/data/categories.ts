@@ -4,6 +4,7 @@ export const BUILTIN_CATEGORIES: Category[] = [
   { id: 'greetings', name: 'Greetings & Basics', icon: '👋' },
   { id: 'numbers', name: 'Numbers', icon: '🔢' },
   { id: 'numerals', name: 'Thai Numerals (๐-๙)', icon: '🔟' },
+  { id: 'mai-muan', name: 'The 20 ใ Words', icon: '🌀' },
   { id: 'family', name: 'Family', icon: '👪' },
   { id: 'food', name: 'Food & Drink', icon: '🍜' },
   { id: 'colors', name: 'Colors', icon: '🎨' },
