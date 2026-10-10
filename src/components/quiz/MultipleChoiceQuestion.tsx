@@ -6,7 +6,8 @@ import { gradeForMultipleChoice, GRADE_GIVE_UP, GRADE_KNOWN } from '../../lib/sr
 import { AudioButton } from './AudioButton';
 import { ThaiWord } from './ThaiWord';
 import { AccentButton, GhostButton } from '../ui/Button';
-import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
+import { useSettingsStore } from '../../stores/settings-store';
+import { BreakdownHeadword, WordBreakdown } from './WordBreakdown';
 
 interface Props {
   question: QuizQuestion;
@@ -202,7 +203,6 @@ interface WordDetailPopupProps {
 const SWIPE_THRESHOLD = 100;
 
 function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPopupProps) {
-  const fontStyle = useSettingsStore((s) => s.settings.thaiFontStyle);
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-220, 220], [-12, 12]);
   const tint = useTransform(
@@ -216,7 +216,7 @@ function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPo
   const draggable = !reviewStatus;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
       <motion.div
         drag={draggable ? 'x' : false}
         style={draggable ? { x, rotate, touchAction: 'pan-y' } : undefined}
@@ -227,7 +227,7 @@ function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPo
           else if (info.offset.x < -SWIPE_THRESHOLD) onReview('learn');
         }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative bg-app-card-light border border-border-accent rounded-2xl p-6 max-w-xs w-full flex flex-col items-center gap-3 overflow-hidden ${
+        className={`relative bg-app-card-light border border-border-accent rounded-2xl px-5 py-6 max-w-sm w-full flex flex-col items-center gap-3 overflow-hidden ${
           draggable ? 'cursor-grab active:cursor-grabbing' : ''
         }`}
       >
@@ -241,28 +241,12 @@ function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPo
         >
           ✕
         </button>
-        <ThaiWord text={word.thai} size="md" />
+        <BreakdownHeadword word={word} className="text-4xl" />
         <div className="text-txt-secondary text-sm">{word.pronunciation ?? word.romanization}</div>
         <div className="text-txt-primary text-lg font-semibold text-center">{word.english}</div>
         <AudioButton text={word.thai} />
 
-        {word.breakdown && word.breakdown.length > 1 && (
-          <div className="w-full border-t border-border pt-3">
-            <div className="text-txt-tertiary text-xs uppercase tracking-wide mb-2 text-center">Breakdown</div>
-            <div className="flex items-center justify-center flex-wrap gap-x-3 gap-y-2">
-              {word.breakdown.map((part, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  {i > 0 && <span className="text-txt-tertiary text-lg">+</span>}
-                  <div className="text-center">
-                    <div className={`${singleThaiFontClass(fontStyle)} text-3xl`}>{part.thai}</div>
-                    <div className="text-txt-secondary text-sm mt-0.5">{part.romanization}</div>
-                    <div className="text-txt-tertiary text-sm">{part.english}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <WordBreakdown word={word} />
 
         {draggable ? (
           <>

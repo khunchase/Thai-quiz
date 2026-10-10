@@ -6,6 +6,7 @@ import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-sto
 import { GRADE_KNOWN, GRADE_GIVE_UP } from '../../lib/srs';
 import { AudioButton } from '../quiz/AudioButton';
 import { ThaiWord } from '../quiz/ThaiWord';
+import { BreakdownHeadword, WordBreakdown } from '../quiz/WordBreakdown';
 import { AccentButton } from '../ui/Button';
 import { ProgressBar } from '../ui/ProgressBar';
 
@@ -155,28 +156,12 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
           </>
         ) : (
           <>
+            <BreakdownHeadword word={word} className="text-4xl" />
             <div className="text-txt-primary text-2xl font-bold text-center">{word.english}</div>
             <div className="text-txt-secondary text-sm">{word.pronunciation ?? word.romanization}</div>
             <AudioButton text={word.thai} />
 
-            {word.breakdown && word.breakdown.length > 1 && (
-              <div className="w-full border-t border-border pt-3 mt-1">
-                <div className="text-txt-tertiary text-[10px] uppercase tracking-wide mb-2 text-center">
-                  Breakdown
-                </div>
-                <div className="flex items-center justify-center flex-wrap gap-x-2 gap-y-1">
-                  {word.breakdown.map((part, i) => (
-                    <div key={i} className="flex items-center gap-1">
-                      {i > 0 && <span className="text-txt-tertiary text-sm">+</span>}
-                      <div className="text-center">
-                        <div className={`${singleThaiFontClass(fontStyle)} text-lg`}>{part.thai}</div>
-                        <div className="text-txt-tertiary text-[10px]">{part.english}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <WordBreakdown word={word} />
 
             {word.exampleSentence && (
               <div className="w-full border-t border-border pt-3 mt-1 text-center">
