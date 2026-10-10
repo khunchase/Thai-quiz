@@ -164,28 +164,30 @@ function OptionCard({
           handleActivate();
         }
       }}
-      className={`w-full rounded-lg border font-medium transition-colors overflow-hidden cursor-pointer px-4 py-4 flex items-center gap-3 ${style} ${
+      className={`w-full rounded-lg border font-medium transition-colors overflow-hidden cursor-pointer flex items-stretch ${style} ${
         reviewStatus ? 'opacity-50' : ''
       }`}
     >
-      <div className="flex-1 min-w-0">
-        {direction === 'en-th' ? (
-          <ThaiWord text={option.text} size="sm" align="left" mutedSecondary={false} />
-        ) : (
-          option.text
+      <div className="flex-1 min-w-0 px-4 py-4 flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          {direction === 'en-th' ? (
+            <ThaiWord text={option.text} size="sm" align="left" mutedSecondary={false} />
+          ) : (
+            option.text
+          )}
+        </div>
+        {reviewStatus === 'known' && (
+          <span className="text-success text-lg shrink-0" aria-label="Marked as known">
+            ✓
+          </span>
+        )}
+        {reviewStatus === 'learn' && (
+          <span className="text-warning text-lg shrink-0" aria-label="Marked to learn">
+            📖
+          </span>
         )}
       </div>
-      {direction === 'en-th' && <AudioButton text={option.text} className="shrink-0" />}
-      {reviewStatus === 'known' && (
-        <span className="text-success text-lg shrink-0" aria-label="Marked as known">
-          ✓
-        </span>
-      )}
-      {reviewStatus === 'learn' && (
-        <span className="text-warning text-lg shrink-0" aria-label="Marked to learn">
-          📖
-        </span>
-      )}
+      {direction === 'en-th' && <AudioButton text={option.text} variant="zone" />}
     </div>
   );
 }

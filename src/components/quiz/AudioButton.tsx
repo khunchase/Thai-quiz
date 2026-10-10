@@ -4,9 +4,16 @@ import { useSettingsStore } from '../../stores/settings-store';
 interface AudioButtonProps {
   text: string;
   className?: string;
+  /** 'zone' fills its container's height as a wide tap strip instead of a small circle. */
+  variant?: 'icon' | 'zone';
 }
 
-export function AudioButton({ text, className = '' }: AudioButtonProps) {
+const VARIANT_CLASSES = {
+  icon: 'inline-flex w-9 h-9 rounded-full bg-app-surface active:scale-90 transition-transform',
+  zone: 'flex self-stretch w-1/5 min-w-16 shrink-0 border-l border-border bg-app-surface/60 text-xl active:bg-app-surface transition-colors',
+};
+
+export function AudioButton({ text, className = '', variant = 'icon' }: AudioButtonProps) {
   const audioEnabled = useSettingsStore((s) => s.settings.audioEnabled);
   if (!audioEnabled || !isSpeechSupported()) return null;
   return (
@@ -17,7 +24,7 @@ export function AudioButton({ text, className = '' }: AudioButtonProps) {
         speakThai(text);
       }}
       aria-label="Play pronunciation"
-      className={`inline-flex items-center justify-center w-9 h-9 rounded-full bg-app-surface text-accent active:scale-90 transition-transform ${className}`}
+      className={`items-center justify-center text-accent ${VARIANT_CLASSES[variant]} ${className}`}
     >
       🔊
     </button>
