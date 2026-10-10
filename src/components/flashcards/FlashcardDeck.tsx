@@ -5,7 +5,6 @@ import { useProgressStore } from '../../stores/progress-store';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 import { GRADE_KNOWN, GRADE_GIVE_UP } from '../../lib/srs';
 import { AudioButton } from '../quiz/AudioButton';
-import { ThaiWord } from '../quiz/ThaiWord';
 import { BreakdownHeadword, WordBreakdown } from '../quiz/WordBreakdown';
 import { AccentButton } from '../ui/Button';
 import { ProgressBar } from '../ui/ProgressBar';
@@ -151,7 +150,9 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
       <div className="relative z-10 flex flex-col items-center gap-3 w-full">
         {!flipped ? (
           <>
-            <ThaiWord text={word.thai} size="lg" />
+            <div className={`${singleThaiFontClass(fontStyle)} text-5xl font-semibold text-center leading-tight`}>
+              {word.thai}
+            </div>
             <div className="text-txt-tertiary text-sm mt-6">👆 Tap to reveal</div>
           </>
         ) : (
