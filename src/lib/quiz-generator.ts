@@ -81,6 +81,17 @@ export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
     }));
   }
 
+  // Phonetic questions alternate between reading Thai into romanization and
+  // spelling romanization back into Thai.
+  if (forceType === 'phonetic') {
+    return sessionWords.map((word, index) => ({
+      id: `${word.id}-${index}-${Date.now()}`,
+      word,
+      type: 'phonetic',
+      direction: direction === 'both' ? (Math.random() < 0.5 ? 'th-en' : 'en-th') : direction,
+    }));
+  }
+
   // Otherwise, every question is multiple choice: recognizing the answer
   // among options is far more approachable than typing or recalling it
   // from memory, in either direction.

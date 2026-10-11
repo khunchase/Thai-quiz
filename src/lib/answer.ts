@@ -35,3 +35,40 @@ export function isThaiAnswerCorrect(userInput: string, correctThai: string): boo
   if (!input) return false;
   return input === correctThai.trim().normalize('NFC');
 }
+
+/**
+ * Reduces a romanization to bare letters for lenient comparison: strips tone
+ * diacritics (à â á ǎ), spaces, hyphens and case, so "khòp khun", "khop khun"
+ * and "Khopkhun" all compare equal.
+ */
+export function normalizeRomanization(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]/gu, '');
+}
+
+/** Accepts either the plain romanization or the tone-marked pronunciation, ignoring tones and spacing. */
+export function isRomanizationCorrect(userInput: string, accepted: string[]): boolean {
+  const input = normalizeRomanization(userInput);
+  if (!input) return false;
+  return accepted.some((answer) =>
+    answerAlternatives(answer).some((alt) => normalizeRomanization(alt) === input)
+  );
+}
+
+const THAI_TONE_MARKS = /[่-๋]/g;
+
+/**
+ * Thai script check that forgives tone marks (่ ้ ๊ ๋): 'exact' when the
+ * spelling matches, 'tone' when only tone marks are missing or wrong,
+ * otherwise 'wrong'. Everything else (consonants, vowels) must still match.
+ */
+export function checkThaiIgnoringTones(userInput: string, correctThai: string): 'exact' | 'tone' | 'wrong' {
+  if (isThaiAnswerCorrect(userInput, correctThai)) return 'exact';
+  const strip = (s: string) => s.trim().normalize('NFC').replace(THAI_TONE_MARKS, '');
+  const input = strip(userInput);
+  if (!input) return 'wrong';
+  return input === strip(correctThai) ? 'tone' : 'wrong';
+}

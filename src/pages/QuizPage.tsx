@@ -19,6 +19,14 @@ interface Answer {
 
 type Phase = 'start' | 'active' | 'summary';
 
+type QuizMode = 'multiple-choice' | 'typed-thai' | 'phonetic';
+
+const QUIZ_MODES: { id: QuizMode; label: string }[] = [
+  { id: 'multiple-choice', label: 'Multiple Choice' },
+  { id: 'typed-thai', label: '⌨️ Type Thai' },
+  { id: 'phonetic', label: '🔤 Phonetics' },
+];
+
 export function QuizPage() {
   const words = useAllWords();
   const categories = useAllCategories();
@@ -29,7 +37,7 @@ export function QuizPage() {
 
   const [phase, setPhase] = useState<Phase>('start');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => categories.map((c) => c.id));
-  const [typeThaiMode, setTypeThaiMode] = useState(false);
+  const [quizMode, setQuizMode] = useState<QuizMode>('multiple-choice');
   const [direction, setDirection] = useState<Direction | 'both'>('both');
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [index, setIndex] = useState(0);
@@ -68,7 +76,7 @@ export function QuizPage() {
       sessionLength: settings.sessionLength,
       direction,
       categoryFilter: allCategoriesSelected ? undefined : selectedCategories,
-      forceType: typeThaiMode ? 'typed-thai' : undefined,
+      forceType: quizMode === 'multiple-choice' ? undefined : quizMode,
     });
     setQuestions(quiz);
     setIndex(0);
@@ -156,31 +164,31 @@ export function QuizPage() {
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Quiz Mode</div>
         <div className="flex gap-2">
-          <button
-            onClick={() => setTypeThaiMode(false)}
-            className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              !typeThaiMode ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
-            }`}
-          >
-            Multiple Choice
-          </button>
-          <button
-            onClick={() => setTypeThaiMode(true)}
-            className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              typeThaiMode ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
-            }`}
-          >
-            ⌨️ Type Thai
-          </button>
+          {QUIZ_MODES.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => setQuizMode(m.id)}
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                quizMode === m.id ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
         </div>
-        {typeThaiMode && (
+        {quizMode === 'typed-thai' && (
           <div className="text-txt-tertiary text-[11px] mt-2">
             You'll see the English word (and pronunciation) and type the actual Thai script.
           </div>
         )}
+        {quizMode === 'phonetic' && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            Read Thai and type how it sounds, or see the pronunciation and type the Thai. Tone marks are forgiven.
+          </div>
+        )}
       </Card>
 
-      {!typeThaiMode && (
+      {quizMode !== 'typed-thai' && (
         <Card>
           <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Direction</div>
           <div className="flex gap-2">
@@ -192,7 +200,15 @@ export function QuizPage() {
                   direction === dir ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
                 }`}
               >
-                {dir === 'both' ? 'Both' : dir === 'th-en' ? 'TH → EN' : 'EN → TH'}
+                {dir === 'both'
+                  ? 'Both'
+                  : quizMode === 'phonetic'
+                    ? dir === 'th-en'
+                      ? 'TH → ABC'
+                      : 'ABC → TH'
+                    : dir === 'th-en'
+                      ? 'TH → EN'
+                      : 'EN → TH'}
               </button>
             ))}
           </div>
