@@ -1,5 +1,6 @@
 import type { Story } from '../../types/story';
 import { WIND_AND_SUN_STORY } from './wind-and-sun';
 import { SANO_NOI_STORY } from './sano-noi';
+import { COUNTRY_MOUSE_STORY } from './country-mouse';
 
-export const STORIES: Story[] = [WIND_AND_SUN_STORY, SANO_NOI_STORY];
+export const STORIES: Story[] = [WIND_AND_SUN_STORY, SANO_NOI_STORY, COUNTRY_MOUSE_STORY];
