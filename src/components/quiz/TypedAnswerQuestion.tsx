@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { QuizQuestion, Grade } from '../../types/quiz';
 import { gradeForTyped, GRADE_GIVE_UP } from '../../lib/srs';
-import { isTypedAnswerCorrect } from '../../lib/answer';
+import { isRomanizationCorrect, isTypedAnswerCorrect } from '../../lib/answer';
 import { AccentButton, GhostButton } from '../ui/Button';
 import { AudioButton } from './AudioButton';
 import { ThaiWord } from './ThaiWord';
@@ -34,7 +34,10 @@ export function TypedAnswerQuestion({ question, onAnswered }: Props) {
 
   function submit() {
     if (result || !value.trim()) return;
-    const correct = isTypedAnswerCorrect(value, correctAnswer);
+    const correct =
+      direction === 'th-en'
+        ? isTypedAnswerCorrect(value, correctAnswer)
+        : isRomanizationCorrect(value, [word.romanization, word.pronunciation ?? word.romanization]);
     setResult(correct ? 'correct' : 'incorrect');
     setPending({ grade: gradeForTyped(correct), correct, answer: value });
   }

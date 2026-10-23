@@ -20,6 +20,9 @@ account or backend required.
   shopping, work, school, emotions, household items, and directions/question
   words), plus a Words tab to add, edit, and delete your own words and
   categories.
+- **Textbook romanization** — pronunciations follow the Thai Language
+  Station convention (khɔ̀ɔp khun, chɯ̂ɯ, rooŋ riian); typed answers also
+  accept plain-keyboard spellings (khop khun, chue, rong rian).
 - **Audio pronunciation** via the browser's built-in speech synthesis
   (`th-TH` voice when available).
 - **Thai script practice mode** — hides romanization hints so you read the

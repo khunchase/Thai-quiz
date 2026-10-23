@@ -37,16 +37,29 @@ export function isThaiAnswerCorrect(userInput: string, correctThai: string): boo
 }
 
 /**
- * Reduces a romanization to bare letters for lenient comparison: strips tone
- * diacritics (à â á ǎ), spaces, hyphens and case, so "khòp khun", "khop khun"
- * and "Khopkhun" all compare equal.
+ * Reduces a romanization to a plain-keyboard skeleton for lenient comparison.
+ * Strips tone diacritics (à â á ǎ), spaces, hyphens and case, folds the
+ * textbook letters to their usual ASCII spellings (ɔ = o/aw/or, ɛ = ae/e,
+ * ɯ = ue/eu, ə = oe/er, ŋ = ng, c = j, final y = i, final w = o) and
+ * ignores vowel length, so "khɔ̀ɔp khun", "khop khun" and "Khawpkhun" all
+ * compare equal.
  */
 export function normalizeRomanization(text: string): string {
   return text
     .normalize('NFD')
     .replace(/\p{M}/gu, '')
     .toLowerCase()
-    .replace(/[^\p{L}\p{N}]/gu, '');
+    .replace(/[^\p{L}\p{N}]/gu, '')
+    .replace(/ŋ/g, 'ng')
+    .replace(/c(?!h)/g, 'j')
+    .replace(/ɯ|ue|eu/g, 'U')
+    .replace(/ə|oe|er/g, 'E')
+    .replace(/ɛ|ae/g, 'e')
+    .replace(/ɔ|aw|or/g, 'o')
+    .replace(/ao/g, 'au')
+    .replace(/(?<=[aeiouUE])y/g, 'i')
+    .replace(/(?<=[aeiE])[wo]/g, 'u')
+    .replace(/(.)\1+/g, '$1');
 }
 
 /** Accepts either the plain romanization or the tone-marked pronunciation, ignoring tones and spacing. */
