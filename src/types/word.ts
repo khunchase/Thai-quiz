@@ -22,8 +22,9 @@ export interface Word {
   thai: string;
   romanization: string;
   /**
-   * Tone-marked pronunciation guide (Paiboon-style): unmarked = mid tone,
-   * à = low, â = falling, á = high, ǎ = rising. Optional — falls back to
+   * Tone-marked pronunciation guide in the Thai Language Station textbook
+   * convention (see starter-words.ts): unmarked = mid tone, à = low,
+   * â = falling, á = high, ǎ = rising. Optional — falls back to
    * `romanization` for display when absent (e.g. user-added words).
    */
   pronunciation?: string;
