@@ -426,7 +426,7 @@ export const WIND_AND_SUN_STORY: Story = {
       thai: 'ด้วยแรงที่ใกล้จะหมด',
       english: 'With his strength almost gone,',
       words: [
-        { thai: 'ด้วย', romanization: 'duuay', pronunciation: 'dûuay', english: 'with', grammarNote: 'preposition' },
+        { thai: 'ด้วย', romanization: 'duay', pronunciation: 'dûay', english: 'with', grammarNote: 'preposition' },
         { thai: 'แรง', romanization: 'rɛɛŋ', pronunciation: 'rɛɛŋ', english: 'strength', grammarNote: 'noun' },
         { thai: 'ที่', romanization: 'thii', pronunciation: 'thîi', english: 'that, which', grammarNote: 'relative pronoun' },
         { thai: 'ใกล้จะหมด', romanization: 'klai ca mot', pronunciation: 'klâi cà mòt', english: 'almost running out', grammarNote: 'verb phrase' },
