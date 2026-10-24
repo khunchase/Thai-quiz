@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAllWords, useAllCategories } from '../stores/deck-store';
-import { useProgressStore } from '../stores/progress-store';
+import { useProgressStore, displayedStreak } from '../stores/progress-store';
 import { useSettingsStore } from '../stores/settings-store';
 import { useNavigationStore } from '../stores/navigation-store';
 import { generateQuiz } from '../lib/quiz-generator';
@@ -32,7 +32,7 @@ export function QuizPage() {
   const categories = useAllCategories();
   const reviewStates = useProgressStore((s) => s.reviewStates);
   const recordAnswer = useProgressStore((s) => s.recordAnswer);
-  const currentStreak = useProgressStore((s) => s.currentStreak);
+  const currentStreak = useProgressStore((s) => displayedStreak(s.currentStreak, s.lastActiveDate));
   const settings = useSettingsStore((s) => s.settings);
 
   const [phase, setPhase] = useState<Phase>('start');
@@ -52,10 +52,11 @@ export function QuizPage() {
   const dueCount = useMemo(
     () =>
       words.filter((w) => {
+        if (!selectedCategories.includes(w.categoryId)) return false;
         const state = reviewStates[w.id];
         return !state || isDue(state);
       }).length,
-    [words, reviewStates]
+    [words, reviewStates, selectedCategories]
   );
 
   function toggleCategory(id: string) {
@@ -113,7 +114,7 @@ export function QuizPage() {
           key={questions[index].id}
           question={questions[index]}
           onAnswered={handleAnswered}
-          onMarkWord={recordAnswer}
+          onMarkWord={(wordId, grade, correct) => recordAnswer(wordId, grade, correct, { countActivity: false })}
         />
       </div>
     );
