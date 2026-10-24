@@ -1,7 +1,7 @@
 import type { Word } from '../types/word';
 import type { ReviewState } from '../types/progress';
 import type { Direction, MultipleChoiceOption, QuestionType, QuizQuestion } from '../types/quiz';
-import { isDue } from './srs';
+import { isDue, isKnown } from './srs';
 
 export interface GenerateQuizOptions {
   words: Word[];
@@ -22,23 +22,35 @@ function shuffle<T>(arr: T[]): T[] {
   return copy;
 }
 
-/** Prioritizes due reviews, then never-seen words, then not-yet-due reviews. */
+/** Share of a session that learned words due for review may take, so reviews never crowd out new words. */
+const MAX_REVIEW_SHARE = 1 / 3;
+
+/** Splits words into the quiz's buckets. Learned words that aren't due yet are left out entirely. */
+export function classifyWords(words: Word[], reviewStates: Record<string, ReviewState>, now = Date.now()) {
+  const reviews: Word[] = [];
+  const unseen: Word[] = [];
+  const learning: Word[] = [];
+  for (const word of words) {
+    const state = reviewStates[word.id];
+    if (!state) unseen.push(word);
+    else if (!isKnown(state)) learning.push(word);
+    else if (isDue(state, now)) reviews.push(word);
+  }
+  return { reviews, unseen, learning };
+}
+
+/**
+ * Learned words due on their review date first (capped at a third of the
+ * session), then never-seen words, then words still being learned. Learned
+ * words that aren't due don't appear at all.
+ */
 export function selectSessionWords(options: GenerateQuizOptions): Word[] {
   const { words, reviewStates, sessionLength, categoryFilter } = options;
   const pool = categoryFilter?.length ? words.filter((w) => categoryFilter.includes(w.categoryId)) : words;
+  const { reviews, unseen, learning } = classifyWords(pool, reviewStates);
 
-  const due: Word[] = [];
-  const unseen: Word[] = [];
-  const notDue: Word[] = [];
-
-  for (const word of pool) {
-    const state = reviewStates[word.id];
-    if (!state) unseen.push(word);
-    else if (isDue(state)) due.push(word);
-    else notDue.push(word);
-  }
-
-  const ranked = [...shuffle(due), ...shuffle(unseen), ...shuffle(notDue)];
+  const reviewSlots = Math.ceil(sessionLength * MAX_REVIEW_SHARE);
+  const ranked = [...shuffle(reviews).slice(0, reviewSlots), ...shuffle(unseen), ...shuffle(learning)];
   return ranked.slice(0, Math.min(sessionLength, ranked.length));
 }
 
@@ -49,11 +61,20 @@ function targetText(word: Word, direction: Direction): string {
 export function buildMultipleChoiceOptions(
   word: Word,
   direction: Direction,
-  allWords: Word[]
+  allWords: Word[],
+  reviewStates: Record<string, ReviewState>
 ): MultipleChoiceOption[] {
-  const sameCategory = shuffle(allWords.filter((w) => w.id !== word.id && w.categoryId === word.categoryId));
-  const others = shuffle(allWords.filter((w) => w.id !== word.id && w.categoryId !== word.categoryId));
-  const distractorPool = [...sameCategory, ...others];
+  // Learned words aren't used as wrong options; they're only a last resort
+  // when too few other words exist to fill four choices.
+  const candidates = allWords.filter((w) => w.id !== word.id);
+  const byPreference = (pool: Word[]) => [
+    ...shuffle(pool.filter((w) => w.categoryId === word.categoryId)),
+    ...shuffle(pool.filter((w) => w.categoryId !== word.categoryId)),
+  ];
+  const distractorPool = [
+    ...byPreference(candidates.filter((w) => !isKnown(reviewStates[w.id]))),
+    ...byPreference(candidates.filter((w) => isKnown(reviewStates[w.id]))),
+  ];
 
   const seenText = new Set<string>([targetText(word, direction)]);
   const options: MultipleChoiceOption[] = [{ text: targetText(word, direction), word }];
@@ -102,7 +123,7 @@ export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
       word,
       type: 'multiple-choice',
       direction: qDirection,
-      options: buildMultipleChoiceOptions(word, qDirection, allWords),
+      options: buildMultipleChoiceOptions(word, qDirection, allWords, options.reviewStates),
     };
     return question;
   });

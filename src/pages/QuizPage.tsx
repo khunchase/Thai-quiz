@@ -3,8 +3,7 @@ import { useAllWords, useAllCategories } from '../stores/deck-store';
 import { useProgressStore, displayedStreak } from '../stores/progress-store';
 import { useSettingsStore } from '../stores/settings-store';
 import { useNavigationStore } from '../stores/navigation-store';
-import { generateQuiz } from '../lib/quiz-generator';
-import { isDue } from '../lib/srs';
+import { classifyWords, generateQuiz } from '../lib/quiz-generator';
 import type { QuizQuestion, Grade, Direction } from '../types/quiz';
 import { QuestionRenderer } from '../components/quiz/QuestionRenderer';
 import { AccentButton } from '../components/ui/Button';
@@ -49,15 +48,11 @@ export function QuizPage() {
     return () => setQuizActive(false);
   }, [phase, setQuizActive]);
 
-  const dueCount = useMemo(
-    () =>
-      words.filter((w) => {
-        if (!selectedCategories.includes(w.categoryId)) return false;
-        const state = reviewStates[w.id];
-        return !state || isDue(state);
-      }).length,
+  const available = useMemo(
+    () => classifyWords(words.filter((w) => selectedCategories.includes(w.categoryId)), reviewStates),
     [words, reviewStates, selectedCategories]
   );
+  const nothingToQuiz = available.unseen.length + available.learning.length + available.reviews.length === 0;
 
   function toggleCategory(id: string) {
     setSelectedCategories((prev) => (prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]));
@@ -140,7 +135,9 @@ export function QuizPage() {
     <div className="flex-1 min-h-0 flex flex-col p-4 gap-5 overflow-y-auto">
       <div>
         <h1 className="text-2xl font-bold">Thai Word Quiz</h1>
-        <p className="text-txt-secondary text-sm mt-1">{dueCount} words ready for review</p>
+        <p className="text-txt-secondary text-sm mt-1">
+          {available.unseen.length} new · {available.learning.length} learning · {available.reviews.length} due for review
+        </p>
       </div>
 
       <Card>
@@ -224,7 +221,12 @@ export function QuizPage() {
       </Card>
 
       <div className="mt-auto">
-        <AccentButton onClick={startQuiz} disabled={selectedCategories.length === 0}>
+        {selectedCategories.length > 0 && nothingToQuiz && (
+          <div className="text-txt-tertiary text-xs text-center mb-2">
+            Every word here is learned — come back when reviews are due, or pick more categories.
+          </div>
+        )}
+        <AccentButton onClick={startQuiz} disabled={selectedCategories.length === 0 || nothingToQuiz}>
           Start Quiz
         </AccentButton>
       </div>
