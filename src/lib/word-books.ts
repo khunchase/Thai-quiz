@@ -1,5 +1,6 @@
 import type { Category, Word } from '../types/word';
 import type { ReviewState } from '../types/progress';
+import { isKnown } from './srs';
 
 export const BOOK_SIZE = 50;
 
@@ -36,8 +37,7 @@ export function buildWordBooks(words: Word[], categories: Category[]): WordBook[
   return books;
 }
 
-/** A word counts as "known" once it's been recalled correctly at least once. */
 export function bookMasteryCount(book: WordBook, reviewStates: Record<string, ReviewState>) {
-  const known = book.words.filter((w) => (reviewStates[w.id]?.repetitions ?? 0) >= 1).length;
+  const known = book.words.filter((w) => isKnown(reviewStates[w.id])).length;
   return { known, total: book.words.length };
 }

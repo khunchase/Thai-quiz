@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid } from 'recharts';
 import { useAllWords, useAllCategories } from '../stores/deck-store';
-import { useProgressStore } from '../stores/progress-store';
+import { useProgressStore, displayedStreak } from '../stores/progress-store';
+import { isKnown } from '../lib/srs';
 import { xpProgress } from '../lib/level';
 import { dateKey } from '../lib/date-utils';
 import { Card } from '../components/ui/Card';
@@ -12,7 +13,7 @@ export function ProgressPage() {
   const categories = useAllCategories();
   const reviewStates = useProgressStore((s) => s.reviewStates);
   const xp = useProgressStore((s) => s.xp);
-  const currentStreak = useProgressStore((s) => s.currentStreak);
+  const currentStreak = useProgressStore((s) => displayedStreak(s.currentStreak, s.lastActiveDate));
   const longestStreak = useProgressStore((s) => s.longestStreak);
   const dailyLog = useProgressStore((s) => s.dailyLog);
 
@@ -23,7 +24,7 @@ export function ProgressPage() {
       categories
         .map((c) => {
           const catWords = words.filter((w) => w.categoryId === c.id);
-          const mastered = catWords.filter((w) => (reviewStates[w.id]?.repetitions ?? 0) >= 2).length;
+          const mastered = catWords.filter((w) => isKnown(reviewStates[w.id])).length;
           return { name: c.name, icon: c.icon, total: catWords.length, mastered };
         })
         .filter((c) => c.total > 0),
@@ -43,7 +44,8 @@ export function ProgressPage() {
     return days;
   }, [dailyLog]);
 
-  const wordsSeen = Object.keys(reviewStates).length;
+  // Only words still in the deck — deleted custom words keep orphaned review states.
+  const wordsSeen = words.filter((w) => reviewStates[w.id]).length;
   const totalWords = words.length;
 
   return (

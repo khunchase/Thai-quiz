@@ -59,7 +59,11 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord }: Pro
   function reviewWord(wordId: string, status: ReviewStatus) {
     if (reviewed[wordId]) return;
     setReviewed((r) => ({ ...r, [wordId]: status }));
-    if (status === 'known') onMarkWord?.(wordId, GRADE_KNOWN, true);
+    if (wordId === word.id) {
+      // The question word is recorded once, on "Next question" — the swipe
+      // replaces the answer's grade rather than adding a second review.
+      setPending((p) => p && { ...p, grade: status === 'known' ? GRADE_KNOWN : GRADE_GIVE_UP });
+    } else if (status === 'known') onMarkWord?.(wordId, GRADE_KNOWN, true);
     else onMarkWord?.(wordId, GRADE_GIVE_UP, false);
     setDetailWord(null);
   }

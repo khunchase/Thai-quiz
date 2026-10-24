@@ -48,6 +48,13 @@ export function scheduleNextReview(state: ReviewState, grade: Grade, now = Date.
   };
 }
 
+/** Correct recalls in a row before a word counts as known / mastered everywhere in the app. */
+export const KNOWN_REPETITIONS = 2;
+
+export function isKnown(state: ReviewState | undefined): boolean {
+  return (state?.repetitions ?? 0) >= KNOWN_REPETITIONS;
+}
+
 export function isDue(state: ReviewState, now = Date.now()): boolean {
   return state.dueAt <= now;
 }
