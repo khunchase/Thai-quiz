@@ -4,8 +4,8 @@ import type { Story } from '../../types/story';
 export const THAI_CRYPTO_NEWS_2026_10_25_STORY: Story = {
   id: 'thai-crypto-news-2026-10-25',
   title: {
-    thai: 'ข่าวคริปโตไทยสัปดาห์นี้',
-    english: 'Thai Crypto News: 25 October',
+    thai: 'ข่าวไอทีสัปดาห์นี้',
+    english: 'Thai IT News: 25 October',
   },
   sentences: [
     {

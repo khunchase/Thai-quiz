@@ -114,6 +114,28 @@ function WordSheet({ word, onClose }: { word: StoryWord; onClose: () => void }) 
   );
 }
 
+const SPEEDS = [1, 0.75, 0.5];
+
+function SpeedPicker({ speed, onChange }: { speed: number; onChange: (speed: number) => void }) {
+  return (
+    <div className="inline-flex rounded-lg bg-app-surface p-0.5 text-xs font-semibold" role="group" aria-label="Reading speed">
+      {SPEEDS.map((s) => (
+        <button
+          key={s}
+          onClick={(e) => {
+            e.stopPropagation();
+            onChange(s);
+          }}
+          aria-pressed={speed === s}
+          className={`px-2.5 py-1 rounded-md ${speed === s ? 'bg-accent text-app-bg' : 'text-txt-secondary'}`}
+        >
+          {s}x
+        </button>
+      ))}
+    </div>
+  );
+}
+
 interface Props {
   story: Story;
   onExit: () => void;
@@ -123,6 +145,7 @@ export function StoryReader({ story, onExit }: Props) {
   const [index, setIndex] = useState(0);
   const [split, setSplit] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
+  const [speed, setSpeed] = useState(1);
 
   const sentence = story.sentences[index];
   const progressPct = (index / story.sentences.length) * 100;
@@ -179,7 +202,10 @@ export function StoryReader({ story, onExit }: Props) {
               onSelect={(i) => setSelected((cur) => (cur === i ? null : i))}
             />
           </div>
-          <AudioButton text={sentence.thai} />
+          <div className="flex items-center gap-2">
+            <AudioButton text={sentence.thai} speed={speed} />
+            <SpeedPicker speed={speed} onChange={setSpeed} />
+          </div>
           <div className="text-txt-primary text-base mt-1">{sentence.english}</div>
           <div className="text-txt-tertiary text-xs mt-1">Tap a word for its meaning</div>
         </div>

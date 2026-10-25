@@ -12,12 +12,13 @@ function getThaiVoice(): SpeechSynthesisVoice | null {
   return cachedThaiVoice;
 }
 
-export function speakThai(text: string): void {
+/** `speed` scales the default rate, so 0.5 is half the normal reading speed. */
+export function speakThai(text: string, speed = 1): void {
   if (!isSpeechSupported()) return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'th-TH';
-  utterance.rate = 0.9;
+  utterance.rate = 0.9 * speed;
   const voice = getThaiVoice();
   if (voice) utterance.voice = voice;
   window.speechSynthesis.speak(utterance);
