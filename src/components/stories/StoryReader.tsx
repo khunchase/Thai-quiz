@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import type { Story, StoryWord } from '../../types/story';
 import { AudioButton } from '../quiz/AudioButton';
 import { AccentButton, GhostButton } from '../ui/Button';
@@ -31,17 +32,85 @@ function spacesBefore(words: StoryWord[]) {
   });
 }
 
-function SplitSentence({ words }: { words: StoryWord[] }) {
-  const spaces = spacesBefore(words);
+interface SentenceProps {
+  words: StoryWord[];
+  split: boolean;
+  selected: number | null;
+  onSelect: (i: number) => void;
+}
+
+// Renders the sentence word by word so each word can be tapped. When joined, the words sit flush and read as the original sentence.
+function TappableSentence({ words, split, selected, onSelect }: SentenceProps) {
+  const spaces = split ? spacesBefore(words) : words.map(() => false);
   return (
     <>
-      {words.map((word, i) => (
-        <span key={i}>
-          {spaces[i] && ' '}
-          <span className={`whitespace-nowrap ${isConnector(word) ? 'text-connector' : ''}`}>{word.thai}</span>
-        </span>
-      ))}
+      {words.map((word, i) => {
+        const color = isConnector(word) ? 'text-connector' : '';
+        if (isPunctuation(word)) {
+          return (
+            <span key={i} className={split ? 'whitespace-nowrap' : ''}>
+              {word.thai}
+            </span>
+          );
+        }
+        return (
+          <span key={i}>
+            {spaces[i] && ' '}
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(i);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onSelect(i);
+                }
+              }}
+              className={`cursor-pointer rounded transition-colors ${split ? 'whitespace-nowrap' : ''} ${color} ${
+                selected === i ? 'bg-accent/25 underline decoration-accent decoration-2 underline-offset-8' : ''
+              }`}
+            >
+              {word.thai}
+            </span>
+          </span>
+        );
+      })}
     </>
+  );
+}
+
+function WordSheet({ word, onClose }: { word: StoryWord; onClose: () => void }) {
+  return (
+    <motion.div
+      initial={{ y: 40, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 40, opacity: 0 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 38 }}
+      onClick={(e) => e.stopPropagation()}
+      className="rounded-2xl border border-border-accent bg-app-card-light p-4 shadow-[0_-8px_24px_rgba(0,0,0,0.5)]"
+    >
+      <div className="flex items-start gap-4">
+        <div className="flex-1 min-w-0">
+          <div className={`font-thai-looped font-semibold text-3xl leading-tight ${isConnector(word) ? 'text-connector' : ''}`}>
+            {word.thai}
+          </div>
+          <div className="text-txt-secondary text-sm mt-1">{word.pronunciation || word.romanization}</div>
+        </div>
+        <AudioButton text={word.thai} />
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          className="w-9 h-9 rounded-full bg-app-surface text-txt-secondary shrink-0"
+        >
+          ✕
+        </button>
+      </div>
+      <div className="text-txt-primary text-lg font-semibold mt-3">{word.english}</div>
+      <div className="text-txt-tertiary text-sm mt-0.5">{word.grammarNote}</div>
+    </motion.div>
   );
 }
 
@@ -53,21 +122,28 @@ interface Props {
 export function StoryReader({ story, onExit }: Props) {
   const [index, setIndex] = useState(0);
   const [split, setSplit] = useState(false);
+  const [selected, setSelected] = useState<number | null>(null);
 
   const sentence = story.sentences[index];
   const progressPct = (index / story.sentences.length) * 100;
-  const breakdownWords = sentence.words.filter((w) => w.romanization.trim() !== '');
+  const selectedWord = selected === null ? null : sentence.words[selected];
 
   function next() {
-    if (index + 1 < story.sentences.length) setIndex((i) => i + 1);
+    if (index + 1 < story.sentences.length) {
+      setIndex((i) => i + 1);
+      setSelected(null);
+    }
   }
 
   function prev() {
-    if (index > 0) setIndex((i) => i - 1);
+    if (index > 0) {
+      setIndex((i) => i - 1);
+      setSelected(null);
+    }
   }
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col p-3 gap-3 overflow-y-auto">
+    <div className="flex-1 min-h-0 flex flex-col p-3 gap-3 overflow-y-auto" onClick={() => setSelected(null)}>
       <div className="flex items-center justify-between gap-3">
         <button
           onClick={onExit}
@@ -96,51 +172,38 @@ export function StoryReader({ story, onExit }: Props) {
             {split ? 'Joined' : 'Split words'}
           </button>
           <div className="font-thai-looped font-semibold text-3xl">
-            {split ? <SplitSentence words={sentence.words} /> : sentence.thai}
+            <TappableSentence
+              words={sentence.words}
+              split={split}
+              selected={selected}
+              onSelect={(i) => setSelected((cur) => (cur === i ? null : i))}
+            />
           </div>
           <AudioButton text={sentence.thai} />
           <div className="text-txt-primary text-base mt-1">{sentence.english}</div>
-        </div>
-
-        <div>
-          <div className="text-txt-tertiary text-xs font-semibold uppercase tracking-wide mb-2 px-1">
-            Word by word
-          </div>
-          <div className="flex flex-col gap-2">
-            {breakdownWords.map((word, i) => (
-              <div
-                key={i}
-                className="bg-app-card rounded-lg border border-border p-3 flex items-start gap-3"
-              >
-                <div className="shrink-0 text-center w-24">
-                  <div className={`font-thai-looped text-xl leading-tight ${isConnector(word) ? 'text-connector' : ''}`}>
-                    {word.thai}
-                  </div>
-                  <div className="text-txt-secondary text-xs mt-0.5">{word.pronunciation || word.romanization}</div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-txt-primary text-sm font-semibold">{word.english}</div>
-                  <div className="text-txt-tertiary text-xs mt-0.5">{word.grammarNote}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <div className="text-txt-tertiary text-xs mt-1">Tap a word for its meaning</div>
         </div>
       </div>
 
-      <div className="mt-auto flex gap-2 pt-2">
-        <GhostButton onClick={prev} className="flex-1 bg-app-surface justify-center" disabled={index === 0}>
-          ← Previous
-        </GhostButton>
-        {index + 1 < story.sentences.length ? (
-          <AccentButton onClick={next} className="flex-1">
-            Next →
-          </AccentButton>
-        ) : (
-          <AccentButton onClick={onExit} className="flex-1">
-            Finish 🎉
-          </AccentButton>
-        )}
+      {/* Pinned above the nav buttons so Next/Previous stay reachable while a word is open. */}
+      <div className="mt-auto sticky bottom-0 flex flex-col gap-2 pt-2 bg-app-bg">
+        <AnimatePresence>
+          {selectedWord && <WordSheet word={selectedWord} onClose={() => setSelected(null)} />}
+        </AnimatePresence>
+        <div className="flex gap-2">
+          <GhostButton onClick={prev} className="flex-1 bg-app-surface justify-center" disabled={index === 0}>
+            ← Previous
+          </GhostButton>
+          {index + 1 < story.sentences.length ? (
+            <AccentButton onClick={next} className="flex-1">
+              Next →
+            </AccentButton>
+          ) : (
+            <AccentButton onClick={onExit} className="flex-1">
+              Finish 🎉
+            </AccentButton>
+          )}
+        </div>
       </div>
     </div>
   );
