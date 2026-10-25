@@ -1,8 +1,49 @@
 import { useState } from 'react';
-import type { Story } from '../../types/story';
+import type { Story, StoryWord } from '../../types/story';
 import { AudioButton } from '../quiz/AudioButton';
 import { AccentButton, GhostButton } from '../ui/Button';
 import { ProgressBar } from '../ui/ProgressBar';
+
+// Conjunctions, prepositions and relative pronouns (ที่, ว่า, และ, แต่…) glue clauses together.
+function isConnector(word: StoryWord) {
+  return /^(conjunction|preposition|relative pronoun)/i.test(word.grammarNote);
+}
+
+function isPunctuation(word: StoryWord) {
+  return word.romanization.trim() === '';
+}
+
+// Decides which words get a space before them. Opening quotes hug the next word, closing quotes hug the previous one.
+function spacesBefore(words: StoryWord[]) {
+  let insideQuote = false;
+  return words.map((word, i) => {
+    if (i === 0) {
+      if (word.thai === '"') insideQuote = true;
+      return false;
+    }
+    if (word.thai === '"') {
+      const opening = !insideQuote;
+      insideQuote = opening;
+      return opening;
+    }
+    if (isPunctuation(word)) return false;
+    return !(insideQuote && words[i - 1].thai === '"');
+  });
+}
+
+function SplitSentence({ words }: { words: StoryWord[] }) {
+  const spaces = spacesBefore(words);
+  return (
+    <>
+      {words.map((word, i) => (
+        <span key={i}>
+          {spaces[i] && ' '}
+          <span className={`whitespace-nowrap ${isConnector(word) ? 'text-connector' : ''}`}>{word.thai}</span>
+        </span>
+      ))}
+    </>
+  );
+}
 
 interface Props {
   story: Story;
@@ -11,6 +52,7 @@ interface Props {
 
 export function StoryReader({ story, onExit }: Props) {
   const [index, setIndex] = useState(0);
+  const [split, setSplit] = useState(false);
 
   const sentence = story.sentences[index];
   const progressPct = (index / story.sentences.length) * 100;
@@ -43,8 +85,19 @@ export function StoryReader({ story, onExit }: Props) {
       <div className="flex flex-col gap-4 pb-2">
         {sentence.newParagraph && index > 0 && <div className="h-2" />}
 
-        <div className="bg-app-card-light border border-border-accent rounded-2xl p-5 flex flex-col items-center gap-2 text-center">
-          <div className="font-thai-looped font-semibold text-3xl">{sentence.thai}</div>
+        <div className="relative bg-app-card-light border border-border-accent rounded-2xl p-5 pt-10 flex flex-col items-center gap-2 text-center">
+          <button
+            onClick={() => setSplit((s) => !s)}
+            aria-pressed={split}
+            className={`absolute top-2 right-2 px-3 py-1 rounded-lg text-xs font-semibold ${
+              split ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+            }`}
+          >
+            {split ? 'Joined' : 'Split words'}
+          </button>
+          <div className="font-thai-looped font-semibold text-3xl">
+            {split ? <SplitSentence words={sentence.words} /> : sentence.thai}
+          </div>
           <AudioButton text={sentence.thai} />
           <div className="text-txt-primary text-base mt-1">{sentence.english}</div>
         </div>
@@ -60,7 +113,9 @@ export function StoryReader({ story, onExit }: Props) {
                 className="bg-app-card rounded-lg border border-border p-3 flex items-start gap-3"
               >
                 <div className="shrink-0 text-center w-24">
-                  <div className="font-thai-looped text-xl leading-tight">{word.thai}</div>
+                  <div className={`font-thai-looped text-xl leading-tight ${isConnector(word) ? 'text-connector' : ''}`}>
+                    {word.thai}
+                  </div>
                   <div className="text-txt-secondary text-xs mt-0.5">{word.pronunciation || word.romanization}</div>
                 </div>
                 <div className="flex-1 min-w-0">
