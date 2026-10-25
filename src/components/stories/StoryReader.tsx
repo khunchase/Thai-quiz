@@ -85,12 +85,12 @@ function TappableSentence({ words, split, selected, onSelect }: SentenceProps) {
 function WordSheet({ word, onClose }: { word: StoryWord; onClose: () => void }) {
   return (
     <motion.div
-      initial={{ y: 40, opacity: 0 }}
+      initial={{ y: -12, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 40, opacity: 0 }}
+      exit={{ y: -12, opacity: 0 }}
       transition={{ type: 'spring', stiffness: 420, damping: 38 }}
       onClick={(e) => e.stopPropagation()}
-      className="rounded-2xl border border-border-accent bg-app-card-light p-4 shadow-[0_-8px_24px_rgba(0,0,0,0.5)]"
+      className="rounded-2xl border border-border-accent bg-app-card-light p-4"
     >
       <div className="flex items-start gap-4">
         <div className="flex-1 min-w-0">
@@ -183,13 +183,8 @@ export function StoryReader({ story, onExit }: Props) {
           <div className="text-txt-primary text-base mt-1">{sentence.english}</div>
           <div className="text-txt-tertiary text-xs mt-1">Tap a word for its meaning</div>
         </div>
-      </div>
 
-      {/* Pinned above the nav buttons so Next/Previous stay reachable while a word is open. */}
-      <div className="mt-auto sticky bottom-0 flex flex-col gap-2 pt-2 bg-app-bg">
-        <AnimatePresence>
-          {selectedWord && <WordSheet word={selectedWord} onClose={() => setSelected(null)} />}
-        </AnimatePresence>
+        {/* Directly under the sentence, with the word card below, so the buttons don't move when a word opens. */}
         <div className="flex gap-2">
           <GhostButton onClick={prev} className="flex-1 bg-app-surface justify-center" disabled={index === 0}>
             ← Previous
@@ -204,6 +199,10 @@ export function StoryReader({ story, onExit }: Props) {
             </AccentButton>
           )}
         </div>
+
+        <AnimatePresence>
+          {selectedWord && <WordSheet word={selectedWord} onClose={() => setSelected(null)} />}
+        </AnimatePresence>
       </div>
     </div>
   );
