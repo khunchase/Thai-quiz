@@ -4,6 +4,7 @@ import type { Story, StoryWord } from '../../types/story';
 import { AudioButton } from '../quiz/AudioButton';
 import { AccentButton, GhostButton } from '../ui/Button';
 import { ProgressBar } from '../ui/ProgressBar';
+import { ExerciseHeader } from '../quiz/ExerciseLayout';
 
 // Conjunctions, prepositions and relative pronouns (ที่, ว่า, และ, แต่…) glue clauses together.
 function isConnector(word: StoryWord) {
@@ -166,69 +167,63 @@ export function StoryReader({ story, onExit }: Props) {
   }
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col p-3 gap-3 overflow-y-auto" onClick={() => setSelected(null)}>
-      <div className="flex items-center justify-between gap-3">
-        <button
-          onClick={onExit}
-          className="px-4 py-2 rounded-lg bg-app-surface text-danger font-semibold text-sm shrink-0"
-        >
-          ✕ Exit
-        </button>
-        <div className="text-txt-secondary text-sm font-semibold truncate px-2">{story.title.english}</div>
-        <div className="text-txt-secondary text-sm font-semibold shrink-0">
-          {index + 1} / {story.sentences.length}
-        </div>
-      </div>
-      <ProgressBar value={progressPct} />
+    <div className="flex-1 min-h-0 flex flex-col overflow-hidden" onClick={() => setSelected(null)}>
+      <ExerciseHeader
+        title={story.title.english}
+        subtitle={`${index + 1} / ${story.sentences.length}`}
+        onExit={onExit}
+        playText={sentence.thai}
+        playSpeed={speed}
+      />
+      <div className="flex-1 min-h-0 flex flex-col p-3 pt-1 gap-3 overflow-y-auto">
+        <ProgressBar value={progressPct} />
 
-      <div className="flex flex-col gap-4 pb-2">
-        {sentence.newParagraph && index > 0 && <div className="h-2" />}
+        <div className="flex flex-col gap-4 pb-2">
+          {sentence.newParagraph && index > 0 && <div className="h-2" />}
 
-        <div className="relative bg-app-card-light border border-border-accent rounded-2xl p-5 pt-10 flex flex-col items-center gap-2 text-center">
-          <button
-            onClick={() => setSplit((s) => !s)}
-            aria-pressed={split}
-            className={`absolute top-2 right-2 px-3 py-1 rounded-lg text-xs font-semibold ${
-              split ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
-            }`}
-          >
-            {split ? 'Joined' : 'Split words'}
-          </button>
-          <div className="font-thai-looped font-semibold text-3xl">
-            <TappableSentence
-              words={sentence.words}
-              split={split}
-              selected={selected}
-              onSelect={(i) => setSelected((cur) => (cur === i ? null : i))}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <AudioButton text={sentence.thai} speed={speed} />
+          <div className="relative bg-app-card-light border border-border-accent rounded-2xl p-5 pt-10 flex flex-col items-center gap-2 text-center">
+            <button
+              onClick={() => setSplit((s) => !s)}
+              aria-pressed={split}
+              className={`absolute top-2 right-2 px-3 py-1 rounded-lg text-xs font-semibold ${
+                split ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+              }`}
+            >
+              {split ? 'Joined' : 'Split words'}
+            </button>
+            <div className="font-thai-looped font-semibold text-3xl">
+              <TappableSentence
+                words={sentence.words}
+                split={split}
+                selected={selected}
+                onSelect={(i) => setSelected((cur) => (cur === i ? null : i))}
+              />
+            </div>
             <SpeedPicker speed={speed} onChange={setSpeed} />
+            <div className="text-txt-primary text-base mt-1">{sentence.english}</div>
+            <div className="text-txt-tertiary text-xs mt-1">Tap a word for its meaning</div>
           </div>
-          <div className="text-txt-primary text-base mt-1">{sentence.english}</div>
-          <div className="text-txt-tertiary text-xs mt-1">Tap a word for its meaning</div>
-        </div>
 
-        {/* Directly under the sentence, with the word card below, so the buttons don't move when a word opens. */}
-        <div className="flex gap-2">
-          <GhostButton onClick={prev} className="flex-1 bg-app-surface justify-center" disabled={index === 0}>
-            ← Previous
-          </GhostButton>
-          {index + 1 < story.sentences.length ? (
-            <AccentButton onClick={next} className="flex-1">
-              Next →
-            </AccentButton>
-          ) : (
-            <AccentButton onClick={onExit} className="flex-1">
-              Finish 🎉
-            </AccentButton>
-          )}
-        </div>
+          {/* Directly under the sentence, with the word card below, so the buttons don't move when a word opens. */}
+          <div className="flex gap-2">
+            <GhostButton onClick={prev} className="flex-1 bg-app-surface justify-center" disabled={index === 0}>
+              ← Previous
+            </GhostButton>
+            {index + 1 < story.sentences.length ? (
+              <AccentButton onClick={next} className="flex-1">
+                Next →
+              </AccentButton>
+            ) : (
+              <AccentButton onClick={onExit} className="flex-1">
+                Finish 🎉
+              </AccentButton>
+            )}
+          </div>
 
-        <AnimatePresence>
-          {selectedWord && <WordSheet word={selectedWord} onClose={() => setSelected(null)} />}
-        </AnimatePresence>
+          <AnimatePresence>
+            {selectedWord && <WordSheet word={selectedWord} onClose={() => setSelected(null)} />}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

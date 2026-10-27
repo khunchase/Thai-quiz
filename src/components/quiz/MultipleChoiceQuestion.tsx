@@ -5,11 +5,11 @@ import type { Word } from '../../types/word';
 import { gradeForMultipleChoice, GRADE_GIVE_UP, GRADE_KNOWN } from '../../lib/srs';
 import { AudioButton } from './AudioButton';
 import { ThaiWord } from './ThaiWord';
-import { AccentButton, GhostButton } from '../ui/Button';
 import { useSettingsStore } from '../../stores/settings-store';
 import { BreakdownHeadword, WordBreakdown } from './WordBreakdown';
+import { ExerciseLayout, ExercisePrompt, type ExerciseFrame } from './ExerciseLayout';
 
-interface Props {
+interface Props extends ExerciseFrame {
   question: QuizQuestion;
   onAnswered: (grade: Grade, correct: boolean, userAnswer?: string) => void;
   onMarkWord?: (wordId: string, grade: Grade, correct: boolean) => void;
@@ -25,7 +25,7 @@ interface Pending {
 
 type ReviewStatus = 'known' | 'learn';
 
-export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord }: Props) {
+export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord, ...frame }: Props) {
   const [selected, setSelected] = useState<string | typeof GAVE_UP | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
   const [reviewed, setReviewed] = useState<Record<string, ReviewStatus>>({});
@@ -69,22 +69,28 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord }: Pro
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="text-center py-3">
+    <ExerciseLayout
+      {...frame}
+      word={word}
+      revealed={answered}
+      pendingGrade={pending?.grade}
+      onNext={next}
+      playText={word.thai}
+      // Hearing the Thai would give away an English → Thai question.
+      playDisabled={direction === 'en-th' && !answered}
+      onHelp={giveUp}
+      helpDisabled={answered}
+    >
+      <ExercisePrompt label={direction === 'th-en' ? 'What does this mean?' : 'Find the word'}>
         {direction === 'th-en' ? (
-          <ThaiWord text={promptText} size="lg" />
+          <ThaiWord text={promptText} size="lg" align="left" />
         ) : (
-          <div className="text-4xl font-semibold">{promptText}</div>
+          <div className="text-3xl font-bold">{promptText}</div>
         )}
         {showRomanization && (
           <div className="text-txt-secondary text-sm mt-1">{word.pronunciation ?? word.romanization}</div>
         )}
-        {direction === 'th-en' && (
-          <div className="flex justify-center mt-2">
-            <AudioButton text={word.thai} />
-          </div>
-        )}
-      </div>
+      </ExercisePrompt>
       <div className="grid grid-cols-1 gap-2">
         {options.map((option) => {
           const isCorrectOption = option.text === correctText;
@@ -104,17 +110,11 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord }: Pro
           );
         })}
       </div>
-      {!selected && (
-        <GhostButton onClick={giveUp} className="self-center">
-          I don't know
-        </GhostButton>
-      )}
       {answered && (
-        <div className="text-txt-tertiary text-xs text-center -mt-2">
+        <div className="text-txt-tertiary text-xs text-center">
           Tap a word to see details, then swipe to mark it known or to learn
         </div>
       )}
-      {pending && <AccentButton onClick={next}>Next question</AccentButton>}
 
       {detailWord && (
         <WordDetailPopup
@@ -124,7 +124,7 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord }: Pro
           onReview={(status) => reviewWord(detailWord.id, status)}
         />
       )}
-    </div>
+    </ExerciseLayout>
   );
 }
 

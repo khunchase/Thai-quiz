@@ -1,14 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAllWords, useAllCategories } from '../stores/deck-store';
 import { useProgressStore, displayedStreak } from '../stores/progress-store';
-import { useSettingsStore } from '../stores/settings-store';
 import { useNavigationStore } from '../stores/navigation-store';
 import { classifyWords, generateQuiz } from '../lib/quiz-generator';
 import type { QuizQuestion, Grade, Direction } from '../types/quiz';
 import { QuestionRenderer } from '../components/quiz/QuestionRenderer';
 import { AccentButton } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { ProgressBar } from '../components/ui/ProgressBar';
 import { Badge } from '../components/ui/Badge';
 
 interface Answer {
@@ -16,7 +14,7 @@ interface Answer {
   correct: boolean;
 }
 
-type Phase = 'start' | 'active' | 'summary';
+type Phase = 'start' | 'active' | 'caught-up';
 
 type QuizMode = 'multiple-choice' | 'typed-thai' | 'phonetic';
 
@@ -26,13 +24,17 @@ const QUIZ_MODES: { id: QuizMode; label: string }[] = [
   { id: 'phonetic', label: '🔤 Phonetics' },
 ];
 
+/** Questions picked at a time — small, so each batch reflects the latest answers. */
+const BATCH_SIZE = 5;
+/** Words asked this recently sit out the next batch so nothing comes straight back. */
+const RECENT_GAP = 3;
+
 export function QuizPage() {
   const words = useAllWords();
   const categories = useAllCategories();
   const reviewStates = useProgressStore((s) => s.reviewStates);
   const recordAnswer = useProgressStore((s) => s.recordAnswer);
   const currentStreak = useProgressStore((s) => displayedStreak(s.currentStreak, s.lastActiveDate));
-  const settings = useSettingsStore((s) => s.settings);
 
   const [phase, setPhase] = useState<Phase>('start');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => categories.map((c) => c.id));
@@ -64,67 +66,77 @@ export function QuizPage() {
     setSelectedCategories(allCategoriesSelected ? [] : categories.map((c) => c.id));
   }
 
-  function startQuiz() {
-    if (selectedCategories.length === 0) return;
-    const quiz = generateQuiz({
+  // Picks the next few questions from the latest review states. If too few words are left to keep the
+  // recent ones out, they're let back in rather than ending the quiz.
+  function nextBatch(recentWordIds: string[]): QuizQuestion[] {
+    const options = {
       words,
-      reviewStates,
-      sessionLength: settings.sessionLength,
+      reviewStates: useProgressStore.getState().reviewStates,
+      sessionLength: BATCH_SIZE,
       direction,
       categoryFilter: allCategoriesSelected ? undefined : selectedCategories,
       forceType: quizMode === 'multiple-choice' ? undefined : quizMode,
-    });
-    setQuestions(quiz);
-    setIndex(0);
-    setAnswers([]);
-    if (quiz.length) setPhase('active');
+    };
+    for (const excludeWordIds of [recentWordIds, recentWordIds.slice(-1), []]) {
+      const batch = generateQuiz({ ...options, excludeWordIds });
+      if (batch.length) return batch;
+    }
+    return [];
   }
 
+  function startQuiz() {
+    if (selectedCategories.length === 0) return;
+    const batch = nextBatch([]);
+    setQuestions(batch);
+    setIndex(0);
+    setAnswers([]);
+    if (batch.length) setPhase('active');
+  }
+
+  // The quiz never runs out on its own: a new batch follows each one until Back, or until nothing is left to ask.
   function handleAnswered(grade: Grade, correct: boolean) {
     const question = questions[index];
     recordAnswer(question.word.id, grade, correct);
     setAnswers((prev) => [...prev, { question, correct }]);
-    const nextIndex = index + 1;
-    if (nextIndex >= questions.length) setPhase('summary');
-    else setIndex(nextIndex);
+    if (index + 1 < questions.length) {
+      setIndex(index + 1);
+      return;
+    }
+    const batch = nextBatch(questions.slice(-RECENT_GAP).map((q) => q.word.id));
+    if (!batch.length) {
+      setPhase('caught-up');
+      return;
+    }
+    setQuestions(batch);
+    setIndex(0);
   }
 
   if (phase === 'active' && questions[index]) {
-    const progressPct = (index / questions.length) * 100;
     return (
-      <div className="flex-1 min-h-0 flex flex-col p-3 gap-3 overflow-y-auto">
-        <div className="flex items-center justify-between gap-3">
-          <button
-            onClick={() => setPhase('start')}
-            className="px-4 py-2 rounded-lg bg-app-surface text-danger font-semibold text-sm shrink-0"
-          >
-            ✕ End Quiz
-          </button>
-          <div className="text-txt-secondary text-sm font-semibold">
-            {index + 1} / {questions.length}
-          </div>
-        </div>
-        <ProgressBar value={progressPct} />
-        <QuestionRenderer
-          key={questions[index].id}
-          question={questions[index]}
-          onAnswered={handleAnswered}
-          onMarkWord={(wordId, grade, correct) => recordAnswer(wordId, grade, correct, { countActivity: false })}
-        />
-      </div>
+      <QuestionRenderer
+        key={questions[index].id}
+        question={questions[index]}
+        title="Quiz"
+        onExit={() => setPhase('start')}
+        onAnswered={handleAnswered}
+        onMarkWord={(wordId, grade, correct) => recordAnswer(wordId, grade, correct, { countActivity: false })}
+      />
     );
   }
 
-  if (phase === 'summary') {
+  if (phase === 'caught-up') {
     const correctCount = answers.filter((a) => a.correct).length;
     return (
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-6 gap-6 text-center overflow-y-auto">
-        <div className="text-5xl">{correctCount === answers.length ? '🎉' : '👍'}</div>
+        <div className="text-5xl">🎉</div>
         <div>
-          <div className="text-2xl font-bold">
-            {correctCount} / {answers.length} correct
+          <div className="text-2xl font-bold">All caught up</div>
+          <div className="text-txt-secondary text-sm mt-2">
+            {answers.length} answered · {correctCount} correct · 🔥 {currentStreak} day streak
           </div>
-          <div className="text-txt-secondary text-sm mt-1">🔥 {currentStreak} day streak</div>
+          <div className="text-txt-tertiary text-xs mt-2">
+            Every word here is learned — come back when reviews are due, or pick more categories.
+          </div>
         </div>
         <AccentButton onClick={() => setPhase('start')}>Done</AccentButton>
       </div>
@@ -212,13 +224,6 @@ export function QuizPage() {
           </div>
         </Card>
       )}
-
-      <Card>
-        <div className="flex justify-between text-sm">
-          <span className="text-txt-secondary">Session length</span>
-          <span className="font-semibold">{settings.sessionLength} words</span>
-        </div>
-      </Card>
 
       <div className="mt-auto">
         {selectedCategories.length > 0 && nothingToQuiz && (

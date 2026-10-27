@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { QuizQuestion, Grade } from '../../types/quiz';
 import { gradeForFlashcard, type FlashcardRating } from '../../lib/srs';
-import { AudioButton } from './AudioButton';
 import { ThaiWord } from './ThaiWord';
+import { ExerciseLayout, type ExerciseFrame } from './ExerciseLayout';
 
-interface Props {
+interface Props extends ExerciseFrame {
   question: QuizQuestion;
   onAnswered: (grade: Grade, correct: boolean) => void;
 }
@@ -17,20 +17,35 @@ const ratingButtons: { rating: FlashcardRating; label: string; color: string }[]
   { rating: 'easy', label: 'Easy', color: 'bg-accent/15 text-accent' },
 ];
 
-export function FlashcardQuestion({ question, onAnswered }: Props) {
+export function FlashcardQuestion({ question, onAnswered, ...frame }: Props) {
   const [flipped, setFlipped] = useState(false);
+  const [grade, setGrade] = useState<Grade | null>(null);
   const { word, direction } = question;
 
   const front = direction === 'th-en' ? word.thai : word.english;
   const back = direction === 'th-en' ? word.english : word.thai;
 
   function rate(rating: FlashcardRating) {
-    const grade = gradeForFlashcard(rating);
-    onAnswered(grade, grade >= 3);
+    setGrade(gradeForFlashcard(rating));
+  }
+
+  function next() {
+    if (grade !== null) onAnswered(grade, grade >= 3);
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <ExerciseLayout
+      {...frame}
+      word={word}
+      revealed={grade !== null}
+      pendingGrade={grade}
+      onNext={next}
+      playText={word.thai}
+      playDisabled={direction === 'en-th' && !flipped}
+      onHelp={() => setFlipped(true)}
+      helpLabel="Show answer"
+      helpDisabled={flipped}
+    >
       <div className="[perspective:1000px]" onClick={() => setFlipped((f) => !f)}>
         <motion.div
           animate={{ rotateY: flipped ? 180 : 0 }}
@@ -43,7 +58,6 @@ export function FlashcardQuestion({ question, onAnswered }: Props) {
             ) : (
               <div className="text-4xl font-semibold">{front}</div>
             )}
-            {direction === 'th-en' && <AudioButton text={word.thai} />}
             <div className="text-txt-tertiary text-xs">Tap to flip</div>
           </div>
           <div
@@ -55,7 +69,6 @@ export function FlashcardQuestion({ question, onAnswered }: Props) {
             ) : (
               <div className="text-3xl font-semibold text-accent">{back}</div>
             )}
-            {direction === 'en-th' && <AudioButton text={word.thai} />}
             <div className="text-txt-secondary text-sm">{word.pronunciation ?? word.romanization}</div>
           </div>
         </motion.div>
@@ -66,13 +79,16 @@ export function FlashcardQuestion({ question, onAnswered }: Props) {
             <button
               key={b.rating}
               onClick={() => rate(b.rating)}
-              className={`py-3 rounded-lg font-semibold text-sm ${b.color} active:scale-[0.97] transition-transform`}
+              disabled={grade !== null}
+              className={`py-3 rounded-lg font-semibold text-sm ${b.color} active:scale-[0.97] transition-transform ${
+                grade !== null && gradeForFlashcard(b.rating) !== grade ? 'opacity-30' : ''
+              }`}
             >
               {b.label}
             </button>
           ))}
         </div>
       )}
-    </div>
+    </ExerciseLayout>
   );
 }

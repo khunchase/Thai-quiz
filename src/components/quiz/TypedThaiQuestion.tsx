@@ -2,12 +2,12 @@ import { useState } from 'react';
 import type { QuizQuestion, Grade } from '../../types/quiz';
 import { gradeForTyped, GRADE_GIVE_UP } from '../../lib/srs';
 import { isThaiAnswerCorrect } from '../../lib/answer';
-import { AccentButton, GhostButton } from '../ui/Button';
-import { AudioButton } from './AudioButton';
+import { AccentButton } from '../ui/Button';
 import { ThaiWord } from './ThaiWord';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
+import { ExerciseLayout, ExercisePrompt, type ExerciseFrame } from './ExerciseLayout';
 
-interface Props {
+interface Props extends ExerciseFrame {
   question: QuizQuestion;
   onAnswered: (grade: Grade, correct: boolean, userAnswer?: string) => void;
 }
@@ -20,7 +20,7 @@ interface Pending {
   answer?: string;
 }
 
-export function TypedThaiQuestion({ question, onAnswered }: Props) {
+export function TypedThaiQuestion({ question, onAnswered, ...frame }: Props) {
   const [value, setValue] = useState('');
   const [result, setResult] = useState<Result | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
@@ -49,11 +49,22 @@ export function TypedThaiQuestion({ question, onAnswered }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="text-center py-3">
-        <div className="text-4xl font-semibold">{word.english}</div>
+    <ExerciseLayout
+      {...frame}
+      word={word}
+      revealed={!!result}
+      pendingGrade={pending?.grade}
+      onNext={next}
+      playText={word.thai}
+      // Hearing the Thai would give away the spelling.
+      playDisabled={!result}
+      onHelp={giveUp}
+      helpDisabled={!!result}
+    >
+      <ExercisePrompt label="Type it in Thai">
+        <div className="text-3xl font-bold">{word.english}</div>
         {showHint && <div className="text-txt-secondary text-sm mt-1">{word.pronunciation ?? word.romanization}</div>}
-      </div>
+      </ExercisePrompt>
       <div>
         <input
           value={value}
@@ -72,23 +83,16 @@ export function TypedThaiQuestion({ question, onAnswered }: Props) {
           }`}
         />
         {(result === 'incorrect' || result === 'gave-up') && (
-          <div className="mt-3 flex items-center gap-3">
+          <div className="mt-3">
             <ThaiWord text={word.thai} size="sm" align="left" />
-            <AudioButton text={word.thai} />
           </div>
         )}
       </div>
       {!result && (
-        <div className="flex flex-col gap-3">
-          <AccentButton onClick={submit} disabled={!value.trim()}>
-            Check
-          </AccentButton>
-          <GhostButton onClick={giveUp} className="self-center">
-            I don't know
-          </GhostButton>
-        </div>
+        <AccentButton onClick={submit} disabled={!value.trim()}>
+          Check
+        </AccentButton>
       )}
-      {pending && <AccentButton onClick={next}>Next question</AccentButton>}
-    </div>
+    </ExerciseLayout>
   );
 }

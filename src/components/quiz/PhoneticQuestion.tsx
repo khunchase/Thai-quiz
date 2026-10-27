@@ -2,12 +2,12 @@ import { useState } from 'react';
 import type { QuizQuestion, Grade } from '../../types/quiz';
 import { gradeForTyped, GRADE_GIVE_UP } from '../../lib/srs';
 import { checkThaiIgnoringTones, isRomanizationCorrect } from '../../lib/answer';
-import { AccentButton, GhostButton } from '../ui/Button';
-import { AudioButton } from './AudioButton';
+import { AccentButton } from '../ui/Button';
 import { ThaiWord } from './ThaiWord';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
+import { ExerciseLayout, ExercisePrompt, type ExerciseFrame } from './ExerciseLayout';
 
-interface Props {
+interface Props extends ExerciseFrame {
   question: QuizQuestion;
   onAnswered: (grade: Grade, correct: boolean, userAnswer?: string) => void;
 }
@@ -29,7 +29,7 @@ const GRADE_TONE_SLIP: Grade = 4;
  * 'en-th' shows the tone-marked romanization and asks for Thai script.
  * Tone marks are forgiven in both directions.
  */
-export function PhoneticQuestion({ question, onAnswered }: Props) {
+export function PhoneticQuestion({ question, onAnswered, ...frame }: Props) {
   const [value, setValue] = useState('');
   const [result, setResult] = useState<Result | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
@@ -67,22 +67,28 @@ export function PhoneticQuestion({ question, onAnswered }: Props) {
   const passed = result === 'correct' || result === 'tone';
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="text-center py-3">
+    <ExerciseLayout
+      {...frame}
+      word={word}
+      revealed={!!result}
+      pendingGrade={pending?.grade}
+      onNext={next}
+      playText={word.thai}
+      // Hearing the Thai would give away the spelling.
+      playDisabled={typingThai && !result}
+      onHelp={giveUp}
+      helpDisabled={!!result}
+    >
+      <ExercisePrompt label={typingThai ? 'Write it in Thai' : 'How does it sound?'}>
         {typingThai ? (
           <>
-            <div className="text-4xl font-semibold">{pronunciation}</div>
+            <div className="text-3xl font-bold">{pronunciation}</div>
             {!scriptPractice && <div className="text-txt-secondary text-sm mt-1">{word.english}</div>}
           </>
         ) : (
-          <>
-            <ThaiWord text={word.thai} size="lg" />
-            <div className="flex justify-center mt-3">
-              <AudioButton text={word.thai} />
-            </div>
-          </>
+          <ThaiWord text={word.thai} size="lg" align="left" />
         )}
-      </div>
+      </ExercisePrompt>
       <div>
         <input
           value={value}
@@ -110,12 +116,7 @@ export function PhoneticQuestion({ question, onAnswered }: Props) {
             {result === 'tone' && (
               <div className="text-success text-sm">Correct — just check the tone mark:</div>
             )}
-            {typingThai && (
-              <div className="flex items-center gap-3">
-                <ThaiWord text={word.thai} size="sm" align="left" />
-                <AudioButton text={word.thai} />
-              </div>
-            )}
+            {typingThai && <ThaiWord text={word.thai} size="sm" align="left" />}
             <div className="text-txt-secondary text-sm">
               {pronunciation} · {word.english}
             </div>
@@ -123,16 +124,10 @@ export function PhoneticQuestion({ question, onAnswered }: Props) {
         )}
       </div>
       {!result && (
-        <div className="flex flex-col gap-3">
-          <AccentButton onClick={submit} disabled={!value.trim()}>
-            Check
-          </AccentButton>
-          <GhostButton onClick={giveUp} className="self-center">
-            I don't know
-          </GhostButton>
-        </div>
+        <AccentButton onClick={submit} disabled={!value.trim()}>
+          Check
+        </AccentButton>
       )}
-      {pending && <AccentButton onClick={next}>Next question</AccentButton>}
-    </div>
+    </ExerciseLayout>
   );
 }

@@ -2,12 +2,12 @@ import { useState } from 'react';
 import type { QuizQuestion, Grade } from '../../types/quiz';
 import { gradeForTyped, GRADE_GIVE_UP } from '../../lib/srs';
 import { isRomanizationCorrect, isTypedAnswerCorrect } from '../../lib/answer';
-import { AccentButton, GhostButton } from '../ui/Button';
-import { AudioButton } from './AudioButton';
+import { AccentButton } from '../ui/Button';
 import { ThaiWord } from './ThaiWord';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
+import { ExerciseLayout, ExercisePrompt, type ExerciseFrame } from './ExerciseLayout';
 
-interface Props {
+interface Props extends ExerciseFrame {
   question: QuizQuestion;
   onAnswered: (grade: Grade, correct: boolean, userAnswer?: string) => void;
 }
@@ -20,7 +20,7 @@ interface Pending {
   answer?: string;
 }
 
-export function TypedAnswerQuestion({ question, onAnswered }: Props) {
+export function TypedAnswerQuestion({ question, onAnswered, ...frame }: Props) {
   const [value, setValue] = useState('');
   const [result, setResult] = useState<Result | null>(null);
   const [pending, setPending] = useState<Pending | null>(null);
@@ -54,22 +54,28 @@ export function TypedAnswerQuestion({ question, onAnswered }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="text-center py-6">
+    <ExerciseLayout
+      {...frame}
+      word={word}
+      revealed={!!result}
+      pendingGrade={pending?.grade}
+      onNext={next}
+      playText={word.thai}
+      // Hearing the Thai would give away the romanization.
+      playDisabled={direction === 'en-th' && !result}
+      onHelp={giveUp}
+      helpDisabled={!!result}
+    >
+      <ExercisePrompt label={direction === 'th-en' ? 'Type the meaning' : 'Type the romanization'}>
         {direction === 'th-en' ? (
-          <ThaiWord text={promptText} size="lg" />
+          <ThaiWord text={promptText} size="lg" align="left" />
         ) : (
-          <div className="text-4xl font-semibold">{promptText}</div>
+          <div className="text-3xl font-bold">{promptText}</div>
         )}
         {showRomanization && (
-          <div className="text-txt-secondary text-sm mt-2">{word.pronunciation ?? word.romanization}</div>
+          <div className="text-txt-secondary text-sm mt-1">{word.pronunciation ?? word.romanization}</div>
         )}
-        {direction === 'th-en' && (
-          <div className="flex justify-center mt-3">
-            <AudioButton text={word.thai} />
-          </div>
-        )}
-      </div>
+      </ExercisePrompt>
       <div>
         <input
           value={value}
@@ -94,16 +100,10 @@ export function TypedAnswerQuestion({ question, onAnswered }: Props) {
         )}
       </div>
       {!result && (
-        <div className="flex flex-col gap-3">
-          <AccentButton onClick={submit} disabled={!value.trim()}>
-            Check
-          </AccentButton>
-          <GhostButton onClick={giveUp} className="self-center">
-            I don't know
-          </GhostButton>
-        </div>
+        <AccentButton onClick={submit} disabled={!value.trim()}>
+          Check
+        </AccentButton>
       )}
-      {pending && <AccentButton onClick={next}>Next question</AccentButton>}
-    </div>
+    </ExerciseLayout>
   );
 }

@@ -5,14 +5,12 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 export type ThaiFontStyle = 'looped' | 'loopless';
 
 export interface QuizSettings {
-  sessionLength: number;
   scriptPracticeMode: boolean;
   audioEnabled: boolean;
   thaiFontStyle: ThaiFontStyle;
 }
 
 const DEFAULT_SETTINGS: QuizSettings = {
-  sessionLength: 15,
   scriptPracticeMode: false,
   audioEnabled: true,
   thaiFontStyle: 'looped',
