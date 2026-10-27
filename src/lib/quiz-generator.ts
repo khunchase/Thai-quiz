@@ -9,6 +9,8 @@ export interface GenerateQuizOptions {
   sessionLength: number;
   direction: Direction | 'both';
   categoryFilter?: string[];
+  /** Words to leave out, e.g. ones just asked so they don't come straight back. */
+  excludeWordIds?: string[];
   /** Force every question to this type instead of the default multiple-choice. */
   forceType?: QuestionType;
 }
@@ -45,8 +47,10 @@ export function classifyWords(words: Word[], reviewStates: Record<string, Review
  * words that aren't due don't appear at all.
  */
 export function selectSessionWords(options: GenerateQuizOptions): Word[] {
-  const { words, reviewStates, sessionLength, categoryFilter } = options;
-  const pool = categoryFilter?.length ? words.filter((w) => categoryFilter.includes(w.categoryId)) : words;
+  const { words, reviewStates, sessionLength, categoryFilter, excludeWordIds = [] } = options;
+  const pool = (categoryFilter?.length ? words.filter((w) => categoryFilter.includes(w.categoryId)) : words).filter(
+    (w) => !excludeWordIds.includes(w.id)
+  );
   const { reviews, unseen, learning } = classifyWords(pool, reviewStates);
 
   const reviewSlots = Math.ceil(sessionLength * MAX_REVIEW_SHARE);

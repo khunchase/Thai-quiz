@@ -55,6 +55,15 @@ export function isKnown(state: ReviewState | undefined): boolean {
   return (state?.repetitions ?? 0) >= KNOWN_REPETITIONS;
 }
 
+/** Review gap at which a word's "progress on this item" bar reads 100%. */
+const LEARNED_INTERVAL_DAYS = 21;
+
+/** How far a word's review gap has grown toward fully learned, 0-100. */
+export function learnedPercent(state: ReviewState | undefined): number {
+  if (!state) return 0;
+  return Math.min(100, Math.round((state.intervalDays / LEARNED_INTERVAL_DAYS) * 100));
+}
+
 export function isDue(state: ReviewState, now = Date.now()): boolean {
   return state.dueAt <= now;
 }

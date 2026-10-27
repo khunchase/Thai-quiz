@@ -7,8 +7,6 @@ import { GhostButton, SecondaryButton } from '../components/ui/Button';
 import { AccountCard } from '../components/AccountCard';
 import { ThaiWord } from '../components/quiz/ThaiWord';
 
-const SESSION_LENGTHS = [10, 15, 20, 30];
-
 const FONT_STYLES: { id: ThaiFontStyle; label: string }[] = [
   { id: 'looped', label: 'Looped' },
   { id: 'loopless', label: 'Loopless' },
@@ -50,23 +48,6 @@ export function SettingsPage() {
             <SecondaryButton onClick={() => updateServiceWorker?.(true)}>Update now</SecondaryButton>
           </div>
         )}
-      </Card>
-
-      <Card>
-        <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Session length</div>
-        <div className="flex gap-2">
-          {SESSION_LENGTHS.map((len) => (
-            <button
-              key={len}
-              onClick={() => updateSettings({ sessionLength: len })}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold ${
-                settings.sessionLength === len ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
-              }`}
-            >
-              {len}
-            </button>
-          ))}
-        </div>
       </Card>
 
       <Card>

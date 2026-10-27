@@ -4,10 +4,9 @@ import type { Word } from '../../types/word';
 import { useProgressStore } from '../../stores/progress-store';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 import { GRADE_KNOWN, GRADE_GIVE_UP } from '../../lib/srs';
-import { AudioButton } from '../quiz/AudioButton';
 import { BreakdownHeadword, WordBreakdown } from '../quiz/WordBreakdown';
 import { AccentButton } from '../ui/Button';
-import { ProgressBar } from '../ui/ProgressBar';
+import { ExerciseLayout } from '../quiz/ExerciseLayout';
 
 interface Props {
   words: Word[];
@@ -54,24 +53,18 @@ export function FlashcardDeck({ words, bookName, onExit }: Props) {
     );
   }
 
-  const progressPct = (index / words.length) * 100;
-
   return (
-    <div className="flex-1 min-h-0 flex flex-col p-3 gap-3 overflow-y-auto">
-      <div className="flex items-center justify-between gap-3">
-        <button
-          onClick={onExit}
-          className="px-4 py-2 rounded-lg bg-app-surface text-danger font-semibold text-sm shrink-0"
-        >
-          ✕ Exit
-        </button>
-        <div className="text-txt-secondary text-sm font-semibold truncate px-2">{bookName}</div>
-        <div className="text-txt-secondary text-sm font-semibold shrink-0">
-          {index + 1} / {words.length}
-        </div>
-      </div>
-      <ProgressBar value={progressPct} />
-
+    <ExerciseLayout
+      title={bookName}
+      subtitle={`${index + 1} / ${words.length}`}
+      onExit={onExit}
+      word={word}
+      revealed={flipped}
+      playText={word.thai}
+      onHelp={() => setFlipped(true)}
+      helpLabel="Show answer"
+      helpDisabled={flipped}
+    >
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-4 py-2">
         <FlashcardFace
           key={word.id}
@@ -85,7 +78,7 @@ export function FlashcardDeck({ words, bookName, onExit }: Props) {
           <span className="text-success font-semibold">know it, swipe →</span>
         </div>
       </div>
-    </div>
+    </ExerciseLayout>
   );
 }
 
@@ -160,7 +153,6 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
             <BreakdownHeadword word={word} className="text-4xl" />
             <div className="text-txt-primary text-2xl font-bold text-center">{word.english}</div>
             <div className="text-txt-secondary text-sm">{word.pronunciation ?? word.romanization}</div>
-            <AudioButton text={word.thai} />
 
             <WordBreakdown word={word} />
 
