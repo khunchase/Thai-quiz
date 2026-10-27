@@ -5,6 +5,7 @@ import type { Word } from '../../types/word';
 import { gradeForMultipleChoice, GRADE_GIVE_UP, GRADE_KNOWN } from '../../lib/srs';
 import { AudioButton } from './AudioButton';
 import { ThaiWord } from './ThaiWord';
+import { GhostButton } from '../ui/Button';
 import { useSettingsStore } from '../../stores/settings-store';
 import { BreakdownHeadword, WordBreakdown } from './WordBreakdown';
 import { ExerciseLayout, ExercisePrompt, type ExerciseFrame } from './ExerciseLayout';
@@ -72,14 +73,12 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord, ...fr
     <ExerciseLayout
       {...frame}
       word={word}
-      revealed={answered}
+      answered={answered}
       pendingGrade={pending?.grade}
       onNext={next}
       playText={word.thai}
       // Hearing the Thai would give away an English → Thai question.
       playDisabled={direction === 'en-th' && !answered}
-      onHelp={giveUp}
-      helpDisabled={answered}
     >
       <ExercisePrompt label={direction === 'th-en' ? 'What does this mean?' : 'Find the word'}>
         {direction === 'th-en' ? (
@@ -110,6 +109,11 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord, ...fr
           );
         })}
       </div>
+      {!answered && (
+        <GhostButton onClick={giveUp} className="self-center">
+          I don't know
+        </GhostButton>
+      )}
       {answered && (
         <div className="text-txt-tertiary text-xs text-center">
           Tap a word to see details, then swipe to mark it known or to learn

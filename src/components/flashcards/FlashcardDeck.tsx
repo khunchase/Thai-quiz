@@ -59,11 +59,7 @@ export function FlashcardDeck({ words, bookName, onExit }: Props) {
       subtitle={`${index + 1} / ${words.length}`}
       onExit={onExit}
       word={word}
-      revealed={flipped}
       playText={word.thai}
-      onHelp={() => setFlipped(true)}
-      helpLabel="Show answer"
-      helpDisabled={flipped}
     >
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-4 py-2">
         <FlashcardFace
