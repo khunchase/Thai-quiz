@@ -15,26 +15,39 @@ export function createInitialReviewState(wordId: string, now = Date.now()): Revi
   };
 }
 
+/** Share of its gap a word keeps after a wrong answer... */
+const LAPSE_KEEP = 1 / 3;
+/** ...up to this many days, so a miss always shows on the % (3 days reads 66%). */
+const LAPSE_MAX_DAYS = 3;
+
 /**
- * SM-2 spaced repetition scheduling. Grade is 0-5 recall quality;
- * >=3 counts as a successful recall, below that resets the streak.
+ * SM-2 style scheduling. Grade is 0-5 recall quality; >=3 counts as a
+ * successful recall. A correct answer only earns the full step up once the
+ * word's gap has actually passed: answering it again sooner grows the gap by
+ * the share of it that did pass, so cramming can't inflate a word. A wrong
+ * answer cuts the gap to a third (at most 3 days) instead of starting over.
  */
 export function scheduleNextReview(state: ReviewState, grade: Grade, now = Date.now()): ReviewState {
   const correct = grade >= 3;
-  let easeFactor = Math.max(1.3, state.easeFactor + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02)));
-  let repetitions = state.repetitions;
-  let intervalDays = state.intervalDays;
-  let lapses = state.lapses;
+  const easeChange = 0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02);
+  let { easeFactor, intervalDays, repetitions, lapses } = state;
 
   if (!correct) {
+    easeFactor = Math.max(1.3, easeFactor + easeChange);
     repetitions = 0;
-    intervalDays = 1;
+    intervalDays = Math.min(LAPSE_MAX_DAYS, Math.round(intervalDays * LAPSE_KEEP));
     lapses += 1;
-  } else {
+  } else if (intervalDays === 0) {
     repetitions += 1;
-    if (repetitions === 1) intervalDays = 1;
-    else if (repetitions === 2) intervalDays = 6;
-    else intervalDays = Math.round(intervalDays * easeFactor);
+    intervalDays = 1;
+    easeFactor = Math.max(1.3, easeFactor + easeChange);
+  } else {
+    const elapsedDays = state.lastReviewedAt === null ? intervalDays : (now - state.lastReviewedAt) / DAY_MS;
+    const credit = Math.min(1, elapsedDays / intervalDays);
+    const fullStep = Math.max(6, intervalDays * easeFactor);
+    repetitions += 1;
+    intervalDays = Math.max(intervalDays, Math.round(intervalDays + (fullStep - intervalDays) * credit));
+    easeFactor = Math.max(1.3, easeFactor + easeChange * credit);
   }
 
   return {
@@ -48,20 +61,35 @@ export function scheduleNextReview(state: ReviewState, grade: Grade, now = Date.
   };
 }
 
-/** Correct recalls in a row before a word counts as known / mastered everywhere in the app. */
-export const KNOWN_REPETITIONS = 2;
+/** Review gap at which a word reads 100% learned. */
+const LEARNED_INTERVAL_DAYS = 7;
 
-export function isKnown(state: ReviewState | undefined): boolean {
-  return (state?.repetitions ?? 0) >= KNOWN_REPETITIONS;
+/** Once a word is overdue, its % halves every this many of its own gaps. */
+const DECAY_HALF_LIFE_GAPS = 2;
+
+/**
+ * How well a word is learned, 0-100. Climbs steeply at first and slows
+ * toward a 7-day gap; once the word is past its review date it fades again.
+ */
+export function learnedPercent(state: ReviewState | undefined, now = Date.now()): number {
+  if (!state || state.intervalDays === 0) return 0;
+  const reached = Math.min(1, Math.log1p(state.intervalDays) / Math.log1p(LEARNED_INTERVAL_DAYS));
+  const overdueDays = Math.max(0, (now - state.dueAt) / DAY_MS);
+  const fade = 0.5 ** (overdueDays / (state.intervalDays * DECAY_HALF_LIFE_GAPS));
+  // Rounded down, so a word reads 100% only while it's fully learned and not yet overdue.
+  return Math.floor(reached * fade * 100);
 }
 
-/** Review gap at which a word's "progress on this item" bar reads 100%. */
-const LEARNED_INTERVAL_DAYS = 21;
+/** % at which a word counts as known everywhere in the app. */
+export const KNOWN_PERCENT = 50;
 
-/** How far a word's review gap has grown toward fully learned, 0-100. */
-export function learnedPercent(state: ReviewState | undefined): number {
-  if (!state) return 0;
-  return Math.min(100, Math.round((state.intervalDays / LEARNED_INTERVAL_DAYS) * 100));
+export function isKnown(state: ReviewState | undefined, now = Date.now()): boolean {
+  return learnedPercent(state, now) >= KNOWN_PERCENT;
+}
+
+/** At 100%: left out of the quiz until it fades. */
+export function isFullyLearned(state: ReviewState | undefined, now = Date.now()): boolean {
+  return learnedPercent(state, now) >= 100;
 }
 
 export function isDue(state: ReviewState, now = Date.now()): boolean {

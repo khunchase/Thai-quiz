@@ -1,7 +1,7 @@
 import type { Word } from '../types/word';
 import type { ReviewState } from '../types/progress';
 import type { Direction, MultipleChoiceOption, QuestionType, QuizQuestion } from '../types/quiz';
-import { isDue, isKnown } from './srs';
+import { isDue, isFullyLearned, isKnown } from './srs';
 
 export interface GenerateQuizOptions {
   words: Word[];
@@ -27,7 +27,10 @@ function shuffle<T>(arr: T[]): T[] {
 /** Share of a session that learned words due for review may take, so reviews never crowd out new words. */
 const MAX_REVIEW_SHARE = 1 / 3;
 
-/** Splits words into the quiz's buckets. Learned words that aren't due yet are left out entirely. */
+/**
+ * Splits words into the quiz's buckets. Words at 100% are left out entirely,
+ * and so are known words that aren't due yet.
+ */
 export function classifyWords(words: Word[], reviewStates: Record<string, ReviewState>, now = Date.now()) {
   const reviews: Word[] = [];
   const unseen: Word[] = [];
@@ -35,7 +38,8 @@ export function classifyWords(words: Word[], reviewStates: Record<string, Review
   for (const word of words) {
     const state = reviewStates[word.id];
     if (!state) unseen.push(word);
-    else if (!isKnown(state)) learning.push(word);
+    else if (isFullyLearned(state, now)) continue;
+    else if (!isKnown(state, now)) learning.push(word);
     else if (isDue(state, now)) reviews.push(word);
   }
   return { reviews, unseen, learning };
