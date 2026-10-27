@@ -35,6 +35,8 @@ export function ItemSheet({ word, open, onOpenChange, answered, pendingGrade, on
   const [travel, setTravel] = useState(0);
   const y = useMotionValue(0);
   const backdropOpacity = useTransform(y, [0, Math.max(travel, 1)], [1, 0]);
+  // The details stay hidden while collapsed: the home-indicator strip below the peek row would show their top edge.
+  const detailsOpacity = useTransform(y, [travel * 0.5, Math.max(travel, 1)], [1, 0]);
   const dragControls = useDragControls();
 
   const percent =
@@ -129,9 +131,12 @@ export function ItemSheet({ word, open, onOpenChange, answered, pendingGrade, on
             )}
           </div>
         </div>
-        <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+        <motion.div
+          style={{ opacity: detailsOpacity }}
+          className="flex-1 min-h-0 overflow-y-auto px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+        >
           <ItemDetails word={word} />
-        </div>
+        </motion.div>
       </motion.div>
     </>
   );
