@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { Word } from '../../types/word';
 import type { Grade } from '../../types/quiz';
 import { isSpeechSupported } from '../../lib/speech';
@@ -94,25 +94,37 @@ export function ExercisePrompt({ label, children }: { label: string; children: R
   );
 }
 
-interface LayoutProps extends HeaderProps {
+interface LayoutProps extends Omit<HeaderProps, 'onHelp' | 'helpLabel' | 'helpDisabled'> {
   word: Word;
-  /** The answer is showing: Next is live and the sheet can be pulled up. */
-  revealed: boolean;
+  /** The question has been answered, so Next is live. Only matters with `onNext`. */
+  answered?: boolean;
   pendingGrade?: Grade | null;
   onNext?: () => void;
   children: ReactNode;
 }
 
-/** A full exercise screen: header, the question, and the progress sheet along the bottom. */
-export function ExerciseLayout({ word, revealed, pendingGrade, onNext, children, ...header }: LayoutProps) {
+/** A full exercise screen: header, the question, and the progress sheet along the bottom; ? pulls the sheet up. */
+export function ExerciseLayout({ word, answered = false, pendingGrade, onNext, children, ...header }: LayoutProps) {
+  // Keyed by word so moving to the next flashcard starts with the sheet closed.
+  const [openFor, setOpenFor] = useState<string | null>(null);
+  const sheetOpen = openFor === word.id;
+
   return (
     <div className="relative flex-1 min-h-0 flex flex-col overflow-hidden">
-      <ExerciseHeader {...header} />
+      <ExerciseHeader {...header} onHelp={() => setOpenFor(word.id)} helpLabel="Show word info" />
       {/* Bottom padding clears the collapsed sheet. */}
       <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-2 pb-[calc(9rem+env(safe-area-inset-bottom))] flex flex-col gap-4">
         {children}
       </div>
-      <ItemSheet key={word.id} word={word} revealed={revealed} pendingGrade={pendingGrade} onNext={onNext} />
+      <ItemSheet
+        key={word.id}
+        word={word}
+        open={sheetOpen}
+        onOpenChange={(open) => setOpenFor(open ? word.id : null)}
+        answered={answered}
+        pendingGrade={pendingGrade}
+        onNext={onNext}
+      />
     </div>
   );
 }

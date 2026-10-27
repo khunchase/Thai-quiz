@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { QuizQuestion, Grade } from '../../types/quiz';
 import { gradeForTyped, GRADE_GIVE_UP } from '../../lib/srs';
 import { isThaiAnswerCorrect } from '../../lib/answer';
-import { AccentButton } from '../ui/Button';
+import { AccentButton, GhostButton } from '../ui/Button';
 import { ThaiWord } from './ThaiWord';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 import { ExerciseLayout, ExercisePrompt, type ExerciseFrame } from './ExerciseLayout';
@@ -52,14 +52,12 @@ export function TypedThaiQuestion({ question, onAnswered, ...frame }: Props) {
     <ExerciseLayout
       {...frame}
       word={word}
-      revealed={!!result}
+      answered={!!result}
       pendingGrade={pending?.grade}
       onNext={next}
       playText={word.thai}
       // Hearing the Thai would give away the spelling.
       playDisabled={!result}
-      onHelp={giveUp}
-      helpDisabled={!!result}
     >
       <ExercisePrompt label="Type it in Thai">
         <div className="text-3xl font-bold">{word.english}</div>
@@ -89,9 +87,14 @@ export function TypedThaiQuestion({ question, onAnswered, ...frame }: Props) {
         )}
       </div>
       {!result && (
-        <AccentButton onClick={submit} disabled={!value.trim()}>
-          Check
-        </AccentButton>
+        <div className="flex flex-col gap-3">
+          <AccentButton onClick={submit} disabled={!value.trim()}>
+            Check
+          </AccentButton>
+          <GhostButton onClick={giveUp} className="self-center">
+            I don't know
+          </GhostButton>
+        </div>
       )}
     </ExerciseLayout>
   );

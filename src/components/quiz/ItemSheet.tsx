@@ -13,8 +13,11 @@ import { BreakdownHeadword, WordBreakdown } from './WordBreakdown';
 
 interface Props {
   word: Word;
-  /** Once the answer is shown, the sheet can be pulled up to see the word's details. */
-  revealed: boolean;
+  /** Pulled up to show the word's details; it can be opened before answering too, to peek. */
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** The question has been answered, so Next is live. */
+  answered: boolean;
   /** The answer's grade before it's recorded, so the bar already shows where the word will land. */
   pendingGrade?: Grade | null;
   /** Omitted where something else moves on (e.g. swiping a flashcard). */
@@ -24,13 +27,12 @@ interface Props {
 const SPRING = { type: 'spring', stiffness: 420, damping: 42 } as const;
 
 /** Bottom sheet: "progress on this item" while collapsed, the word's details when pulled up. */
-export function ItemSheet({ word, revealed, pendingGrade, onNext }: Props) {
+export function ItemSheet({ word, open, onOpenChange, answered, pendingGrade, onNext }: Props) {
   const reviewState = useProgressStore((s) => s.reviewStates[word.id]);
   const sheetRef = useRef<HTMLDivElement>(null);
   const peekRef = useRef<HTMLDivElement>(null);
   const safeAreaRef = useRef<HTMLDivElement>(null);
   const [travel, setTravel] = useState(0);
-  const [expanded, setExpanded] = useState(false);
   const y = useMotionValue(0);
   const backdropOpacity = useTransform(y, [0, Math.max(travel, 1)], [1, 0]);
   const dragControls = useDragControls();
@@ -39,7 +41,6 @@ export function ItemSheet({ word, revealed, pendingGrade, onNext }: Props) {
     pendingGrade == null
       ? learnedPercent(reviewState)
       : learnedPercent(scheduleNextReview(reviewState ?? createInitialReviewState(word.id), pendingGrade));
-  const open = expanded && revealed;
 
   // Collapsed, only the peek row (plus the home-indicator inset) stays on screen.
   useLayoutEffect(() => {
@@ -67,7 +68,7 @@ export function ItemSheet({ word, revealed, pendingGrade, onNext }: Props) {
   }, [open, travel, y]);
 
   function settle(toOpen: boolean) {
-    setExpanded(toOpen);
+    onOpenChange(toOpen);
     // Re-run even when the state doesn't change, to spring back after a short drag.
     animate(y, toOpen ? 0 : travel, SPRING);
   }
@@ -81,7 +82,7 @@ export function ItemSheet({ word, revealed, pendingGrade, onNext }: Props) {
       />
       <motion.div
         ref={sheetRef}
-        drag={revealed ? 'y' : false}
+        drag="y"
         dragListener={false}
         dragControls={dragControls}
         dragConstraints={{ top: 0, bottom: travel }}
@@ -98,11 +99,11 @@ export function ItemSheet({ word, revealed, pendingGrade, onNext }: Props) {
         <div ref={safeAreaRef} className="absolute w-0 h-[env(safe-area-inset-bottom)] invisible" />
         <div
           ref={peekRef}
-          onPointerDown={(e) => revealed && dragControls.start(e)}
-          onClick={() => revealed && settle(!open)}
-          className={`shrink-0 px-5 pt-2.5 pb-4 touch-none ${revealed ? 'cursor-grab' : ''}`}
+          onPointerDown={(e) => dragControls.start(e)}
+          onClick={() => settle(!open)}
+          className="shrink-0 px-5 pt-2.5 pb-4 touch-none cursor-grab"
         >
-          <div className={`mx-auto mb-3 h-1.5 w-10 rounded-full ${revealed ? 'bg-txt-tertiary' : 'bg-app-surface'}`} />
+          <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-txt-tertiary" />
           <div className="flex items-center gap-4">
             <div className="flex-1 min-w-0">
               <div className="text-txt-primary text-[15px] font-medium">Progress on this item</div>
@@ -119,7 +120,7 @@ export function ItemSheet({ word, revealed, pendingGrade, onNext }: Props) {
                   e.stopPropagation();
                   onNext();
                 }}
-                disabled={!revealed}
+                disabled={!answered}
                 className="shrink-0 h-12 px-5 rounded-xl flex items-center gap-2 font-bold text-base bg-gradient-to-b from-accent-light to-accent text-app-bg active:scale-[0.97] transition-transform disabled:bg-none disabled:bg-app-surface disabled:text-txt-tertiary"
               >
                 Next
@@ -129,7 +130,7 @@ export function ItemSheet({ word, revealed, pendingGrade, onNext }: Props) {
           </div>
         </div>
         <div className="flex-1 min-h-0 overflow-y-auto px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
-          {revealed && <ItemDetails word={word} />}
+          <ItemDetails word={word} />
         </div>
       </motion.div>
     </>

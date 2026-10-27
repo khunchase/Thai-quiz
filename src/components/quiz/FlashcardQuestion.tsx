@@ -37,14 +37,11 @@ export function FlashcardQuestion({ question, onAnswered, ...frame }: Props) {
     <ExerciseLayout
       {...frame}
       word={word}
-      revealed={grade !== null}
+      answered={grade !== null}
       pendingGrade={grade}
       onNext={next}
       playText={word.thai}
       playDisabled={direction === 'en-th' && !flipped}
-      onHelp={() => setFlipped(true)}
-      helpLabel="Show answer"
-      helpDisabled={flipped}
     >
       <div className="[perspective:1000px]" onClick={() => setFlipped((f) => !f)}>
         <motion.div
