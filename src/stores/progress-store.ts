@@ -2,10 +2,10 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { ReviewState, DailyLogEntry } from '../types/progress';
 import type { Grade } from '../types/quiz';
-import { createInitialReviewState, scheduleNextReview } from '../lib/srs';
+import { createInitialReviewState, scheduleNextReview, type ScheduleOptions } from '../lib/srs';
 import { todayKey, daysBetweenKeys } from '../lib/date-utils';
 
-export interface RecordOptions {
+export interface RecordOptions extends ScheduleOptions {
   /**
    * When false, only the word's review schedule is updated — no XP, daily
    * review count or streak. Used for words marked in passing (e.g. swiping
@@ -55,7 +55,7 @@ export const useProgressStore = create<ProgressStore>()(
         const now = Date.now();
         const state = get();
         const prevReview = state.reviewStates[wordId] ?? createInitialReviewState(wordId, now);
-        const nextReview = scheduleNextReview(prevReview, grade, now);
+        const nextReview = scheduleNextReview(prevReview, grade, now, options);
 
         if (options?.countActivity === false) {
           set({ reviewStates: { ...state.reviewStates, [wordId]: nextReview } });

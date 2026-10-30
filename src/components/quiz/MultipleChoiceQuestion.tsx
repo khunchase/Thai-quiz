@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import type { QuizQuestion, Grade, MultipleChoiceOption, Direction } from '../../types/quiz';
 import type { Word } from '../../types/word';
-import { gradeForMultipleChoice, GRADE_GIVE_UP, GRADE_KNOWN } from '../../lib/srs';
+import { gradeForMultipleChoice, GRADE_GIVE_UP, GRADE_KNOWN, type ScheduleOptions } from '../../lib/srs';
 import { AudioButton } from './AudioButton';
 import { ThaiWord } from './ThaiWord';
 import { GhostButton } from '../ui/Button';
@@ -12,7 +12,7 @@ import { ExerciseLayout, ExercisePrompt, type ExerciseFrame } from './ExerciseLa
 
 interface Props extends ExerciseFrame {
   question: QuizQuestion;
-  onAnswered: (grade: Grade, correct: boolean, userAnswer?: string) => void;
+  onAnswered: (grade: Grade, correct: boolean, userAnswer?: string, options?: ScheduleOptions) => void;
   onMarkWord?: (wordId: string, grade: Grade, correct: boolean) => void;
 }
 
@@ -22,6 +22,7 @@ interface Pending {
   grade: Grade;
   correct: boolean;
   answer?: string;
+  markedKnown?: boolean;
 }
 
 type ReviewStatus = 'known' | 'learn';
@@ -54,7 +55,7 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord, ...fr
 
   function next() {
     if (!pending) return;
-    onAnswered(pending.grade, pending.correct, pending.answer);
+    onAnswered(pending.grade, pending.correct, pending.answer, { markedKnown: pending.markedKnown });
   }
 
   function reviewWord(wordId: string, status: ReviewStatus) {
@@ -63,7 +64,9 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord, ...fr
     if (wordId === word.id) {
       // The question word is recorded once, on "Next question" — the swipe
       // replaces the answer's grade rather than adding a second review.
-      setPending((p) => p && { ...p, grade: status === 'known' ? GRADE_KNOWN : GRADE_GIVE_UP });
+      setPending(
+        (p) => p && { ...p, grade: status === 'known' ? GRADE_KNOWN : GRADE_GIVE_UP, markedKnown: status === 'known' }
+      );
     } else if (status === 'known') onMarkWord?.(wordId, GRADE_KNOWN, true);
     else onMarkWord?.(wordId, GRADE_GIVE_UP, false);
     setDetailWord(null);
@@ -75,6 +78,7 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord, ...fr
       word={word}
       answered={answered}
       pendingGrade={pending?.grade}
+      pendingOptions={{ markedKnown: pending?.markedKnown }}
       onNext={next}
       playText={word.thai}
       // Hearing the Thai would give away an English → Thai question.

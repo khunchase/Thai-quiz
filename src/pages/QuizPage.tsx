@@ -3,6 +3,7 @@ import { useAllWords, useAllCategories } from '../stores/deck-store';
 import { useProgressStore, displayedStreak } from '../stores/progress-store';
 import { useNavigationStore } from '../stores/navigation-store';
 import { classifyWords, generateQuiz } from '../lib/quiz-generator';
+import type { ScheduleOptions } from '../lib/srs';
 import type { QuizQuestion, Grade, Direction } from '../types/quiz';
 import { QuestionRenderer } from '../components/quiz/QuestionRenderer';
 import { AccentButton } from '../components/ui/Button';
@@ -94,9 +95,9 @@ export function QuizPage() {
   }
 
   // The quiz never runs out on its own: a new batch follows each one until Back, or until nothing is left to ask.
-  function handleAnswered(grade: Grade, correct: boolean) {
+  function handleAnswered(grade: Grade, correct: boolean, _userAnswer?: string, options?: ScheduleOptions) {
     const question = questions[index];
-    recordAnswer(question.word.id, grade, correct);
+    recordAnswer(question.word.id, grade, correct, options);
     setAnswers((prev) => [...prev, { question, correct }]);
     if (index + 1 < questions.length) {
       setIndex(index + 1);
@@ -119,7 +120,10 @@ export function QuizPage() {
         title="Quiz"
         onExit={() => setPhase('start')}
         onAnswered={handleAnswered}
-        onMarkWord={(wordId, grade, correct) => recordAnswer(wordId, grade, correct, { countActivity: false })}
+        // Only swipes mark other words, so a correct one is a "known" swipe.
+        onMarkWord={(wordId, grade, correct) =>
+          recordAnswer(wordId, grade, correct, { countActivity: false, markedKnown: correct })
+        }
       />
     );
   }

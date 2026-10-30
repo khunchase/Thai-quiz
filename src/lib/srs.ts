@@ -20,14 +20,29 @@ const LAPSE_KEEP = 1 / 3;
 /** ...up to this many days, so a miss always shows on the % (3 days reads 66%). */
 const LAPSE_MAX_DAYS = 3;
 
+/** Smallest gap that reads as known (2 days is 52%). */
+const KNOWN_INTERVAL_DAYS = 2;
+
+export interface ScheduleOptions {
+  /** Swiped "known": the word goes straight to known, wherever it was. */
+  markedKnown?: boolean;
+}
+
 /**
  * SM-2 style scheduling. Grade is 0-5 recall quality; >=3 counts as a
  * successful recall. A correct answer only earns the full step up once the
  * word's gap has actually passed: answering it again sooner grows the gap by
- * the share of it that did pass, so cramming can't inflate a word. A wrong
- * answer cuts the gap to a third (at most 3 days) instead of starting over.
+ * the share of it that did pass, so cramming can't inflate a word. Practice
+ * in the same session still carries a word up to known (52%); past that it
+ * has to wait for its gap. A wrong answer cuts the gap to a third (at most
+ * 3 days) instead of starting over.
  */
-export function scheduleNextReview(state: ReviewState, grade: Grade, now = Date.now()): ReviewState {
+export function scheduleNextReview(
+  state: ReviewState,
+  grade: Grade,
+  now = Date.now(),
+  { markedKnown = false }: ScheduleOptions = {}
+): ReviewState {
   const correct = grade >= 3;
   const easeChange = 0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02);
   let { easeFactor, intervalDays, repetitions, lapses } = state;
@@ -39,14 +54,16 @@ export function scheduleNextReview(state: ReviewState, grade: Grade, now = Date.
     lapses += 1;
   } else if (intervalDays === 0) {
     repetitions += 1;
-    intervalDays = 1;
+    intervalDays = markedKnown ? KNOWN_INTERVAL_DAYS : 1;
     easeFactor = Math.max(1.3, easeFactor + easeChange);
   } else {
     const elapsedDays = state.lastReviewedAt === null ? intervalDays : (now - state.lastReviewedAt) / DAY_MS;
     const credit = Math.min(1, elapsedDays / intervalDays);
-    const fullStep = Math.max(6, intervalDays * easeFactor);
+    // Short gaps (including the 2 days same-session practice can reach) step up to 6 days, not ×ease.
+    const fullStep = intervalDays < 6 ? 6 : intervalDays * easeFactor;
     repetitions += 1;
-    intervalDays = Math.max(intervalDays, Math.round(intervalDays + (fullStep - intervalDays) * credit));
+    const spaced = Math.round(intervalDays + (fullStep - intervalDays) * credit);
+    intervalDays = Math.max(intervalDays, spaced, KNOWN_INTERVAL_DAYS);
     easeFactor = Math.max(1.3, easeFactor + easeChange * credit);
   }
 
