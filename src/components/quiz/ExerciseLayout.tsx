@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import type { Word } from '../../types/word';
 import type { Grade } from '../../types/quiz';
+import type { ScheduleOptions } from '../../lib/srs';
 import { isSpeechSupported } from '../../lib/speech';
 import { useSettingsStore } from '../../stores/settings-store';
 import { BackIcon, HelpIcon, SearchIcon } from '../ui/icons';
@@ -99,12 +100,21 @@ interface LayoutProps extends Omit<HeaderProps, 'onHelp' | 'helpLabel' | 'helpDi
   /** The question has been answered, so Next is live. Only matters with `onNext`. */
   answered?: boolean;
   pendingGrade?: Grade | null;
+  pendingOptions?: ScheduleOptions;
   onNext?: () => void;
   children: ReactNode;
 }
 
 /** A full exercise screen: header, the question, and the progress sheet along the bottom; ? pulls the sheet up. */
-export function ExerciseLayout({ word, answered = false, pendingGrade, onNext, children, ...header }: LayoutProps) {
+export function ExerciseLayout({
+  word,
+  answered = false,
+  pendingGrade,
+  pendingOptions,
+  onNext,
+  children,
+  ...header
+}: LayoutProps) {
   // Keyed by word so moving to the next flashcard starts with the sheet closed.
   const [openFor, setOpenFor] = useState<string | null>(null);
   const sheetOpen = openFor === word.id;
@@ -123,6 +133,7 @@ export function ExerciseLayout({ word, answered = false, pendingGrade, onNext, c
         onOpenChange={(open) => setOpenFor(open ? word.id : null)}
         answered={answered}
         pendingGrade={pendingGrade}
+        pendingOptions={pendingOptions}
         onNext={onNext}
       />
     </div>

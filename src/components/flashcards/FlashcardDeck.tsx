@@ -30,7 +30,9 @@ export function FlashcardDeck({ words, bookName, onExit }: Props) {
 
   function mark(status: MarkStatus) {
     if (!word) return;
-    recordAnswer(word.id, status === 'known' ? GRADE_KNOWN : GRADE_GIVE_UP, status === 'known');
+    recordAnswer(word.id, status === 'known' ? GRADE_KNOWN : GRADE_GIVE_UP, status === 'known', {
+      markedKnown: status === 'known',
+    });
     if (status === 'known') setKnown((k) => k + 1);
     else setLearning((l) => l + 1);
     setFlipped(false);

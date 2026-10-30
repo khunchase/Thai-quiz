@@ -5,7 +5,7 @@ import type { Grade } from '../../types/quiz';
 import { useProgressStore } from '../../stores/progress-store';
 import { useAllCategories } from '../../stores/deck-store';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
-import { createInitialReviewState, learnedPercent, scheduleNextReview } from '../../lib/srs';
+import { createInitialReviewState, learnedPercent, scheduleNextReview, type ScheduleOptions } from '../../lib/srs';
 import { ProgressBar } from '../ui/ProgressBar';
 import { ArrowRightIcon } from '../ui/icons';
 import { AudioButton } from './AudioButton';
@@ -20,6 +20,8 @@ interface Props {
   answered: boolean;
   /** The answer's grade before it's recorded, so the bar already shows where the word will land. */
   pendingGrade?: Grade | null;
+  /** How the pending answer is scheduled, e.g. swiped "known". */
+  pendingOptions?: ScheduleOptions;
   /** Omitted where something else moves on (e.g. swiping a flashcard). */
   onNext?: () => void;
 }
@@ -27,7 +29,7 @@ interface Props {
 const SPRING = { type: 'spring', stiffness: 420, damping: 42 } as const;
 
 /** Bottom sheet: "progress on this item" while collapsed, the word's details when pulled up. */
-export function ItemSheet({ word, open, onOpenChange, answered, pendingGrade, onNext }: Props) {
+export function ItemSheet({ word, open, onOpenChange, answered, pendingGrade, pendingOptions, onNext }: Props) {
   const reviewState = useProgressStore((s) => s.reviewStates[word.id]);
   const sheetRef = useRef<HTMLDivElement>(null);
   const peekRef = useRef<HTMLDivElement>(null);
@@ -42,7 +44,9 @@ export function ItemSheet({ word, open, onOpenChange, answered, pendingGrade, on
   const percent =
     pendingGrade == null
       ? learnedPercent(reviewState)
-      : learnedPercent(scheduleNextReview(reviewState ?? createInitialReviewState(word.id), pendingGrade));
+      : learnedPercent(
+          scheduleNextReview(reviewState ?? createInitialReviewState(word.id), pendingGrade, undefined, pendingOptions)
+        );
 
   // Collapsed, only the peek row (plus the home-indicator inset) stays on screen.
   useLayoutEffect(() => {
