@@ -18,9 +18,10 @@ account or backend required.
   wrong options always express a different relationship.
 - **Order quiz** — rebuild a Thai sentence from its shuffled word blocks to
   match the English ("What do you like to eat?" → คุณ ชอบ กิน อะไร). Tap a
-  block to place it, tap again to send it back; equally natural orders (time
-  words first or last) count as right. 64 sentences covering classifiers,
-  question words, particles and everyday verbs.
+  block to add it, or drag it to exactly where it goes (and back out); used
+  blocks leave a dotted gap so the word bank never shifts. Equally natural
+  orders (time words first or last) count as right. 236 sentences covering
+  classifiers, question words, particles and everyday verbs.
 - **Both directions** — Thai script → English and English → Thai, mixed or
   fixed via Settings.
 - **Spaced repetition** — an SM-2 scheduler tracks per-word ease/interval so
