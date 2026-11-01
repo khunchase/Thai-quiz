@@ -118,8 +118,10 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
         if (info.offset.x > SWIPE_THRESHOLD) onSwipe('known');
         else if (info.offset.x < -SWIPE_THRESHOLD) onSwipe('learning');
       }}
-      onTap={() => {
+      onTap={(event) => {
         if (wasDragging.current) return;
+        // Taps on a button inside the card (like a word in the breakdown) are that button's.
+        if (event.target instanceof Element && event.target.closest('button')) return;
         onFlip();
       }}
       className="relative w-full max-w-sm min-h-[22rem] rounded-2xl border border-border-accent bg-app-card-light p-6 flex flex-col items-center justify-center gap-3 cursor-grab active:cursor-grabbing overflow-hidden"

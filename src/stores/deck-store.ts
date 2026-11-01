@@ -3,6 +3,10 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { Word, Category, WordLevel } from '../types/word';
 import { STARTER_WORDS } from '../data/starter-words';
+import { withExtraBreakdown } from '../data/extra-breakdowns';
+
+/** Built-in words, with breakdowns filled in for compounds whose entries lack one. */
+const BUILTIN_WORDS = STARTER_WORDS.map(withExtraBreakdown);
 import { BUILTIN_CATEGORIES } from '../data/categories';
 import { generateId } from '../lib/id';
 
@@ -60,7 +64,7 @@ export const useDeckStore = create<DeckStore>()(
 
 export function useAllWords(): Word[] {
   const customWords = useDeckStore((s) => s.customWords);
-  return useMemo(() => [...STARTER_WORDS, ...customWords], [customWords]);
+  return useMemo(() => [...BUILTIN_WORDS, ...customWords.map(withExtraBreakdown)], [customWords]);
 }
 
 export function useAllCategories(): Category[] {
