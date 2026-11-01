@@ -48,7 +48,7 @@ export function ConnectorQuestion({ question, onAnswered, ...frame }: Props) {
       playDisabled={!answered}
     >
       <ExercisePrompt label="Fill in the connector">
-        <div className={`${singleThaiFontClass(fontStyle)} text-2xl font-semibold leading-relaxed`}>
+        <div className={`${singleThaiFontClass(fontStyle)} text-5xl font-semibold leading-snug`}>
           {before}
           <span className={`inline-block min-w-16 mx-1 px-2 rounded-md border-2 border-dashed text-center ${blankStyle}`}>
             {answered ? word.thai : '?'}
@@ -79,7 +79,7 @@ export function ConnectorQuestion({ question, onAnswered, ...frame }: Props) {
                 onClick={() => setSelected(option.word.id)}
                 className="flex-1 min-w-0 px-4 py-3 text-left"
               >
-                <div className={`${singleThaiFontClass(fontStyle)} text-2xl font-semibold`}>{option.text}</div>
+                <div className={`${singleThaiFontClass(fontStyle)} text-3xl font-semibold`}>{option.text}</div>
                 {(!scriptPractice || answered) && (
                   <div className="text-xs opacity-80 mt-0.5">{option.word.pronunciation ?? option.word.romanization}</div>
                 )}
