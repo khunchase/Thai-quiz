@@ -3,6 +3,7 @@ import type { ReviewState } from '../types/progress';
 import type { Direction, MultipleChoiceOption, QuestionType, QuizQuestion } from '../types/quiz';
 import { isDue, isFullyLearned, isKnown } from './srs';
 import { CONNECTOR_INFO } from '../data/conjunctions';
+import { ORDER_SENTENCES, isCorrectOrder, type OrderSentence } from '../data/word-order';
 
 export interface GenerateQuizOptions {
   words: Word[];
@@ -165,6 +166,29 @@ export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
     });
   }
 
+  // Word-order questions only ask words that have word-order sentences.
+  if (forceType === 'order') {
+    const sessionWords = selectSessionWords({
+      ...options,
+      words: allWords.filter((w) => ORDER_SENTENCES[w.id]),
+      categoryFilter: undefined,
+      // The level picks are hidden in this mode, so they don't apply either.
+      levelFilter: undefined,
+    });
+    return sessionWords.map((word, index) => {
+      const sentences = ORDER_SENTENCES[word.id];
+      const orderSentence = sentences[Math.floor(Math.random() * sentences.length)];
+      return {
+        id: `${word.id}-${index}-${Date.now()}`,
+        word,
+        type: 'order',
+        direction: 'en-th',
+        orderSentence,
+        blockOrder: shuffleBlocks(orderSentence),
+      };
+    });
+  }
+
   const sessionWords = selectSessionWords(options);
 
   // Every other question is multiple choice: recognizing the answer
@@ -181,4 +205,14 @@ export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
     };
     return question;
   });
+}
+
+/** Block indexes in a random order that isn't already a right answer, so there's always something to do. */
+export function shuffleBlocks(sentence: OrderSentence): number[] {
+  const indexes = sentence.chunks.map((_, i) => i);
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const order = shuffle(indexes);
+    if (!isCorrectOrder(sentence, order.map((i) => sentence.chunks[i]))) return order;
+  }
+  return indexes.reverse();
 }

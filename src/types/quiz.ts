@@ -1,6 +1,7 @@
 import type { ClozeSentence, Word } from './word';
+import type { OrderSentence } from '../data/word-order';
 
-export type QuestionType = 'multiple-choice' | 'typed' | 'flashcard' | 'connector';
+export type QuestionType = 'multiple-choice' | 'typed' | 'flashcard' | 'connector' | 'order';
 /** Which side is shown: Thai → English or English → Thai. */
 export type Direction = 'th-en' | 'en-th';
 
@@ -19,6 +20,10 @@ export interface QuizQuestion {
   options?: MultipleChoiceOption[];
   /** For 'connector' questions: the sentence whose blank `word` fills. */
   sentence?: ClozeSentence;
+  /** For 'order' questions: the sentence to rebuild from its word blocks. */
+  orderSentence?: OrderSentence;
+  /** For 'order' questions: indexes into `orderSentence.chunks`, in the shuffled order they're offered. */
+  blockOrder?: number[];
 }
 
 /** SM-2 style recall grade: 0-2 fail/hard, 3-5 pass, higher is better recall. */

@@ -5,6 +5,7 @@ import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { TypedAnswerQuestion } from './TypedAnswerQuestion';
 import { FlashcardQuestion } from './FlashcardQuestion';
 import { ConnectorQuestion } from './ConnectorQuestion';
+import { OrderQuestion } from './OrderQuestion';
 
 interface Props extends ExerciseFrame {
   question: QuizQuestion;
@@ -22,5 +23,7 @@ export function QuestionRenderer({ question, onMarkWord, ...props }: Props) {
       return <FlashcardQuestion question={question} {...props} />;
     case 'connector':
       return <ConnectorQuestion question={question} onMarkWord={onMarkWord} {...props} />;
+    case 'order':
+      return <OrderQuestion question={question} {...props} />;
   }
 }

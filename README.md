@@ -10,12 +10,17 @@ account or backend required.
 
 - **Mixed question types** — multiple choice, typed answer, and flip
   flashcards, randomly rotated each session.
-- **Two quiz modes, both multiple choice** — *Words* (pick a word's
+- **Multiple-choice quiz modes** — *Words* (pick a word's
   meaning) and *Sentences*: fill-in-the-blank sentences (clause ___ clause) for
   37 Thai conjunctions and connectors (เมื่อ, ก่อนที่, หลังจากที่, ตราบใดที่,
   เท่าที่, แม้ว่า, ก็เลย…). The English translation highlights the
   relationship ("[When] I was young…") and you pick the Thai word that fits;
   wrong options always express a different relationship.
+- **Order quiz** — rebuild a Thai sentence from its shuffled word blocks to
+  match the English ("What do you like to eat?" → คุณ ชอบ กิน อะไร). Tap a
+  block to place it, tap again to send it back; equally natural orders (time
+  words first or last) count as right. 64 sentences covering classifiers,
+  question words, particles and everyday verbs.
 - **Both directions** — Thai script → English and English → Thai, mixed or
   fixed via Settings.
 - **Spaced repetition** — an SM-2 scheduler tracks per-word ease/interval so
