@@ -31,50 +31,37 @@ export function BreakdownHeadword({ word, className = '' }: { word: Word; classN
   );
 }
 
+/** The smaller words a compound is made of, one per row under the word. */
 export function WordBreakdown({ word }: { word: Word }) {
   const fontStyle = useSettingsStore((s) => s.settings.thaiFontStyle);
   if (!word.breakdown || word.breakdown.length < 2) return null;
   const parts = word.breakdown;
-  const compact = parts.length >= 3;
 
   return (
-    <div className="w-full flex flex-col items-center gap-3">
+    <div className="w-full flex flex-col gap-3">
       <div className="flex items-center gap-2.5 w-full text-txt-secondary text-xs font-bold uppercase tracking-widest">
         <span className="flex-1 border-t border-border" />
-        Breakdown
+        Made of
         <span className="flex-1 border-t border-border" />
       </div>
-      <div className={`flex items-stretch justify-center w-full ${compact ? 'gap-1' : 'gap-1.5'}`}>
+      <ul className="w-full flex flex-col gap-1.5">
         {parts.map((part, i) => (
-          <div key={i} className="contents">
-            {i > 0 && (
-              <span
-                className={`self-center shrink-0 rounded-full bg-accent text-app-bg font-extrabold leading-none flex items-center justify-center ${
-                  compact ? 'w-5 h-5 text-base' : 'w-6 h-6 text-lg'
-                }`}
-              >
-                +
-              </span>
-            )}
+          <li
+            key={i}
+            className={`flex items-center gap-3 rounded-xl border-[1.5px] px-3 py-2 ${partColor(i).tile}`}
+          >
             <div
-              className={`flex-1 min-w-min max-w-36 rounded-xl border-[1.5px] px-1.5 py-2.5 text-center ${partColor(i).tile}`}
+              className={`${singleThaiFontClass(fontStyle)} shrink-0 min-w-14 text-3xl font-semibold leading-snug ${partColor(i).text}`}
             >
-              <div
-                className={`${singleThaiFontClass(fontStyle)} font-semibold ${compact ? 'text-2xl' : 'text-3xl'} ${partColor(i).text}`}
-              >
-                {part.thai}
-              </div>
-              <div className={`text-txt-secondary font-semibold mt-0.5 ${compact ? 'text-sm' : 'text-base'}`}>
-                {part.romanization}
-              </div>
-              {/* Zero-width space after "/" lets "comfortable/well" wrap at the slash instead of mid-word. */}
-              <div className={`text-txt-primary mt-0.5 ${compact ? 'text-[13px] leading-snug' : 'text-sm'}`}>
-                {part.english.replaceAll('/', '/\u200B')}
-              </div>
+              {part.thai}
             </div>
-          </div>
+            <div className="flex-1 min-w-0 text-left">
+              <div className="text-txt-secondary text-sm font-semibold">{part.romanization}</div>
+              <div className="text-txt-primary text-base leading-snug">{part.english}</div>
+            </div>
+          </li>
         ))}
-      </div>
+      </ul>
       <div className="text-txt-secondary text-sm text-center leading-relaxed">
         {parts.map((part, i) => (
           <span key={i}>
