@@ -5,7 +5,7 @@ import { CONNECTOR_GROUP_LABELS, CONNECTOR_INFO, fillBlank } from '../../data/co
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 import { GhostButton } from '../ui/Button';
 import { AudioButton } from './AudioButton';
-import { ExerciseLayout, ExercisePrompt, type ExerciseFrame } from './ExerciseLayout';
+import { ExerciseLayout, type ExerciseFrame } from './ExerciseLayout';
 
 interface Props extends ExerciseFrame {
   question: QuizQuestion;
@@ -47,7 +47,9 @@ export function ConnectorQuestion({ question, onAnswered, ...frame }: Props) {
       // Hearing the sentence would give the answer away.
       playDisabled={!answered}
     >
-      <ExercisePrompt label="Fill in the connector">
+      {/* No search icon beside the sentence, so it gets the full width. */}
+      <div className="flex flex-col gap-3 py-2">
+        <div className="text-txt-secondary font-semibold">Fill in the connector</div>
         <div className={`${singleThaiFontClass(fontStyle)} text-5xl font-semibold leading-snug`}>
           {before}
           <span className={`inline-block min-w-16 mx-1 px-2 rounded-md border-2 border-dashed text-center ${blankStyle}`}>
@@ -55,7 +57,7 @@ export function ConnectorQuestion({ question, onAnswered, ...frame }: Props) {
           </span>
           {after}
         </div>
-      </ExercisePrompt>
+      </div>
 
       <div className="text-txt-secondary text-base">
         <Highlighted text={sentence.english} />
