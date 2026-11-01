@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { animate, motion, useDragControls, useMotionValue, useTransform } from 'framer-motion';
+import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import type { Word } from '../../types/word';
 import type { Grade } from '../../types/quiz';
 import { useProgressStore } from '../../stores/progress-store';
@@ -28,7 +28,7 @@ interface Props {
 
 const SPRING = { type: 'spring', stiffness: 420, damping: 42 } as const;
 
-/** Bottom sheet: "progress on this item" while collapsed, the word's details when pulled up. */
+/** Bottom sheet: "progress on this item" while collapsed, the word's details when opened via the header's ?. Not draggable. */
 export function ItemSheet({ word, open, onOpenChange, answered, pendingGrade, pendingOptions, onNext }: Props) {
   const reviewState = useProgressStore((s) => s.reviewStates[word.id]);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -39,7 +39,6 @@ export function ItemSheet({ word, open, onOpenChange, answered, pendingGrade, pe
   const backdropOpacity = useTransform(y, [0, Math.max(travel, 1)], [1, 0]);
   // The details stay hidden while collapsed: the home-indicator strip below the peek row would show their top edge.
   const detailsOpacity = useTransform(y, [travel * 0.5, Math.max(travel, 1)], [1, 0]);
-  const dragControls = useDragControls();
 
   const percent =
     pendingGrade == null
@@ -73,43 +72,25 @@ export function ItemSheet({ word, open, onOpenChange, answered, pendingGrade, pe
     return () => controls.stop();
   }, [open, travel, y]);
 
-  function settle(toOpen: boolean) {
-    onOpenChange(toOpen);
-    // Re-run even when the state doesn't change, to spring back after a short drag.
-    animate(y, toOpen ? 0 : travel, SPRING);
-  }
-
   return (
     <>
       <motion.div
         style={{ opacity: backdropOpacity }}
-        onClick={() => settle(false)}
+        onClick={() => onOpenChange(false)}
         className={`absolute inset-0 z-20 bg-black/50 ${open ? '' : 'pointer-events-none'}`}
       />
       <motion.div
         ref={sheetRef}
-        drag="y"
-        dragListener={false}
-        dragControls={dragControls}
-        dragConstraints={{ top: 0, bottom: travel }}
-        dragElastic={0.04}
-        dragMomentum={false}
-        onDragEnd={(_, info) => {
-          if (info.velocity.y < -400) settle(true);
-          else if (info.velocity.y > 400) settle(false);
-          else settle(y.get() < travel / 2);
-        }}
         style={{ y }}
         className="absolute inset-x-0 bottom-0 z-30 h-[85%] flex flex-col rounded-t-3xl border-t border-border bg-app-card shadow-[0_-8px_30px_rgba(0,0,0,0.45)]"
       >
         <div ref={safeAreaRef} className="absolute w-0 h-[env(safe-area-inset-bottom)] invisible" />
         <div
           ref={peekRef}
-          onPointerDown={(e) => dragControls.start(e)}
-          onClick={() => settle(!open)}
-          className="shrink-0 px-5 pt-2.5 pb-4 touch-none cursor-grab"
+          // Only the header's ? opens the sheet; tapping the peek row just closes it.
+          onClick={open ? () => onOpenChange(false) : undefined}
+          className="shrink-0 px-5 pt-5 pb-4"
         >
-          <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-txt-tertiary" />
           <div className="flex items-center gap-4">
             <div className="flex-1 min-w-0">
               <div className="text-txt-primary text-[15px] font-medium">Progress on this item</div>
@@ -121,7 +102,6 @@ export function ItemSheet({ word, open, onOpenChange, answered, pendingGrade, pe
             {onNext && (
               <button
                 type="button"
-                onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();
                   onNext();
