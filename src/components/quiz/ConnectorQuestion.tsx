@@ -17,7 +17,6 @@ const GAVE_UP = Symbol('gave-up');
 /** Clause ___ clause: pick the connector that gives the sentence its meaning. */
 export function ConnectorQuestion({ question, onAnswered, ...frame }: Props) {
   const [selected, setSelected] = useState<string | typeof GAVE_UP | null>(null);
-  const scriptPractice = useSettingsStore((s) => s.settings.scriptPracticeMode);
   const fontStyle = useSettingsStore((s) => s.settings.thaiFontStyle);
   const { word, sentence, options = [] } = question;
   if (!sentence) return null;
@@ -82,9 +81,6 @@ export function ConnectorQuestion({ question, onAnswered, ...frame }: Props) {
                 className="flex-1 min-w-0 px-4 py-3 text-left"
               >
                 <div className={`${singleThaiFontClass(fontStyle)} text-3xl font-semibold`}>{option.text}</div>
-                {(!scriptPractice || answered) && (
-                  <div className="text-xs opacity-80 mt-0.5">{option.word.pronunciation ?? option.word.romanization}</div>
-                )}
                 {answered && <div className="text-xs mt-0.5">{option.word.english}</div>}
               </button>
               <AudioButton text={option.text} variant="zone" />
