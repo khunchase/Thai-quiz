@@ -10,6 +10,7 @@ import { AccentButton } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { CONNECTOR_INFO } from '../data/conjunctions';
+import { ORDER_SENTENCES } from '../data/word-order';
 
 interface Answer {
   question: QuizQuestion;
@@ -18,11 +19,12 @@ interface Answer {
 
 type Phase = 'start' | 'active' | 'caught-up';
 
-type QuizMode = 'multiple-choice' | 'connector';
+type QuizMode = 'multiple-choice' | 'connector' | 'order';
 
 const QUIZ_MODES: { id: QuizMode; label: string }[] = [
   { id: 'multiple-choice', label: '🃏 Words' },
   { id: 'connector', label: '🔗 Sentences' },
+  { id: 'order', label: '🧩 Order' },
 ];
 
 /** Questions picked at a time — small, so each batch reflects the latest answers. */
@@ -51,15 +53,23 @@ export function QuizPage() {
     return () => setQuizActive(false);
   }, [phase, setQuizActive]);
 
-  // The connectors quiz has its own word set, so it ignores the category picks.
+  // The Sentences and Order quizzes have their own word sets, so they ignore the category picks.
   const isConnectorMode = quizMode === 'connector';
+  const isOrderMode = quizMode === 'order';
+  const usesCategories = quizMode === 'multiple-choice';
   const available = useMemo(
     () =>
       classifyWords(
-        words.filter((w) => (isConnectorMode ? CONNECTOR_INFO[w.id] : selectedCategories.includes(w.categoryId))),
+        words.filter((w) =>
+          quizMode === 'connector'
+            ? CONNECTOR_INFO[w.id]
+            : quizMode === 'order'
+              ? ORDER_SENTENCES[w.id]
+              : selectedCategories.includes(w.categoryId)
+        ),
         reviewStates
       ),
-    [words, reviewStates, selectedCategories, isConnectorMode]
+    [words, reviewStates, selectedCategories, quizMode]
   );
   const nothingToQuiz = available.unseen.length + available.learning.length + available.reviews.length === 0;
 
@@ -91,7 +101,7 @@ export function QuizPage() {
     return [];
   }
 
-  const noCategories = !isConnectorMode && selectedCategories.length === 0;
+  const noCategories = usesCategories && selectedCategories.length === 0;
 
   function startQuiz() {
     if (noCategories) return;
@@ -164,7 +174,7 @@ export function QuizPage() {
         </p>
       </div>
 
-      {!isConnectorMode && (
+      {usesCategories && (
         <Card>
           <div className="flex items-center justify-between mb-3">
             <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Categories</div>
@@ -200,7 +210,7 @@ export function QuizPage() {
             </button>
           ))}
         </div>
-        {!isConnectorMode && (
+        {usesCategories && (
           <div className="text-txt-tertiary text-[11px] mt-2">
             See a word and pick its meaning from four choices.
           </div>
@@ -211,9 +221,15 @@ export function QuizPage() {
             highlighted English. Uses the Conjunctions &amp; Connectors words.
           </div>
         )}
+        {isOrderMode && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            Rebuild a Thai sentence from its shuffled word blocks to match the English. Tap a block to place it,
+            tap it again to send it back.
+          </div>
+        )}
       </Card>
 
-      {!isConnectorMode && (
+      {usesCategories && (
         <Card>
           <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Direction</div>
           <div className="flex gap-2">
