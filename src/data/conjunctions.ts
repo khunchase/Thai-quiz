@@ -176,7 +176,7 @@ const ENTRIES: Entry[] = [
     sentences: [
       { thai: '___ไปทะเล ฉันกินกุ้ง', english: '[Every time] I go to the sea, I eat shrimp.' },
       { thai: 'เขายิ้ม___เห็นลูก', english: 'He smiles [every time] he sees his child.' },
-      { thai: '___กินอาหารเผ็ด ฉันปวดท้อง', english: '[Every time] I eat spicy food, I get a stomachache.', alsoOk: ['conj-when',  'conj-when-time'] },
+      { thai: '___กินอาหารเผ็ด ฉันปวดท้อง', english: '[Every time] I eat spicy food, I get a stomachache.', alsoOk: ['conj-when', 'conj-when-time'] },
     ],
   },
 
