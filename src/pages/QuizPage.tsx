@@ -11,6 +11,7 @@ import { QuestionRenderer } from '../components/quiz/QuestionRenderer';
 import { AccentButton } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { CONNECTOR_INFO } from '../data/conjunctions';
 
 interface Answer {
   question: QuizQuestion;
@@ -19,12 +20,11 @@ interface Answer {
 
 type Phase = 'start' | 'active' | 'caught-up';
 
-type QuizMode = 'multiple-choice' | 'typed-thai' | 'phonetic';
+type QuizMode = 'multiple-choice' | 'connector';
 
 const QUIZ_MODES: { id: QuizMode; label: string }[] = [
-  { id: 'multiple-choice', label: 'Multiple Choice' },
-  { id: 'typed-thai', label: '⌨️ Type Thai' },
-  { id: 'phonetic', label: '🔤 Phonetics' },
+  { id: 'multiple-choice', label: '🃏 Words' },
+  { id: 'connector', label: '🔗 Sentences' },
 ];
 
 /** Questions picked at a time — small, so each batch reflects the latest answers. */
@@ -54,9 +54,17 @@ export function QuizPage() {
     return () => setQuizActive(false);
   }, [phase, setQuizActive]);
 
+  // The connectors quiz has its own word set, so it ignores the category picks.
+  const isConnectorMode = quizMode === 'connector';
   const available = useMemo(
-    () => classifyWords(filterWords(words, selectedCategories, selectedLevels), reviewStates),
-    [words, reviewStates, selectedCategories, selectedLevels]
+    () =>
+      classifyWords(
+        isConnectorMode
+          ? words.filter((w) => CONNECTOR_INFO[w.id])
+          : filterWords(words, selectedCategories, selectedLevels),
+        reviewStates
+      ),
+    [words, reviewStates, selectedCategories, selectedLevels, isConnectorMode]
   );
   const nothingToQuiz = available.unseen.length + available.learning.length + available.reviews.length === 0;
 
@@ -76,7 +84,7 @@ export function QuizPage() {
     setSelectedLevels(ALL_LEVELS.filter((l) => l <= level));
   }
 
-  const canStart = selectedCategories.length > 0 && selectedLevels.length > 0;
+  const canStart = isConnectorMode || (selectedCategories.length > 0 && selectedLevels.length > 0);
 
   function toggleSelectAllCategories() {
     setSelectedCategories(allCategoriesSelected ? [] : categories.map((c) => c.id));
@@ -172,63 +180,67 @@ export function QuizPage() {
         </p>
       </div>
 
-      <Card>
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Levels</div>
-          <button
-            onClick={() => setSelectedLevels(allLevelsSelected ? [] : ALL_LEVELS)}
-            className="text-accent text-xs font-semibold"
-          >
-            {allLevelsSelected ? 'Deselect All' : 'Select All'}
-          </button>
-        </div>
-        <div className="flex gap-2">
-          {WORD_LEVELS.map((l) => (
+      {!isConnectorMode && (
+        <>
+        <Card>
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Levels</div>
             <button
-              key={l.level}
-              onClick={() => toggleLevel(l.level)}
-              className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                selectedLevels.includes(l.level) ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
-              }`}
+              onClick={() => setSelectedLevels(allLevelsSelected ? [] : ALL_LEVELS)}
+              className="text-accent text-xs font-semibold"
             >
-              {l.level}
+              {allLevelsSelected ? 'Deselect All' : 'Select All'}
             </button>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
-          {WORD_LEVELS.slice(0, -1).map((l) => (
-            <button key={l.level} onClick={() => selectUpToLevel(l.level)} className="text-accent text-[11px] font-semibold">
-              {l.level === 1 ? 'Level 1 only' : `Levels 1–${l.level}`}
-            </button>
-          ))}
-        </div>
-        <div className="text-txt-tertiary text-[11px] mt-2">
-          {selectedLevels.length === 0
-            ? 'Select at least one level to start a quiz.'
-            : WORD_LEVELS.filter((l) => selectedLevels.includes(l.level))
-                .map((l) => `${l.level} ${l.name}`)
-                .join(' · ')}
-        </div>
-      </Card>
+          </div>
+          <div className="flex gap-2">
+            {WORD_LEVELS.map((l) => (
+              <button
+                key={l.level}
+                onClick={() => toggleLevel(l.level)}
+                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                  selectedLevels.includes(l.level) ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+                }`}
+              >
+                {l.level}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+            {WORD_LEVELS.slice(0, -1).map((l) => (
+              <button key={l.level} onClick={() => selectUpToLevel(l.level)} className="text-accent text-[11px] font-semibold">
+                {l.level === 1 ? 'Level 1 only' : `Levels 1–${l.level}`}
+              </button>
+            ))}
+          </div>
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            {selectedLevels.length === 0
+              ? 'Select at least one level to start a quiz.'
+              : WORD_LEVELS.filter((l) => selectedLevels.includes(l.level))
+                  .map((l) => `${l.level} ${l.name}`)
+                  .join(' · ')}
+          </div>
+        </Card>
 
-      <Card>
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Categories</div>
-          <button onClick={toggleSelectAllCategories} className="text-accent text-xs font-semibold">
-            {allCategoriesSelected ? 'Deselect All' : 'Select All'}
-          </button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((c) => (
-            <Badge key={c.id} active={selectedCategories.includes(c.id)} onClick={() => toggleCategory(c.id)}>
-              {c.icon} {c.name}
-            </Badge>
-          ))}
-        </div>
-        {selectedCategories.length === 0 && (
-          <div className="text-danger text-[11px] mt-2">Select at least one category to start a quiz.</div>
-        )}
-      </Card>
+        <Card>
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Categories</div>
+            <button onClick={toggleSelectAllCategories} className="text-accent text-xs font-semibold">
+              {allCategoriesSelected ? 'Deselect All' : 'Select All'}
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((c) => (
+              <Badge key={c.id} active={selectedCategories.includes(c.id)} onClick={() => toggleCategory(c.id)}>
+                {c.icon} {c.name}
+              </Badge>
+            ))}
+          </div>
+          {selectedCategories.length === 0 && (
+            <div className="text-danger text-[11px] mt-2">Select at least one category to start a quiz.</div>
+          )}
+        </Card>
+        </>
+      )}
 
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Quiz Mode</div>
@@ -245,19 +257,20 @@ export function QuizPage() {
             </button>
           ))}
         </div>
-        {quizMode === 'typed-thai' && (
+        {!isConnectorMode && (
           <div className="text-txt-tertiary text-[11px] mt-2">
-            You'll see the English word (and pronunciation) and type the actual Thai script.
+            See a word and pick its meaning from four choices.
           </div>
         )}
-        {quizMode === 'phonetic' && (
+        {isConnectorMode && (
           <div className="text-txt-tertiary text-[11px] mt-2">
-            Read Thai and type how it sounds, or see the pronunciation and type the Thai. Tone marks are forgiven.
+            Fill the blank in a Thai sentence with the right connector (when, before, as long as…) for the
+            highlighted English. Uses the Conjunctions &amp; Connectors words.
           </div>
         )}
       </Card>
 
-      {quizMode !== 'typed-thai' && (
+      {!isConnectorMode && (
         <Card>
           <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Direction</div>
           <div className="flex gap-2">
@@ -271,13 +284,9 @@ export function QuizPage() {
               >
                 {dir === 'both'
                   ? 'Both'
-                  : quizMode === 'phonetic'
-                    ? dir === 'th-en'
-                      ? 'TH → ABC'
-                      : 'ABC → TH'
-                    : dir === 'th-en'
-                      ? 'TH → EN'
-                      : 'EN → TH'}
+                  : dir === 'th-en'
+                    ? 'TH → EN'
+                    : 'EN → TH'}
               </button>
             ))}
           </div>

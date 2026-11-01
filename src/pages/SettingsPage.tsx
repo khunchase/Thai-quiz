@@ -5,6 +5,7 @@ import { usePwaStore } from '../stores/pwa-store';
 import { Card } from '../components/ui/Card';
 import { GhostButton, SecondaryButton } from '../components/ui/Button';
 import { AccountCard } from '../components/AccountCard';
+import { AppVersionCard } from '../components/AppVersionCard';
 import { ThaiWord } from '../components/quiz/ThaiWord';
 
 const FONT_STYLES: { id: ThaiFontStyle; label: string }[] = [
@@ -100,6 +101,8 @@ export function SettingsPage() {
           />
         </label>
       </Card>
+
+      <AppVersionCard />
 
       <Card>
         {confirmReset ? (

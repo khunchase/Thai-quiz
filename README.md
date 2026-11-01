@@ -10,15 +10,21 @@ account or backend required.
 
 - **Mixed question types** — multiple choice, typed answer, and flip
   flashcards, randomly rotated each session.
+- **Two quiz modes, both multiple choice** — *Words* (pick a word's
+  meaning) and *Sentences*: fill-in-the-blank sentences (clause ___ clause) for
+  37 Thai conjunctions and connectors (เมื่อ, ก่อนที่, หลังจากที่, ตราบใดที่,
+  เท่าที่, แม้ว่า, ก็เลย…). The English translation highlights the
+  relationship ("[When] I was young…") and you pick the Thai word that fits;
+  wrong options always express a different relationship.
 - **Both directions** — Thai script → English and English → Thai, mixed or
   fixed via Settings.
 - **Spaced repetition** — an SM-2 scheduler tracks per-word ease/interval so
   words you struggle with resurface sooner.
-- **1,500+ word starter deck**, every word rated level 1–5, across 27 categories (greetings, numbers, family,
+- **1,600+ word starter deck**, levels 1–5 on every word except the connectors, across 28 categories (greetings, numbers, family,
   food, colors, time, verbs, places, animals, adjectives, pronouns, body
   parts, health, clothing, weather & nature, transportation, technology,
-  shopping, work, school, emotions, household items, and directions/question
-  words), plus a Words tab to add, edit, and delete your own words and
+  shopping, work, school, emotions, household items, directions/question
+  words, and conjunctions & connectors), plus a Words tab to add, edit, and delete your own words and
   categories.
 - **Textbook romanization** — pronunciations follow the Thai Language
   Station convention (khɔ̀ɔp khun, chɯ̂ɯ, rooŋ riian); typed answers also

@@ -1,4 +1,5 @@
 import type { Word } from '../types/word';
+import { CONJUNCTION_WORDS } from './conjunctions';
 
 // Static, stable ids — do not rename existing ids, spaced-repetition
 // progress is keyed by word id in localStorage.
@@ -1549,9 +1550,6 @@ export const STARTER_WORDS: Word[] = [
   { id: 'dir-corner', thai: 'มุม', romanization: 'mum', pronunciation: 'mum', english: 'corner', categoryId: 'directions', level: 3 },
   { id: 'dir-middle', thai: 'ตรงกลาง', romanization: 'troŋ klaaŋ', pronunciation: 'troŋ klaaŋ', english: 'in the middle', categoryId: 'directions', level: 3 },
   { id: 'dir-however', thai: 'อย่างไรก็ตาม', romanization: 'yaaŋ rai kɔɔ taam', pronunciation: 'yàaŋ rai kɔ̂ɔ taam', english: 'however', categoryId: 'directions', level: 3 },
-  { id: 'dir-although', thai: 'ถึงแม้ว่า', romanization: 'thɯŋ mɛɛ waa', pronunciation: 'thɯ̌ŋ mɛ́ɛ wâa', english: 'although', categoryId: 'directions', level: 3 },
-  { id: 'dir-in-order-to', thai: 'เพื่อ', romanization: 'phɯɯa', pronunciation: 'phɯ̂ɯa', english: 'in order to / for', categoryId: 'directions', level: 3 },
-  { id: 'dir-since', thai: 'ตั้งแต่', romanization: 'taŋ tɛɛ', pronunciation: 'tâŋ tɛ̀ɛ', english: 'since', categoryId: 'directions', level: 3 },
   { id: 'dir-almost', thai: 'เกือบ', romanization: 'kɯɯap', pronunciation: 'kɯ̀ɯap', english: 'almost', categoryId: 'directions', level: 3 },
   { id: 'dir-just', thai: 'เพิ่ง', romanization: 'phəŋ', pronunciation: 'phə̂ŋ', english: 'just (recently)', categoryId: 'directions', level: 3 },
   { id: 'dir-each', thai: 'แต่ละ', romanization: 'tɛɛ la', pronunciation: 'tɛ̀ɛ lá', english: 'each', categoryId: 'directions', level: 3 },
@@ -1611,4 +1609,7 @@ export const STARTER_WORDS: Word[] = [
   { id: 'work-overtime', thai: 'ทำโอที', romanization: 'tham oo thii', pronunciation: 'tham oo thii', english: 'to work overtime', categoryId: 'work', level: 3 },
   { id: 'work-civil-servant', thai: 'ข้าราชการ', romanization: 'khaa raat cha kaan', pronunciation: 'khâa râat chá kaan', english: 'civil servant', categoryId: 'work', level: 4 },
   { id: 'emotions-impressed', thai: 'ประทับใจ', romanization: 'pra thap cai', pronunciation: 'prà tháp cai', english: 'impressed', categoryId: 'emotions', level: 3 },
+
+  // Conjunctions & Connectors — see conjunctions.ts, which also holds their fill-in-the-blank sentences.
+  ...CONJUNCTION_WORDS,
 ];

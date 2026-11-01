@@ -1,7 +1,8 @@
-import type { Word, WordLevel } from '../types/word';
+import type { ClozeSentence, Word, WordLevel } from '../types/word';
 import type { ReviewState } from '../types/progress';
 import type { Direction, MultipleChoiceOption, QuestionType, QuizQuestion } from '../types/quiz';
 import { isDue, isFullyLearned, isKnown } from './srs';
+import { CONNECTOR_INFO } from '../data/conjunctions';
 
 export interface GenerateQuizOptions {
   words: Word[];
@@ -105,32 +106,68 @@ export function buildMultipleChoiceOptions(
   return shuffle(options);
 }
 
+/**
+ * Four connectors for a sentence's blank: the answer plus three that express
+ * a different relationship, so only one can be right. Unlearned connectors are
+ * preferred as wrong answers, like the regular multiple choice.
+ */
+export function buildConnectorOptions(
+  word: Word,
+  sentence: ClozeSentence,
+  allWords: Word[],
+  reviewStates: Record<string, ReviewState>
+): MultipleChoiceOption[] {
+  const group = CONNECTOR_INFO[word.id]?.group;
+  const excluded = new Set(sentence.alsoOk ?? []);
+  const candidates = allWords.filter(
+    (w) => w.id !== word.id && CONNECTOR_INFO[w.id] && CONNECTOR_INFO[w.id].group !== group && !excluded.has(w.id)
+  );
+  const distractorPool = [
+    ...shuffle(candidates.filter((w) => !isKnown(reviewStates[w.id]))),
+    ...shuffle(candidates.filter((w) => isKnown(reviewStates[w.id]))),
+  ];
+  const seenThai = new Set([word.thai]);
+  const seenGroups = new Set([group]);
+  const options: MultipleChoiceOption[] = [{ text: word.thai, word }];
+  for (const candidate of distractorPool) {
+    if (options.length >= 4) break;
+    const candidateGroup = CONNECTOR_INFO[candidate.id].group;
+    // One per relationship, so two wrong answers never mean the same thing.
+    if (seenThai.has(candidate.thai) || seenGroups.has(candidateGroup)) continue;
+    seenThai.add(candidate.thai);
+    seenGroups.add(candidateGroup);
+    options.push({ text: candidate.thai, word: candidate });
+  }
+  return shuffle(options);
+}
+
 export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
-  const sessionWords = selectSessionWords(options);
   const { direction, words: allWords, forceType } = options;
 
-  // Typing Thai script only makes sense when Thai is the target of the question.
-  if (forceType === 'typed-thai') {
-    return sessionWords.map((word, index) => ({
-      id: `${word.id}-${index}-${Date.now()}`,
-      word,
-      type: 'typed-thai',
-      direction: 'en-th',
-    }));
+  // Connector questions only ask words that have fill-in-the-blank sentences.
+  if (forceType === 'connector') {
+    const sessionWords = selectSessionWords({
+      ...options,
+      words: allWords.filter((w) => CONNECTOR_INFO[w.id]),
+      categoryFilter: undefined,
+    });
+    return sessionWords.map((word, index) => {
+      const sentences = CONNECTOR_INFO[word.id].sentences;
+      const sentence = sentences[Math.floor(Math.random() * sentences.length)];
+      return {
+        id: `${word.id}-${index}-${Date.now()}`,
+        word,
+        type: 'connector',
+        direction: 'en-th',
+        sentence,
+        options: buildConnectorOptions(word, sentence, allWords, options.reviewStates),
+      };
+    });
   }
 
-  // Phonetic questions alternate between reading Thai into romanization and
-  // spelling romanization back into Thai.
-  if (forceType === 'phonetic') {
-    return sessionWords.map((word, index) => ({
-      id: `${word.id}-${index}-${Date.now()}`,
-      word,
-      type: 'phonetic',
-      direction: direction === 'both' ? (Math.random() < 0.5 ? 'th-en' : 'en-th') : direction,
-    }));
-  }
+  const sessionWords = selectSessionWords(options);
 
-  // Otherwise, every question is multiple choice: recognizing the answer
+  // Every other question is multiple choice: recognizing the answer
   // among options is far more approachable than typing or recalling it
   // from memory, in either direction.
   return sessionWords.map((word, index) => {

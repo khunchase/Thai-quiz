@@ -41,3 +41,15 @@ export interface Word {
   /** Shown on the back of the flashcard when available. */
   exampleSentence?: ExampleSentence;
 }
+
+/**
+ * A sentence with one word blanked out, for the connectors quiz. `thai`
+ * marks the blank with `___`; `english` wraps the matching English words in
+ * [brackets] so they can be highlighted.
+ */
+export interface ClozeSentence {
+  thai: string;
+  english: string;
+  /** Other word ids that would also fit here, so they're never offered as wrong answers. */
+  alsoOk?: string[];
+}
