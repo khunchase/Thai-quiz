@@ -10,7 +10,8 @@ account or backend required.
 
 - **Mixed question types** — multiple choice, typed answer, and flip
   flashcards, randomly rotated each session.
-- **Connectors quiz** — fill-in-the-blank sentences (clause ___ clause) for
+- **Two quiz modes, both multiple choice** — *Words* (pick a word's
+  meaning) and *Sentences*: fill-in-the-blank sentences (clause ___ clause) for
   37 Thai conjunctions and connectors (เมื่อ, ก่อนที่, หลังจากที่, ตราบใดที่,
   เท่าที่, แม้ว่า, ก็เลย…). The English translation highlights the
   relationship ("[When] I was young…") and you pick the Thai word that fits;

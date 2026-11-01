@@ -21,8 +21,8 @@ type Phase = 'start' | 'active' | 'caught-up';
 type QuizMode = 'multiple-choice' | 'connector';
 
 const QUIZ_MODES: { id: QuizMode; label: string }[] = [
-  { id: 'multiple-choice', label: 'Multiple Choice' },
-  { id: 'connector', label: '🔗 Connectors' },
+  { id: 'multiple-choice', label: '🃏 Words' },
+  { id: 'connector', label: '🔗 Sentences' },
 ];
 
 /** Questions picked at a time — small, so each batch reflects the latest answers. */
@@ -200,10 +200,15 @@ export function QuizPage() {
             </button>
           ))}
         </div>
+        {!isConnectorMode && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            See a word and pick its meaning from four choices.
+          </div>
+        )}
         {isConnectorMode && (
           <div className="text-txt-tertiary text-[11px] mt-2">
-            Clause ___ clause: pick the Thai connector (when, before, as long as…) that matches the highlighted
-            English. Uses the Conjunctions &amp; Connectors words.
+            Fill the blank in a Thai sentence with the right connector (when, before, as long as…) for the
+            highlighted English. Uses the Conjunctions &amp; Connectors words.
           </div>
         )}
       </Card>
