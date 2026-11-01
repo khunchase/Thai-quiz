@@ -155,7 +155,7 @@ function ItemDetails({ word }: { word: Word }) {
     <div className="flex flex-col">
       <div className="flex flex-col items-center pt-4 pb-6">
         <BreakdownHeadword word={word} className="text-5xl text-accent" />
-        <div className="text-txt-secondary text-sm font-semibold mt-2">{word.pronunciation ?? word.romanization}</div>
+        <div className="text-txt-secondary text-xl font-semibold mt-2">{word.pronunciation ?? word.romanization}</div>
         <div className="w-3/4 border-t border-border my-4" />
         <div className="text-txt-primary text-3xl font-bold text-center">{word.english}</div>
       </div>
@@ -212,7 +212,7 @@ function ExampleLine({ word }: { word: Word }) {
           </span>
           <span className="text-txt-secondary text-lg"> – {example.english}</span>
         </div>
-        <div className="text-txt-tertiary text-sm mt-1">{example.romanization}</div>
+        <div className="text-txt-tertiary text-base mt-1">{example.romanization}</div>
       </div>
       <AudioButton text={example.thai} className="shrink-0" />
     </div>

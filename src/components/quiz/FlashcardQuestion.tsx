@@ -66,7 +66,7 @@ export function FlashcardQuestion({ question, onAnswered, ...frame }: Props) {
             ) : (
               <div className="text-3xl font-semibold text-accent">{back}</div>
             )}
-            <div className="text-txt-secondary text-sm">{word.pronunciation ?? word.romanization}</div>
+            <div className="text-txt-secondary text-lg">{word.pronunciation ?? word.romanization}</div>
           </div>
         </motion.div>
       </div>

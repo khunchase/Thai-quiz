@@ -218,7 +218,7 @@ export function WordsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className={`${singleThaiFontClass(fontStyle)} text-2xl`}>{word.thai}</span>
-                      <span className="text-txt-tertiary text-xs">{word.pronunciation ?? word.romanization}</span>
+                      <span className="text-txt-secondary text-base">{word.pronunciation ?? word.romanization}</span>
                     </div>
                     <div className="text-txt-secondary text-sm truncate">{word.english}</div>
                     <div className="text-txt-tertiary text-[10px] mt-1">

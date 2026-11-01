@@ -115,7 +115,7 @@ export function PhoneticQuestion({ question, onAnswered, ...frame }: Props) {
               <div className="text-success text-sm">Correct — just check the tone mark:</div>
             )}
             {typingThai && <ThaiWord text={word.thai} size="sm" align="left" />}
-            <div className="text-txt-secondary text-sm">
+            <div className="text-txt-secondary text-lg">
               {pronunciation} · {word.english}
             </div>
           </div>

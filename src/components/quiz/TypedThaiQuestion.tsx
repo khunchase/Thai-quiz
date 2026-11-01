@@ -61,7 +61,7 @@ export function TypedThaiQuestion({ question, onAnswered, ...frame }: Props) {
     >
       <ExercisePrompt label="Type it in Thai">
         <div className="text-3xl font-bold">{word.english}</div>
-        {showHint && <div className="text-txt-secondary text-sm mt-1">{word.pronunciation ?? word.romanization}</div>}
+        {showHint && <div className="text-txt-secondary text-lg mt-1">{word.pronunciation ?? word.romanization}</div>}
       </ExercisePrompt>
       <div>
         <input

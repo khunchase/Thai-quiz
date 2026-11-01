@@ -150,7 +150,7 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
           <>
             <BreakdownHeadword word={word} className="text-4xl" />
             <div className="text-txt-primary text-2xl font-bold text-center">{word.english}</div>
-            <div className="text-txt-secondary text-sm">{word.pronunciation ?? word.romanization}</div>
+            <div className="text-txt-secondary text-lg">{word.pronunciation ?? word.romanization}</div>
 
             <WordBreakdown word={word} />
 
@@ -158,7 +158,7 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
               <div className="w-full border-t border-border pt-3 mt-1 text-center">
                 <div className="text-txt-tertiary text-[10px] uppercase tracking-wide mb-1">Example</div>
                 <div className={`${singleThaiFontClass(fontStyle)} text-base`}>{word.exampleSentence.thai}</div>
-                <div className="text-txt-tertiary text-xs mt-1">{word.exampleSentence.romanization}</div>
+                <div className="text-txt-tertiary text-sm mt-1">{word.exampleSentence.romanization}</div>
                 <div className="text-txt-secondary text-xs mt-1">{word.exampleSentence.english}</div>
               </div>
             )}
