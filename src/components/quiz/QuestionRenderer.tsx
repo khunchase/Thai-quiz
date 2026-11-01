@@ -21,6 +21,6 @@ export function QuestionRenderer({ question, onMarkWord, ...props }: Props) {
     case 'flashcard':
       return <FlashcardQuestion question={question} {...props} />;
     case 'connector':
-      return <ConnectorQuestion question={question} {...props} />;
+      return <ConnectorQuestion question={question} onMarkWord={onMarkWord} {...props} />;
   }
 }

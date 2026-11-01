@@ -25,7 +25,7 @@ interface Pending {
   markedKnown?: boolean;
 }
 
-type ReviewStatus = 'known' | 'learn';
+export type ReviewStatus = 'known' | 'learn';
 
 export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord, ...frame }: Props) {
   const [selected, setSelected] = useState<string | typeof GAVE_UP | null>(null);
@@ -214,7 +214,7 @@ interface WordDetailPopupProps {
 
 const SWIPE_THRESHOLD = 100;
 
-function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPopupProps) {
+export function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordDetailPopupProps) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-220, 220], [-12, 12]);
   const tint = useTransform(
