@@ -98,7 +98,7 @@ function WordSheet({ word, onClose }: { word: StoryWord; onClose: () => void }) 
           <div className={`font-thai-looped font-semibold text-3xl leading-tight ${isConnector(word) ? 'text-connector' : ''}`}>
             {word.thai}
           </div>
-          <div className="text-txt-secondary text-sm mt-1">{word.pronunciation || word.romanization}</div>
+          <div className="text-txt-secondary text-lg mt-1">{word.pronunciation || word.romanization}</div>
         </div>
         <AudioButton text={word.thai} />
         <button

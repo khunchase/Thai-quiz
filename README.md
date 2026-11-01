@@ -25,7 +25,7 @@ account or backend required.
   fixed via Settings.
 - **Spaced repetition** — an SM-2 scheduler tracks per-word ease/interval so
   words you struggle with resurface sooner.
-- **Starter deck** across built-in categories (greetings, numbers, family,
+- **1,600+ word starter deck**, levels 1–5 on every word except the connectors, across 28 categories (greetings, numbers, family,
   food, colors, time, verbs, places, animals, adjectives, pronouns, body
   parts, health, clothing, weather & nature, transportation, technology,
   shopping, work, school, emotions, household items, directions/question
