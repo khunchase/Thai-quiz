@@ -5,6 +5,9 @@ export interface Category {
   custom?: boolean;
 }
 
+/** Difficulty from 1 (first-weeks basics) to 5 (advanced / academic). */
+export type WordLevel = 1 | 2 | 3 | 4 | 5;
+
 export interface WordPart {
   thai: string;
   romanization: string;
@@ -30,6 +33,8 @@ export interface Word {
   pronunciation?: string;
   english: string;
   categoryId: string;
+  /** Difficulty level; see WORD_LEVELS. Unset on custom words the user hasn't rated. */
+  level?: WordLevel;
   custom?: boolean;
   /** For transparent compounds, the component words this word is built from. */
   breakdown?: WordPart[];

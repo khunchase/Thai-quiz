@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { Word, Category } from '../types/word';
+import type { Word, Category, WordLevel } from '../types/word';
 import { STARTER_WORDS } from '../data/starter-words';
 import { BUILTIN_CATEGORIES } from '../data/categories';
 import { generateId } from '../lib/id';
@@ -9,8 +9,8 @@ import { generateId } from '../lib/id';
 interface DeckStore {
   customWords: Word[];
   customCategories: Category[];
-  addWord: (input: { thai: string; romanization: string; english: string; categoryId: string }) => Word;
-  updateWord: (id: string, updates: Partial<Pick<Word, 'thai' | 'romanization' | 'english' | 'categoryId'>>) => void;
+  addWord: (input: { thai: string; romanization: string; english: string; categoryId: string; level?: WordLevel }) => Word;
+  updateWord: (id: string, updates: Partial<Pick<Word, 'thai' | 'romanization' | 'english' | 'categoryId' | 'level'>>) => void;
   deleteWord: (id: string) => void;
   addCategory: (name: string, icon: string) => Category;
   deleteCategory: (id: string) => void;

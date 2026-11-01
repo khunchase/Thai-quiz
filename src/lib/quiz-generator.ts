@@ -1,4 +1,4 @@
-import type { Word } from '../types/word';
+import type { Word, WordLevel } from '../types/word';
 import type { ReviewState } from '../types/progress';
 import type { Direction, MultipleChoiceOption, QuestionType, QuizQuestion } from '../types/quiz';
 import { isDue, isFullyLearned, isKnown } from './srs';
@@ -9,6 +9,8 @@ export interface GenerateQuizOptions {
   sessionLength: number;
   direction: Direction | 'both';
   categoryFilter?: string[];
+  /** Only quiz words at these levels. Words without a level (unrated custom words) always pass. */
+  levelFilter?: WordLevel[];
   /** Words to leave out, e.g. ones just asked so they don't come straight back. */
   excludeWordIds?: string[];
   /** Force every question to this type instead of the default multiple-choice. */
@@ -45,16 +47,23 @@ export function classifyWords(words: Word[], reviewStates: Record<string, Review
   return { reviews, unseen, learning };
 }
 
+/** Words in the given categories and levels; an empty or missing filter lets everything through. */
+export function filterWords(words: Word[], categoryFilter?: string[], levelFilter?: WordLevel[]): Word[] {
+  return words.filter(
+    (w) =>
+      (!categoryFilter?.length || categoryFilter.includes(w.categoryId)) &&
+      (!levelFilter?.length || w.level === undefined || levelFilter.includes(w.level))
+  );
+}
+
 /**
  * Learned words due on their review date first (capped at a third of the
  * session), then never-seen words, then words still being learned. Learned
  * words that aren't due don't appear at all.
  */
 export function selectSessionWords(options: GenerateQuizOptions): Word[] {
-  const { words, reviewStates, sessionLength, categoryFilter, excludeWordIds = [] } = options;
-  const pool = (categoryFilter?.length ? words.filter((w) => categoryFilter.includes(w.categoryId)) : words).filter(
-    (w) => !excludeWordIds.includes(w.id)
-  );
+  const { words, reviewStates, sessionLength, categoryFilter, levelFilter, excludeWordIds = [] } = options;
+  const pool = filterWords(words, categoryFilter, levelFilter).filter((w) => !excludeWordIds.includes(w.id));
   const { reviews, unseen, learning } = classifyWords(pool, reviewStates);
 
   const reviewSlots = Math.ceil(sessionLength * MAX_REVIEW_SHARE);

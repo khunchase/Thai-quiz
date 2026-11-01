@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { Word } from '../types/word';
+import type { Word, WordLevel } from '../types/word';
+import { WORD_LEVELS } from '../lib/levels';
 import { useAllWords, useAllCategories, useDeckStore } from '../stores/deck-store';
 import { useProgressStore } from '../stores/progress-store';
 import { useSettingsStore, singleThaiFontClass } from '../stores/settings-store';
@@ -28,10 +29,17 @@ export function WordsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [activeBook, setActiveBook] = useState<WordBook | null>(null);
   const [filter, setFilter] = useState<string | null>(null);
+  const [levelFilter, setLevelFilter] = useState<WordLevel | null>(null);
   const [showAddWord, setShowAddWord] = useState(false);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    thai: string;
+    romanization: string;
+    english: string;
+    categoryId: string;
+    level?: WordLevel;
+  }>({
     thai: '',
     romanization: '',
     english: '',
@@ -44,7 +52,9 @@ export function WordsPage() {
     return () => setFlashcardActive(false);
   }, [activeBook, setFlashcardActive]);
 
-  const visibleWords = filter ? words.filter((w) => w.categoryId === filter) : words;
+  const visibleWords = words.filter(
+    (w) => (!filter || w.categoryId === filter) && (!levelFilter || w.level === levelFilter)
+  );
   const filterCategory = filter ? categories.find((c) => c.id === filter) : null;
   const wordBooks = buildWordBooks(words, categories);
 
@@ -67,6 +77,7 @@ export function WordsPage() {
       romanization: word.romanization,
       english: word.english,
       categoryId: word.categoryId,
+      level: word.level,
     });
     setEditingId(word.id);
     setShowAddWord(true);
@@ -135,6 +146,17 @@ export function WordsPage() {
         {viewMode === 'list' && (
           <>
             <div className="flex flex-wrap gap-2">
+              <Badge active={levelFilter === null} onClick={() => setLevelFilter(null)}>
+                All levels
+              </Badge>
+              {WORD_LEVELS.map((l) => (
+                <Badge key={l.level} active={levelFilter === l.level} onClick={() => setLevelFilter(l.level)}>
+                  Lv {l.level} · {l.name}
+                </Badge>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
               <Badge active={filter === null} onClick={() => setFilter(null)}>
                 All ({words.length})
               </Badge>
@@ -200,6 +222,7 @@ export function WordsPage() {
                     </div>
                     <div className="text-txt-secondary text-sm truncate">{word.english}</div>
                     <div className="text-txt-tertiary text-[10px] mt-1">
+                      {word.level && <span className="font-semibold text-txt-secondary">Lv {word.level} · </span>}
                       {category?.icon} {category?.name}
                     </div>
                   </div>
@@ -216,7 +239,7 @@ export function WordsPage() {
               );
             })}
             {visibleWords.length === 0 && (
-              <div className="text-center text-txt-tertiary text-sm py-8">No words in this category yet.</div>
+              <div className="text-center text-txt-tertiary text-sm py-8">No words here yet.</div>
             )}
           </div>
         )}
@@ -252,6 +275,20 @@ export function WordsPage() {
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.icon} {c.name}
+                </option>
+              ))}
+            </select>
+            <select
+              value={form.level ?? ''}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, level: e.target.value ? (Number(e.target.value) as WordLevel) : undefined }))
+              }
+              className="h-11 rounded-lg bg-app-surface border border-border px-3"
+            >
+              <option value="">No level (shows at every level)</option>
+              {WORD_LEVELS.map((l) => (
+                <option key={l.level} value={l.level}>
+                  Level {l.level} · {l.name}
                 </option>
               ))}
             </select>
