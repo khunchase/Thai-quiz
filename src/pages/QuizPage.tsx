@@ -186,6 +186,40 @@ export function QuizPage() {
         </p>
       </div>
 
+      <Card>
+        <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Quiz Mode</div>
+        <div className="flex gap-2">
+          {QUIZ_MODES.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => setQuizMode(m.id)}
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                quizMode === m.id ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+              }`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+        {usesCategories && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            See a word and pick its meaning from four choices.
+          </div>
+        )}
+        {isConnectorMode && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            Fill the blank in a Thai sentence with the right connector (when, before, as long as…) for the
+            highlighted English. Uses the Conjunctions &amp; Connectors words.
+          </div>
+        )}
+        {isOrderMode && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            Rebuild a Thai sentence from its shuffled word blocks to match the English. Tap a block to place it,
+            tap it again to send it back.
+          </div>
+        )}
+      </Card>
+
       {usesCategories && (
         <>
         <Card>
@@ -247,40 +281,6 @@ export function QuizPage() {
         </Card>
         </>
       )}
-
-      <Card>
-        <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Quiz Mode</div>
-        <div className="flex gap-2">
-          {QUIZ_MODES.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => setQuizMode(m.id)}
-              className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                quizMode === m.id ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-        {usesCategories && (
-          <div className="text-txt-tertiary text-[11px] mt-2">
-            See a word and pick its meaning from four choices.
-          </div>
-        )}
-        {isConnectorMode && (
-          <div className="text-txt-tertiary text-[11px] mt-2">
-            Fill the blank in a Thai sentence with the right connector (when, before, as long as…) for the
-            highlighted English. Uses the Conjunctions &amp; Connectors words.
-          </div>
-        )}
-        {isOrderMode && (
-          <div className="text-txt-tertiary text-[11px] mt-2">
-            Rebuild a Thai sentence from its shuffled word blocks to match the English. Tap a block to place it,
-            tap it again to send it back.
-          </div>
-        )}
-      </Card>
 
       {usesCategories && (
         <Card>
