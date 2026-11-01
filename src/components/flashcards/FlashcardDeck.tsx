@@ -6,6 +6,7 @@ import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-sto
 import { GRADE_KNOWN, GRADE_GIVE_UP } from '../../lib/srs';
 import { BreakdownHeadword, WordBreakdown } from '../quiz/WordBreakdown';
 import { AccentButton } from '../ui/Button';
+import { AudioButton } from '../quiz/AudioButton';
 import { ExerciseLayout } from '../quiz/ExerciseLayout';
 
 interface Props {
@@ -157,7 +158,13 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
             {word.exampleSentence && (
               <div className="w-full border-t border-border pt-3 mt-1 text-center">
                 <div className="text-txt-tertiary text-[10px] uppercase tracking-wide mb-1">Example</div>
-                <div className={`${singleThaiFontClass(fontStyle)} text-base`}>{word.exampleSentence.thai}</div>
+                <div className="flex items-center justify-center gap-2">
+                  <div className={`${singleThaiFontClass(fontStyle)} text-base`}>{word.exampleSentence.thai}</div>
+                  {/* Keep the tap from also flipping the card. */}
+                  <span className="shrink-0 inline-flex" onPointerDown={(e) => e.stopPropagation()}>
+                    <AudioButton text={word.exampleSentence.thai} />
+                  </span>
+                </div>
                 <div className="text-txt-tertiary text-xs mt-1">{word.exampleSentence.romanization}</div>
                 <div className="text-txt-secondary text-xs mt-1">{word.exampleSentence.english}</div>
               </div>
