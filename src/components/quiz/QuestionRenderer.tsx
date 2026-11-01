@@ -3,8 +3,6 @@ import type { ExerciseFrame } from './ExerciseLayout';
 import type { ScheduleOptions } from '../../lib/srs';
 import { MultipleChoiceQuestion } from './MultipleChoiceQuestion';
 import { TypedAnswerQuestion } from './TypedAnswerQuestion';
-import { TypedThaiQuestion } from './TypedThaiQuestion';
-import { PhoneticQuestion } from './PhoneticQuestion';
 import { FlashcardQuestion } from './FlashcardQuestion';
 import { ConnectorQuestion } from './ConnectorQuestion';
 
@@ -20,10 +18,6 @@ export function QuestionRenderer({ question, onMarkWord, ...props }: Props) {
       return <MultipleChoiceQuestion question={question} onMarkWord={onMarkWord} {...props} />;
     case 'typed':
       return <TypedAnswerQuestion question={question} {...props} />;
-    case 'typed-thai':
-      return <TypedThaiQuestion question={question} {...props} />;
-    case 'phonetic':
-      return <PhoneticQuestion question={question} {...props} />;
     case 'flashcard':
       return <FlashcardQuestion question={question} {...props} />;
     case 'connector':

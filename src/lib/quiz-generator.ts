@@ -158,28 +158,7 @@ export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
 
   const sessionWords = selectSessionWords(options);
 
-  // Typing Thai script only makes sense when Thai is the target of the question.
-  if (forceType === 'typed-thai') {
-    return sessionWords.map((word, index) => ({
-      id: `${word.id}-${index}-${Date.now()}`,
-      word,
-      type: 'typed-thai',
-      direction: 'en-th',
-    }));
-  }
-
-  // Phonetic questions alternate between reading Thai into romanization and
-  // spelling romanization back into Thai.
-  if (forceType === 'phonetic') {
-    return sessionWords.map((word, index) => ({
-      id: `${word.id}-${index}-${Date.now()}`,
-      word,
-      type: 'phonetic',
-      direction: direction === 'both' ? (Math.random() < 0.5 ? 'th-en' : 'en-th') : direction,
-    }));
-  }
-
-  // Otherwise, every question is multiple choice: recognizing the answer
+  // Every other question is multiple choice: recognizing the answer
   // among options is far more approachable than typing or recalling it
   // from memory, in either direction.
   return sessionWords.map((word, index) => {

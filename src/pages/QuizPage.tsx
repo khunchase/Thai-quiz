@@ -18,12 +18,10 @@ interface Answer {
 
 type Phase = 'start' | 'active' | 'caught-up';
 
-type QuizMode = 'multiple-choice' | 'typed-thai' | 'phonetic' | 'connector';
+type QuizMode = 'multiple-choice' | 'connector';
 
 const QUIZ_MODES: { id: QuizMode; label: string }[] = [
   { id: 'multiple-choice', label: 'Multiple Choice' },
-  { id: 'typed-thai', label: '⌨️ Type Thai' },
-  { id: 'phonetic', label: '🔤 Phonetics' },
   { id: 'connector', label: '🔗 Connectors' },
 ];
 
@@ -189,12 +187,12 @@ export function QuizPage() {
 
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Quiz Mode</div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex gap-2">
           {QUIZ_MODES.map((m) => (
             <button
               key={m.id}
               onClick={() => setQuizMode(m.id)}
-              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 quizMode === m.id ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
               }`}
             >
@@ -202,16 +200,6 @@ export function QuizPage() {
             </button>
           ))}
         </div>
-        {quizMode === 'typed-thai' && (
-          <div className="text-txt-tertiary text-[11px] mt-2">
-            You'll see the English word (and pronunciation) and type the actual Thai script.
-          </div>
-        )}
-        {quizMode === 'phonetic' && (
-          <div className="text-txt-tertiary text-[11px] mt-2">
-            Read Thai and type how it sounds, or see the pronunciation and type the Thai. Tone marks are forgiven.
-          </div>
-        )}
         {isConnectorMode && (
           <div className="text-txt-tertiary text-[11px] mt-2">
             Clause ___ clause: pick the Thai connector (when, before, as long as…) that matches the highlighted
@@ -220,7 +208,7 @@ export function QuizPage() {
         )}
       </Card>
 
-      {quizMode !== 'typed-thai' && !isConnectorMode && (
+      {!isConnectorMode && (
         <Card>
           <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Direction</div>
           <div className="flex gap-2">
@@ -234,13 +222,9 @@ export function QuizPage() {
               >
                 {dir === 'both'
                   ? 'Both'
-                  : quizMode === 'phonetic'
-                    ? dir === 'th-en'
-                      ? 'TH → ABC'
-                      : 'ABC → TH'
-                    : dir === 'th-en'
-                      ? 'TH → EN'
-                      : 'EN → TH'}
+                  : dir === 'th-en'
+                    ? 'TH → EN'
+                    : 'EN → TH'}
               </button>
             ))}
           </div>
