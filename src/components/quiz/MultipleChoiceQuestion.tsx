@@ -91,7 +91,7 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord, ...fr
           <div className="text-3xl font-bold">{promptText}</div>
         )}
         {showRomanization && (
-          <div className="text-txt-secondary text-sm mt-1">{word.pronunciation ?? word.romanization}</div>
+          <div className="text-txt-secondary text-lg mt-1">{word.pronunciation ?? word.romanization}</div>
         )}
       </ExercisePrompt>
       <div className="grid grid-cols-1 gap-2">
@@ -254,7 +254,7 @@ export function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordD
           ✕
         </button>
         <BreakdownHeadword word={word} className="text-4xl" />
-        <div className="text-txt-secondary text-sm">{word.pronunciation ?? word.romanization}</div>
+        <div className="text-txt-secondary text-lg">{word.pronunciation ?? word.romanization}</div>
         <div className="text-txt-primary text-lg font-semibold text-center">{word.english}</div>
         <AudioButton text={word.thai} />
 

@@ -64,7 +64,7 @@ export function WordBreakdown({ word }: { word: Word }) {
               >
                 {part.thai}
               </div>
-              <div className={`text-txt-secondary font-semibold mt-0.5 ${compact ? 'text-xs' : 'text-[13px]'}`}>
+              <div className={`text-txt-secondary font-semibold mt-0.5 ${compact ? 'text-sm' : 'text-base'}`}>
                 {part.romanization}
               </div>
               {/* Zero-width space after "/" lets "comfortable/well" wrap at the slash instead of mid-word. */}

@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAllWords, useAllCategories } from '../stores/deck-store';
 import { useProgressStore, displayedStreak } from '../stores/progress-store';
 import { useNavigationStore } from '../stores/navigation-store';
-import { classifyWords, generateQuiz } from '../lib/quiz-generator';
+import { classifyWords, filterWords, generateQuiz } from '../lib/quiz-generator';
+import { ALL_LEVELS, WORD_LEVELS } from '../lib/levels';
 import type { ScheduleOptions } from '../lib/srs';
 import type { QuizQuestion, Grade, Direction } from '../types/quiz';
+import type { WordLevel } from '../types/word';
 import { QuestionRenderer } from '../components/quiz/QuestionRenderer';
 import { AccentButton } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -39,6 +41,7 @@ export function QuizPage() {
 
   const [phase, setPhase] = useState<Phase>('start');
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => categories.map((c) => c.id));
+  const [selectedLevels, setSelectedLevels] = useState<WordLevel[]>(ALL_LEVELS);
   const [quizMode, setQuizMode] = useState<QuizMode>('multiple-choice');
   const [direction, setDirection] = useState<Direction | 'both'>('both');
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -56,10 +59,12 @@ export function QuizPage() {
   const available = useMemo(
     () =>
       classifyWords(
-        words.filter((w) => (isConnectorMode ? CONNECTOR_INFO[w.id] : selectedCategories.includes(w.categoryId))),
+        isConnectorMode
+          ? words.filter((w) => CONNECTOR_INFO[w.id])
+          : filterWords(words, selectedCategories, selectedLevels),
         reviewStates
       ),
-    [words, reviewStates, selectedCategories, isConnectorMode]
+    [words, reviewStates, selectedCategories, selectedLevels, isConnectorMode]
   );
   const nothingToQuiz = available.unseen.length + available.learning.length + available.reviews.length === 0;
 
@@ -68,6 +73,18 @@ export function QuizPage() {
   }
 
   const allCategoriesSelected = selectedCategories.length === categories.length;
+  const allLevelsSelected = selectedLevels.length === ALL_LEVELS.length;
+
+  function toggleLevel(level: WordLevel) {
+    setSelectedLevels((prev) => (prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level].sort()));
+  }
+
+  /** Taps "up to" a level: picking 3 selects 1, 2 and 3. */
+  function selectUpToLevel(level: WordLevel) {
+    setSelectedLevels(ALL_LEVELS.filter((l) => l <= level));
+  }
+
+  const canStart = isConnectorMode || (selectedCategories.length > 0 && selectedLevels.length > 0);
 
   function toggleSelectAllCategories() {
     setSelectedCategories(allCategoriesSelected ? [] : categories.map((c) => c.id));
@@ -82,6 +99,7 @@ export function QuizPage() {
       sessionLength: BATCH_SIZE,
       direction,
       categoryFilter: allCategoriesSelected ? undefined : selectedCategories,
+      levelFilter: allLevelsSelected ? undefined : selectedLevels,
       forceType: quizMode === 'multiple-choice' ? undefined : quizMode,
     };
     for (const excludeWordIds of [recentWordIds, recentWordIds.slice(-1), []]) {
@@ -91,10 +109,8 @@ export function QuizPage() {
     return [];
   }
 
-  const noCategories = !isConnectorMode && selectedCategories.length === 0;
-
   function startQuiz() {
-    if (noCategories) return;
+    if (!canStart) return;
     const batch = nextBatch([]);
     setQuestions(batch);
     setIndex(0);
@@ -147,7 +163,7 @@ export function QuizPage() {
             {answers.length} answered · {correctCount} correct · 🔥 {currentStreak} day streak
           </div>
           <div className="text-txt-tertiary text-xs mt-2">
-            Every word here is learned — come back when reviews are due, or pick more categories.
+            Every word here is learned — come back when reviews are due, or pick more categories or levels.
           </div>
         </div>
         <AccentButton onClick={() => setPhase('start')}>Done</AccentButton>
@@ -165,6 +181,46 @@ export function QuizPage() {
       </div>
 
       {!isConnectorMode && (
+        <>
+        <Card>
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Levels</div>
+            <button
+              onClick={() => setSelectedLevels(allLevelsSelected ? [] : ALL_LEVELS)}
+              className="text-accent text-xs font-semibold"
+            >
+              {allLevelsSelected ? 'Deselect All' : 'Select All'}
+            </button>
+          </div>
+          <div className="flex gap-2">
+            {WORD_LEVELS.map((l) => (
+              <button
+                key={l.level}
+                onClick={() => toggleLevel(l.level)}
+                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                  selectedLevels.includes(l.level) ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+                }`}
+              >
+                {l.level}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
+            {WORD_LEVELS.slice(0, -1).map((l) => (
+              <button key={l.level} onClick={() => selectUpToLevel(l.level)} className="text-accent text-[11px] font-semibold">
+                {l.level === 1 ? 'Level 1 only' : `Levels 1–${l.level}`}
+              </button>
+            ))}
+          </div>
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            {selectedLevels.length === 0
+              ? 'Select at least one level to start a quiz.'
+              : WORD_LEVELS.filter((l) => selectedLevels.includes(l.level))
+                  .map((l) => `${l.level} ${l.name}`)
+                  .join(' · ')}
+          </div>
+        </Card>
+
         <Card>
           <div className="flex items-center justify-between mb-3">
             <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Categories</div>
@@ -183,6 +239,7 @@ export function QuizPage() {
             <div className="text-danger text-[11px] mt-2">Select at least one category to start a quiz.</div>
           )}
         </Card>
+        </>
       )}
 
       <Card>
@@ -237,12 +294,12 @@ export function QuizPage() {
       )}
 
       <div className="mt-auto">
-        {!noCategories && nothingToQuiz && (
+        {canStart && nothingToQuiz && (
           <div className="text-txt-tertiary text-xs text-center mb-2">
-            Every word here is learned — come back when reviews are due, or pick more categories.
+            Every word here is learned — come back when reviews are due, or pick more categories or levels.
           </div>
         )}
-        <AccentButton onClick={startQuiz} disabled={noCategories || nothingToQuiz}>
+        <AccentButton onClick={startQuiz} disabled={!canStart || nothingToQuiz}>
           Start Quiz
         </AccentButton>
       </div>
