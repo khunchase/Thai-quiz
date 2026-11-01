@@ -1,4 +1,5 @@
 import type { Word } from '../types/word';
+import { CONJUNCTION_WORDS } from './conjunctions';
 
 // Static, stable ids — do not rename existing ids, spaced-repetition
 // progress is keyed by word id in localStorage.
@@ -1228,4 +1229,7 @@ export const STARTER_WORDS: Word[] = [
   { id: 'maimuan-chai-yes', thai: 'ใช่', romanization: 'chai', pronunciation: 'châi', english: 'yes / correct', categoryId: 'mai-muan', exampleSentence: { thai: 'ใช่ ฉันเป็นคนไทย', romanization: 'chai chan pen khon thai', english: 'Yes, I am Thai.' } },
   { id: 'maimuan-hai', thai: 'ให้', romanization: 'hai', pronunciation: 'hâi', english: 'to give / to let', categoryId: 'mai-muan', exampleSentence: { thai: 'แม่ให้ขนมฉัน', romanization: 'mɛɛ hai kha nom chan', english: 'Mom gave me a snack.' } },
   { id: 'maimuan-saphai', thai: 'สะใภ้', romanization: 'sa phai', pronunciation: 'sà phái', english: 'daughter-in-law (woman married into the family)', categoryId: 'mai-muan', exampleSentence: { thai: 'เธอเป็นลูกสะใภ้ของบ้านนี้', romanization: 'thəə pen luuk sa phai khɔɔŋ baan nii', english: 'She is the daughter-in-law of this family.' } },
+
+  // Conjunctions & Connectors — see conjunctions.ts, which also holds their fill-in-the-blank sentences.
+  ...CONJUNCTION_WORDS,
 ];

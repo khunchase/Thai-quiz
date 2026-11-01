@@ -6,6 +6,7 @@ import { TypedAnswerQuestion } from './TypedAnswerQuestion';
 import { TypedThaiQuestion } from './TypedThaiQuestion';
 import { PhoneticQuestion } from './PhoneticQuestion';
 import { FlashcardQuestion } from './FlashcardQuestion';
+import { ConnectorQuestion } from './ConnectorQuestion';
 
 interface Props extends ExerciseFrame {
   question: QuizQuestion;
@@ -25,5 +26,7 @@ export function QuestionRenderer({ question, onMarkWord, ...props }: Props) {
       return <PhoneticQuestion question={question} {...props} />;
     case 'flashcard':
       return <FlashcardQuestion question={question} {...props} />;
+    case 'connector':
+      return <ConnectorQuestion question={question} {...props} />;
   }
 }

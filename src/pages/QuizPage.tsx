@@ -9,6 +9,7 @@ import { QuestionRenderer } from '../components/quiz/QuestionRenderer';
 import { AccentButton } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
+import { CONNECTOR_INFO } from '../data/conjunctions';
 
 interface Answer {
   question: QuizQuestion;
@@ -17,12 +18,13 @@ interface Answer {
 
 type Phase = 'start' | 'active' | 'caught-up';
 
-type QuizMode = 'multiple-choice' | 'typed-thai' | 'phonetic';
+type QuizMode = 'multiple-choice' | 'typed-thai' | 'phonetic' | 'connector';
 
 const QUIZ_MODES: { id: QuizMode; label: string }[] = [
   { id: 'multiple-choice', label: 'Multiple Choice' },
   { id: 'typed-thai', label: '⌨️ Type Thai' },
   { id: 'phonetic', label: '🔤 Phonetics' },
+  { id: 'connector', label: '🔗 Connectors' },
 ];
 
 /** Questions picked at a time — small, so each batch reflects the latest answers. */
@@ -51,9 +53,15 @@ export function QuizPage() {
     return () => setQuizActive(false);
   }, [phase, setQuizActive]);
 
+  // The connectors quiz has its own word set, so it ignores the category picks.
+  const isConnectorMode = quizMode === 'connector';
   const available = useMemo(
-    () => classifyWords(words.filter((w) => selectedCategories.includes(w.categoryId)), reviewStates),
-    [words, reviewStates, selectedCategories]
+    () =>
+      classifyWords(
+        words.filter((w) => (isConnectorMode ? CONNECTOR_INFO[w.id] : selectedCategories.includes(w.categoryId))),
+        reviewStates
+      ),
+    [words, reviewStates, selectedCategories, isConnectorMode]
   );
   const nothingToQuiz = available.unseen.length + available.learning.length + available.reviews.length === 0;
 
@@ -85,8 +93,10 @@ export function QuizPage() {
     return [];
   }
 
+  const noCategories = !isConnectorMode && selectedCategories.length === 0;
+
   function startQuiz() {
-    if (selectedCategories.length === 0) return;
+    if (noCategories) return;
     const batch = nextBatch([]);
     setQuestions(batch);
     setIndex(0);
@@ -156,33 +166,35 @@ export function QuizPage() {
         </p>
       </div>
 
-      <Card>
-        <div className="flex items-center justify-between mb-3">
-          <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Categories</div>
-          <button onClick={toggleSelectAllCategories} className="text-accent text-xs font-semibold">
-            {allCategoriesSelected ? 'Deselect All' : 'Select All'}
-          </button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((c) => (
-            <Badge key={c.id} active={selectedCategories.includes(c.id)} onClick={() => toggleCategory(c.id)}>
-              {c.icon} {c.name}
-            </Badge>
-          ))}
-        </div>
-        {selectedCategories.length === 0 && (
-          <div className="text-danger text-[11px] mt-2">Select at least one category to start a quiz.</div>
-        )}
-      </Card>
+      {!isConnectorMode && (
+        <Card>
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide">Categories</div>
+            <button onClick={toggleSelectAllCategories} className="text-accent text-xs font-semibold">
+              {allCategoriesSelected ? 'Deselect All' : 'Select All'}
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((c) => (
+              <Badge key={c.id} active={selectedCategories.includes(c.id)} onClick={() => toggleCategory(c.id)}>
+                {c.icon} {c.name}
+              </Badge>
+            ))}
+          </div>
+          {selectedCategories.length === 0 && (
+            <div className="text-danger text-[11px] mt-2">Select at least one category to start a quiz.</div>
+          )}
+        </Card>
+      )}
 
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Quiz Mode</div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {QUIZ_MODES.map((m) => (
             <button
               key={m.id}
               onClick={() => setQuizMode(m.id)}
-              className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 quizMode === m.id ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
               }`}
             >
@@ -200,9 +212,15 @@ export function QuizPage() {
             Read Thai and type how it sounds, or see the pronunciation and type the Thai. Tone marks are forgiven.
           </div>
         )}
+        {isConnectorMode && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            Clause ___ clause: pick the Thai connector (when, before, as long as…) that matches the highlighted
+            English. Uses the Conjunctions &amp; Connectors words.
+          </div>
+        )}
       </Card>
 
-      {quizMode !== 'typed-thai' && (
+      {quizMode !== 'typed-thai' && !isConnectorMode && (
         <Card>
           <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Direction</div>
           <div className="flex gap-2">
@@ -230,12 +248,12 @@ export function QuizPage() {
       )}
 
       <div className="mt-auto">
-        {selectedCategories.length > 0 && nothingToQuiz && (
+        {!noCategories && nothingToQuiz && (
           <div className="text-txt-tertiary text-xs text-center mb-2">
             Every word here is learned — come back when reviews are due, or pick more categories.
           </div>
         )}
-        <AccentButton onClick={startQuiz} disabled={selectedCategories.length === 0 || nothingToQuiz}>
+        <AccentButton onClick={startQuiz} disabled={noCategories || nothingToQuiz}>
           Start Quiz
         </AccentButton>
       </div>
