@@ -1,5 +1,6 @@
 import type { Word } from '../types/word';
 import { CONJUNCTION_WORDS } from './conjunctions';
+import { CLASSIFIERS, CLASSIFIER_WORDS } from './classifiers';
 
 // Static, stable ids — do not rename existing ids, spaced-repetition
 // progress is keyed by word id in localStorage.
@@ -11,6 +12,11 @@ import { CONJUNCTION_WORDS } from './conjunctions';
 // `pronunciation` adds tone marks on the first vowel letter: unmarked = mid
 // tone, à = low, â = falling, á = high, ǎ = rising. `romanization` is the
 // same spelling without tone marks.
+function classifierExample(key: string) {
+  const { thai, romanization, english } = CLASSIFIERS[key].example;
+  return { thai: thai.replace(/ /g, ''), romanization, english };
+}
+
 export const STARTER_WORDS: Word[] = [
   // Greetings & Basics
   { id: 'greet-hello', thai: 'สวัสดี', romanization: 'sa wat dii', pronunciation: 'sà wàt dii', english: 'hello', categoryId: 'greetings', level: 1 },
@@ -1216,7 +1222,7 @@ export const STARTER_WORDS: Word[] = [
   { id: 'maimuan-jai', thai: 'ใจ', romanization: 'cai', pronunciation: 'cai', english: 'heart / mind', categoryId: 'mai-muan', level: 2, exampleSentence: { thai: 'เขาเป็นคนใจดี', romanization: 'khau pen khon cai dii', english: 'He is a kind-hearted person.' } },
   { id: 'maimuan-khrai', thai: 'ใคร', romanization: 'khrai', pronunciation: 'khrai', english: 'who', categoryId: 'mai-muan', level: 1, exampleSentence: { thai: 'นั่นใคร', romanization: 'nan khrai', english: 'Who is that?' } },
   { id: 'maimuan-khrai-wish', thai: 'ใคร่', romanization: 'khrai', pronunciation: 'khrâi', english: 'to wish / desire (formal)', categoryId: 'mai-muan', level: 5, exampleSentence: { thai: 'ข้าพเจ้าใคร่ขอขอบคุณทุกท่าน', romanization: 'khaa pha caau khrai khɔɔ khɔɔp khun thuk than', english: 'I would like to thank everyone.' } },
-  { id: 'maimuan-bai', thai: 'ใบ', romanization: 'bai', pronunciation: 'bai', english: 'leaf / sheet (classifier)', categoryId: 'mai-muan', level: 3, exampleSentence: { thai: 'ใบไม้ร่วงจากต้นไม้', romanization: 'bai mai ruuaŋ caak ton mai', english: 'Leaves fall from the tree.' } },
+  { id: 'maimuan-bai', thai: 'ใบ', romanization: 'bai', pronunciation: 'bai', english: 'leaf / sheet', categoryId: 'mai-muan', level: 3, exampleSentence: { thai: 'ใบไม้ร่วงจากต้นไม้', romanization: 'bai mai ruuaŋ caak ton mai', english: 'Leaves fall from the tree.' } },
   { id: 'maimuan-sai-clear', thai: 'ใส', romanization: 'sai', pronunciation: 'sǎi', english: 'clear (transparent)', categoryId: 'mai-muan', level: 3, exampleSentence: { thai: 'น้ำทะเลที่นี่ใสมาก', romanization: 'naam tha lee thii nii sai maak', english: 'The sea water here is very clear.' } },
   { id: 'maimuan-dai', thai: 'ใด', romanization: 'dai', pronunciation: 'dai', english: 'any / which (formal)', categoryId: 'mai-muan', level: 4, exampleSentence: { thai: 'คุณจะเลือกสีใดก็ได้', romanization: 'khun ca lɯɯak sii dai kɔɔ dai', english: 'You can choose any color.' } },
   { id: 'maimuan-chai-use', thai: 'ใช้', romanization: 'chai', pronunciation: 'chái', english: 'to use', categoryId: 'mai-muan', level: 1, exampleSentence: { thai: 'ฉันใช้โทรศัพท์ทุกวัน', romanization: 'chan chai thoo ra sap thuk wan', english: 'I use my phone every day.' } },
@@ -1583,8 +1589,8 @@ export const STARTER_WORDS: Word[] = [
   { id: 'school-tone', thai: 'วรรณยุกต์', romanization: 'wan na yuk', pronunciation: 'wan ná yúk', english: 'tone mark', categoryId: 'school', level: 4 },
   { id: 'school-consonant', thai: 'พยัญชนะ', romanization: 'pha yan cha na', pronunciation: 'phá yan chá ná', english: 'consonant', categoryId: 'school', level: 4 },
   { id: 'shopping-lower-price', thai: 'ลดได้ไหม', romanization: 'lot dai mai', pronunciation: 'lót dâi mǎi', english: 'can you lower the price?', categoryId: 'shopping', level: 2 },
-  { id: 'shopping-piece', thai: 'ชิ้น', romanization: 'chin', pronunciation: 'chín', english: 'piece (classifier)', categoryId: 'shopping', level: 2 },
-  { id: 'shopping-thing-classifier', thai: 'อัน', romanization: 'an', pronunciation: 'an', english: 'thing / piece (general classifier)', categoryId: 'shopping', level: 2 },
+  { id: 'shopping-piece', thai: 'ชิ้น', romanization: 'chin', pronunciation: 'chín', english: 'classifier: pieces and items: cake, gifts, products', categoryId: 'classifiers', level: 2, exampleSentence: classifierExample('ชิ้น') },
+  { id: 'shopping-thing-classifier', thai: 'อัน', romanization: 'an', pronunciation: 'an', english: 'classifier: small things in general (the catch-all)', categoryId: 'classifiers', level: 1, exampleSentence: classifierExample('อัน') },
   { id: 'shopping-sold-out', thai: 'หมด', romanization: 'mot', pronunciation: 'mòt', english: 'used up / sold out', categoryId: 'shopping', level: 2 },
   { id: 'shopping-product', thai: 'สินค้า', romanization: 'sin khaa', pronunciation: 'sǐn kháa', english: 'product / goods', categoryId: 'shopping', level: 3 },
   { id: 'shopping-department-store', thai: 'ห้างสรรพสินค้า', romanization: 'haaŋ sap pha sin khaa', pronunciation: 'hâaŋ sàp phá sǐn kháa', english: 'department store', categoryId: 'shopping', level: 3 },
@@ -1609,6 +1615,9 @@ export const STARTER_WORDS: Word[] = [
   { id: 'work-overtime', thai: 'ทำโอที', romanization: 'tham oo thii', pronunciation: 'tham oo thii', english: 'to work overtime', categoryId: 'work', level: 3 },
   { id: 'work-civil-servant', thai: 'ข้าราชการ', romanization: 'khaa raat cha kaan', pronunciation: 'khâa râat chá kaan', english: 'civil servant', categoryId: 'work', level: 4 },
   { id: 'emotions-impressed', thai: 'ประทับใจ', romanization: 'pra thap cai', pronunciation: 'prà tháp cai', english: 'impressed', categoryId: 'emotions', level: 3 },
+
+  // Classifiers — see classifiers.ts, which also maps nouns to the classifier that counts them.
+  ...CLASSIFIER_WORDS,
 
   // Conjunctions & Connectors — see conjunctions.ts, which also holds their fill-in-the-blank sentences.
   ...CONJUNCTION_WORDS,

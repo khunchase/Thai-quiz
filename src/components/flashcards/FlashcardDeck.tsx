@@ -5,6 +5,7 @@ import { useProgressStore } from '../../stores/progress-store';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 import { GRADE_KNOWN, GRADE_GIVE_UP } from '../../lib/srs';
 import { BreakdownHeadword, WordBreakdown } from '../quiz/WordBreakdown';
+import { ClassifierNote } from '../quiz/ClassifierNote';
 import { AccentButton } from '../ui/Button';
 import { ExerciseLayout } from '../quiz/ExerciseLayout';
 
@@ -155,6 +156,8 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
             <div className="text-txt-secondary text-lg">{word.pronunciation ?? word.romanization}</div>
 
             <WordBreakdown word={word} />
+
+            <ClassifierNote word={word} className="border-t border-border pt-3 mt-1" />
 
             {word.exampleSentence && (
               <div className="w-full border-t border-border pt-3 mt-1 text-center">
