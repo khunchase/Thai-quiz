@@ -22,6 +22,11 @@ account or backend required.
   blocks leave a dotted gap so the word bank never shifts. Equally natural
   orders (time words first or last) count as right. 236 sentences covering
   classifiers, question words, particles and everyday verbs.
+- **Letters quiz** — a standalone consonant and vowel drill, separate from
+  the word deck and flashcards. Name a letter (ก → kɔɔ kài, chicken; เอือ →
+  ɯɯa, long), find the letter for a sound, and optionally tell a consonant's
+  class (mid / high / low). Covers all 44 consonants and 28 vowel forms;
+  missed letters come back a few questions later.
 - **Both directions** — Thai script → English and English → Thai, mixed or
   fixed via Settings.
 - **Spaced repetition** — an SM-2 scheduler tracks per-word ease/interval so

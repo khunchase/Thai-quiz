@@ -13,20 +13,23 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { CONNECTOR_INFO } from '../data/conjunctions';
 import { ORDER_SENTENCES } from '../data/word-order';
+import { LetterQuiz } from '../components/quiz/LetterQuiz';
+import type { LetterQuizOptions } from '../lib/letter-quiz';
 
 interface Answer {
   question: QuizQuestion;
   correct: boolean;
 }
 
-type Phase = 'start' | 'active' | 'caught-up';
+type Phase = 'start' | 'active' | 'caught-up' | 'letters';
 
-type QuizMode = 'multiple-choice' | 'connector' | 'order';
+type QuizMode = 'multiple-choice' | 'connector' | 'order' | 'letters';
 
 const QUIZ_MODES: { id: QuizMode; label: string }[] = [
   { id: 'multiple-choice', label: '🃏 Words' },
   { id: 'connector', label: '🔗 Sentences' },
   { id: 'order', label: '🧩 Order' },
+  { id: 'letters', label: '🔤 Letters' },
 ];
 
 /** Questions picked at a time — small, so each batch reflects the latest answers. */
@@ -49,16 +52,23 @@ export function QuizPage() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
+  const [letterOptions, setLetterOptions] = useState<LetterQuizOptions>({
+    consonants: true,
+    vowels: true,
+    direction: 'both',
+    classQuestions: false,
+  });
   const setQuizActive = useNavigationStore((s) => s.setQuizActive);
 
   useEffect(() => {
-    setQuizActive(phase === 'active');
+    setQuizActive(phase === 'active' || phase === 'letters');
     return () => setQuizActive(false);
   }, [phase, setQuizActive]);
 
   // The Sentences and Order quizzes have their own word sets, so they ignore the category picks.
   const isConnectorMode = quizMode === 'connector';
   const isOrderMode = quizMode === 'order';
+  const isLetterMode = quizMode === 'letters';
   const usesCategories = quizMode === 'multiple-choice';
   const available = useMemo(
     () =>
@@ -90,7 +100,9 @@ export function QuizPage() {
     setSelectedLevels(ALL_LEVELS.filter((l) => l <= level));
   }
 
-  const canStart = !usesCategories || (selectedCategories.length > 0 && selectedLevels.length > 0);
+  const canStart = isLetterMode
+    ? letterOptions.consonants || letterOptions.vowels
+    : !usesCategories || (selectedCategories.length > 0 && selectedLevels.length > 0);
 
   function toggleSelectAllCategories() {
     setSelectedCategories(allCategoriesSelected ? [] : categories.map((c) => c.id));
@@ -106,7 +118,7 @@ export function QuizPage() {
       direction,
       categoryFilter: allCategoriesSelected ? undefined : selectedCategories,
       levelFilter: allLevelsSelected ? undefined : selectedLevels,
-      forceType: quizMode === 'multiple-choice' ? undefined : quizMode,
+      forceType: quizMode === 'connector' || quizMode === 'order' ? quizMode : undefined,
     };
     for (const excludeWordIds of [recentWordIds, recentWordIds.slice(-1), []]) {
       const batch = generateQuiz({ ...options, excludeWordIds });
@@ -117,6 +129,10 @@ export function QuizPage() {
 
   function startQuiz() {
     if (!canStart) return;
+    if (isLetterMode) {
+      setPhase('letters');
+      return;
+    }
     const batch = nextBatch([]);
     setQuestions(batch);
     setIndex(0);
@@ -140,6 +156,10 @@ export function QuizPage() {
     }
     setQuestions(batch);
     setIndex(0);
+  }
+
+  if (phase === 'letters') {
+    return <LetterQuiz options={letterOptions} onExit={() => setPhase('start')} />;
   }
 
   if (phase === 'active' && questions[index]) {
@@ -182,18 +202,20 @@ export function QuizPage() {
       <div>
         <h1 className="text-2xl font-bold">Thai Word Quiz</h1>
         <p className="text-txt-secondary text-sm mt-1">
-          {available.unseen.length} new · {available.learning.length} learning · {available.reviews.length} due for review
+          {isLetterMode
+            ? 'Practice the alphabet: 44 consonants and 28 vowels'
+            : <>{available.unseen.length} new · {available.learning.length} learning · {available.reviews.length} due for review</>}
         </p>
       </div>
 
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Quiz Mode</div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {QUIZ_MODES.map((m) => (
             <button
               key={m.id}
               onClick={() => setQuizMode(m.id)}
-              className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              className={`px-3 py-2 rounded-lg text-sm font-semibold transition-colors ${
                 quizMode === m.id ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
               }`}
             >
@@ -218,7 +240,73 @@ export function QuizPage() {
             tap it again to send it back.
           </div>
         )}
+        {isLetterMode && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            Thai consonants and vowels on their own — name the letter, find the letter for a sound, or tell a
+            consonant's class. Separate from your words and flashcards; missed letters come back a few questions later.
+          </div>
+        )}
       </Card>
+
+      {isLetterMode && (
+        <>
+          <Card>
+            <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Letters</div>
+            <div className="flex gap-2">
+              {(['consonants', 'vowels'] as const).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => setLetterOptions((o) => ({ ...o, [key]: !o[key] }))}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold ${
+                    letterOptions[key] ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+                  }`}
+                >
+                  {key === 'consonants' ? 'ก Consonants' : 'อา Vowels'}
+                </button>
+              ))}
+            </div>
+            {!letterOptions.consonants && !letterOptions.vowels && (
+              <div className="text-danger text-[11px] mt-2">Select consonants, vowels, or both to start.</div>
+            )}
+          </Card>
+
+          <Card>
+            <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Direction</div>
+            <div className="flex gap-2">
+              {(['both', 'to-sound', 'to-letter'] as const).map((dir) => (
+                <button
+                  key={dir}
+                  onClick={() => setLetterOptions((o) => ({ ...o, direction: dir }))}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold ${
+                    letterOptions.direction === dir ? 'bg-accent text-app-bg' : 'bg-app-surface text-txt-secondary'
+                  }`}
+                >
+                  {dir === 'both' ? 'Both' : dir === 'to-sound' ? 'Letter → Sound' : 'Sound → Letter'}
+                </button>
+              ))}
+            </div>
+            {letterOptions.consonants && (
+              <button
+                onClick={() => setLetterOptions((o) => ({ ...o, classQuestions: !o.classQuestions }))}
+                className="mt-3 w-full flex items-center justify-between text-sm"
+              >
+                <span className="text-txt-primary">Also ask consonant class (mid / high / low)</span>
+                <span
+                  className={`w-10 h-6 rounded-full p-0.5 transition-colors ${
+                    letterOptions.classQuestions ? 'bg-accent' : 'bg-app-surface'
+                  }`}
+                >
+                  <span
+                    className={`block w-5 h-5 rounded-full bg-txt-primary transition-transform ${
+                      letterOptions.classQuestions ? 'translate-x-4' : ''
+                    }`}
+                  />
+                </span>
+              </button>
+            )}
+          </Card>
+        </>
+      )}
 
       {usesCategories && (
         <>
@@ -306,12 +394,12 @@ export function QuizPage() {
       )}
 
       <div className="mt-auto">
-        {canStart && nothingToQuiz && (
+        {canStart && nothingToQuiz && !isLetterMode && (
           <div className="text-txt-tertiary text-xs text-center mb-2">
             Every word here is learned — come back when reviews are due, or pick more categories or levels.
           </div>
         )}
-        <AccentButton onClick={startQuiz} disabled={!canStart || nothingToQuiz}>
+        <AccentButton onClick={startQuiz} disabled={!canStart || (nothingToQuiz && !isLetterMode)}>
           Start Quiz
         </AccentButton>
       </div>
