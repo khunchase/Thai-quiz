@@ -10,6 +10,8 @@ import { ProgressBar } from '../ui/ProgressBar';
 import { ArrowRightIcon } from '../ui/icons';
 import { AudioButton } from './AudioButton';
 import { BreakdownHeadword, WordBreakdown } from './WordBreakdown';
+import { ClassifierNote } from './ClassifierNote';
+import { classifierFor } from '../../data/classifiers';
 
 interface Props {
   word: Word;
@@ -152,6 +154,12 @@ function ItemDetails({ word }: { word: Word }) {
         <div className="border-t border-border py-5">
           <WordBreakdown word={word} />
         </div>
+      )}
+
+      {classifierFor(word) && (
+        <DetailSection title="Classifier">
+          <ClassifierNote word={word} align="left" />
+        </DetailSection>
       )}
 
       {word.exampleSentence && (

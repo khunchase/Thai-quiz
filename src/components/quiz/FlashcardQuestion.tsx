@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import type { QuizQuestion, Grade } from '../../types/quiz';
 import { gradeForFlashcard, type FlashcardRating } from '../../lib/srs';
 import { ThaiWord } from './ThaiWord';
+import { ClassifierNote } from './ClassifierNote';
 import { ExerciseLayout, type ExerciseFrame } from './ExerciseLayout';
 
 interface Props extends ExerciseFrame {
@@ -67,6 +68,7 @@ export function FlashcardQuestion({ question, onAnswered, ...frame }: Props) {
               <div className="text-3xl font-semibold text-accent">{back}</div>
             )}
             <div className="text-txt-secondary text-lg">{word.pronunciation ?? word.romanization}</div>
+            <ClassifierNote word={word} compact />
           </div>
         </motion.div>
       </div>

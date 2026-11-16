@@ -26,11 +26,11 @@ account or backend required.
   fixed via Settings.
 - **Spaced repetition** — an SM-2 scheduler tracks per-word ease/interval so
   words you struggle with resurface sooner.
-- **1,600+ word starter deck**, levels 1–5 on every word except the connectors, across 28 categories (greetings, numbers, family,
+- **1,600+ word starter deck**, levels 1–5 on every word except the connectors, across 29 categories (greetings, numbers, family,
   food, colors, time, verbs, places, animals, adjectives, pronouns, body
   parts, health, clothing, weather & nature, transportation, technology,
   shopping, work, school, emotions, household items, directions/question
-  words, and conjunctions & connectors), plus a Words tab to add, edit, and delete your own words and
+  words, conjunctions & connectors, and classifiers), plus a Words tab to add, edit, and delete your own words and
   categories.
 - **Textbook romanization** — pronunciations follow the Thai Language
   Station convention (khɔ̀ɔp khun, chɯ̂ɯ, rooŋ riian); typed answers also
@@ -38,6 +38,11 @@ account or backend required.
 - **Word breakdowns** — compound words list the smaller words they're made
   of under the word's details (น้ำตก → น้ำ water, ตก fall), for about 750
   words. Tap a part to open its own card.
+- **Classifiers** — the back of a noun's flashcard (and its details sheet)
+  shows the classifier used to count it, with an example: หมา → ตัว
+  (หมา สอง ตัว, two dogs). About 370 nouns are mapped to 38 classifiers
+  (ตัว, คน, อัน, ใบ, ลูก, คัน, เล่ม, หลัง, เครื่อง, แห่ง, คู่…), and a
+  *Classifiers* category lets you study the classifiers themselves.
 - **Audio pronunciation** via the browser's built-in speech synthesis
   (`th-TH` voice when available).
 - **Thai script practice mode** — hides romanization hints so you read the
