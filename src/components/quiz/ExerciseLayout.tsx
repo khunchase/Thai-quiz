@@ -4,7 +4,7 @@ import type { Grade } from '../../types/quiz';
 import type { ScheduleOptions } from '../../lib/srs';
 import { isSpeechSupported } from '../../lib/speech';
 import { useSettingsStore } from '../../stores/settings-store';
-import { BackIcon, HelpIcon, SearchIcon } from '../ui/icons';
+import { BackIcon, HelpIcon } from '../ui/icons';
 import { AudioButton } from './AudioButton';
 import { ItemSheet } from './ItemSheet';
 
@@ -80,15 +80,22 @@ export function ExerciseHeader({
   );
 }
 
-/** The instruction ("Find the word") over the thing being asked about. */
-export function ExercisePrompt({ label, children }: { label: string; children: ReactNode }) {
+interface PromptProps {
+  label: string;
+  /** Thai text the ▶ tile beside the prompt reads out; no tile without it. */
+  playText?: string;
+  /** Greyed out while hearing it would give the answer away. */
+  playDisabled?: boolean;
+  children: ReactNode;
+}
+
+/** The instruction ("Find the word") over the thing being asked about, with a ▶ tile to hear it. */
+export function ExercisePrompt({ label, playText, playDisabled, children }: PromptProps) {
   return (
     <div className="flex flex-col gap-3 py-2">
       <div className="text-txt-secondary font-semibold">{label}</div>
       <div className="flex items-center gap-4">
-        <div className="w-14 h-14 shrink-0 rounded-xl border-[1.5px] border-accent/60 bg-accent/10 text-accent flex items-center justify-center">
-          <SearchIcon />
-        </div>
+        {playText && <AudioButton text={playText} variant="tile" disabled={playDisabled} />}
         <div className="flex-1 min-w-0">{children}</div>
       </div>
     </div>

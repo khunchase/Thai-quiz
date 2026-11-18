@@ -60,11 +60,13 @@ export function TypedAnswerQuestion({ question, onAnswered, ...frame }: Props) {
       answered={!!result}
       pendingGrade={pending?.grade}
       onNext={next}
-      playText={word.thai}
-      // Hearing the Thai would give away the romanization.
-      playDisabled={direction === 'en-th' && !result}
     >
-      <ExercisePrompt label={direction === 'th-en' ? 'Type the meaning' : 'Type the romanization'}>
+      <ExercisePrompt
+        label={direction === 'th-en' ? 'Type the meaning' : 'Type the romanization'}
+        playText={word.thai}
+        // Hearing the Thai would give away the romanization.
+        playDisabled={direction === 'en-th' && !result}
+      >
         {direction === 'th-en' ? (
           <ThaiWord text={promptText} size="lg" align="left" />
         ) : (
