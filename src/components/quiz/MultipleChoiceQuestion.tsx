@@ -80,11 +80,13 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord, ...fr
       pendingGrade={pending?.grade}
       pendingOptions={{ markedKnown: pending?.markedKnown }}
       onNext={next}
-      playText={word.thai}
-      // Hearing the Thai would give away an English → Thai question.
-      playDisabled={direction === 'en-th' && !answered}
     >
-      <ExercisePrompt label={direction === 'th-en' ? 'What does this mean?' : 'Find the word'}>
+      <ExercisePrompt
+        label={direction === 'th-en' ? 'What does this mean?' : 'Find the word'}
+        playText={word.thai}
+        // Hearing the Thai would give away an English → Thai question.
+        playDisabled={direction === 'en-th' && !answered}
+      >
         {direction === 'th-en' ? (
           <ThaiWord text={promptText} size="lg" align="left" />
         ) : (
@@ -94,35 +96,38 @@ export function MultipleChoiceQuestion({ question, onAnswered, onMarkWord, ...fr
           <div className="text-txt-secondary text-lg mt-1">{word.pronunciation ?? word.romanization}</div>
         )}
       </ExercisePrompt>
-      <div className="grid grid-cols-1 gap-2">
-        {options.map((option) => {
-          const isCorrectOption = option.text === correctText;
-          const isSelected = option.text === selected;
-          return (
-            <OptionCard
-              key={option.word.id}
-              option={option}
-              direction={direction}
-              isCorrectOption={isCorrectOption}
-              isSelected={isSelected}
-              answered={answered}
-              reviewStatus={reviewed[option.word.id]}
-              onSelect={() => choose(option.text)}
-              onOpenDetail={() => setDetailWord(option.word)}
-            />
-          );
-        })}
-      </div>
-      {!answered && (
-        <GhostButton onClick={giveUp} className="self-center">
-          I don't know
-        </GhostButton>
-      )}
-      {answered && (
-        <div className="text-txt-tertiary text-xs text-center">
-          Tap a word to see details, then swipe to mark it known or to learn
+      {/* Choices sit at the bottom, within thumb reach. */}
+      <div className="mt-auto flex flex-col gap-4">
+        <div className="grid grid-cols-1 gap-2">
+          {options.map((option) => {
+            const isCorrectOption = option.text === correctText;
+            const isSelected = option.text === selected;
+            return (
+              <OptionCard
+                key={option.word.id}
+                option={option}
+                direction={direction}
+                isCorrectOption={isCorrectOption}
+                isSelected={isSelected}
+                answered={answered}
+                reviewStatus={reviewed[option.word.id]}
+                onSelect={() => choose(option.text)}
+                onOpenDetail={() => setDetailWord(option.word)}
+              />
+            );
+          })}
         </div>
-      )}
+        {!answered && (
+          <GhostButton onClick={giveUp} className="self-center">
+            I don't know
+          </GhostButton>
+        )}
+        {answered && (
+          <div className="text-txt-tertiary text-xs text-center">
+            Tap a word to see details, then swipe to mark it known or to learn
+          </div>
+        )}
+      </div>
 
       {detailWord && (
         <WordDetailPopup
