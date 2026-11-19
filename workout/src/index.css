@@ -1,0 +1,42 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-bg: #0c0d10;
+  --color-card: #16181d;
+  --color-card-2: #1e2128;
+  --color-line: #2a2e37;
+  --color-accent: #c6f432;
+  --color-accent-dim: #9cc21f;
+  --color-on-accent: #10130a;
+  --color-rest: #60a5fa;
+  --color-ok: #4ade80;
+  --color-danger: #ff6464;
+  --color-tx: #f4f5f7;
+  --color-tx-2: #a3a9b5;
+  --color-tx-3: #6b7280;
+
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+html, body, #root { min-height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-tx);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type='number'] { -moz-appearance: textfield; appearance: textfield; }
+
+.tabular { font-variant-numeric: tabular-nums; }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.pt-safe { padding-top: env(safe-area-inset-top); }
+
+@keyframes sheet-in { from { transform: translateY(24px); opacity: 0 } to { transform: none; opacity: 1 } }
+.sheet-in { animation: sheet-in 0.2s ease-out; }
