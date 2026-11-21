@@ -5,6 +5,7 @@ import { useProgressStore } from '../../stores/progress-store';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 import { GRADE_KNOWN, GRADE_GIVE_UP } from '../../lib/srs';
 import { BreakdownHeadword, WordBreakdown } from '../quiz/WordBreakdown';
+import { ToneExplanation } from '../quiz/ToneExplanation';
 import { ClassifierNote } from '../quiz/ClassifierNote';
 import { AccentButton } from '../ui/Button';
 import { ExerciseLayout } from '../quiz/ExerciseLayout';
@@ -125,7 +126,7 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
         if (event.target instanceof Element && event.target.closest('button')) return;
         onFlip();
       }}
-      className="relative w-full max-w-sm min-h-[22rem] rounded-2xl border border-border-accent bg-app-card-light p-6 flex flex-col items-center justify-center gap-3 cursor-grab active:cursor-grabbing overflow-hidden"
+      className="relative w-full max-w-sm min-h-[22rem] rounded-2xl border border-border-accent bg-app-card-light p-6 flex flex-col items-center gap-3 cursor-grab active:cursor-grabbing overflow-y-auto"
     >
       <motion.div className="absolute inset-0 pointer-events-none" style={{ background: tint }} />
       <motion.div
@@ -141,7 +142,7 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
         known ✓
       </motion.div>
 
-      <div className="relative z-10 flex flex-col items-center gap-3 w-full">
+      <div className="relative z-10 my-auto flex flex-col items-center gap-3 w-full">
         {!flipped ? (
           <>
             <div className={`${singleThaiFontClass(fontStyle)} text-5xl font-semibold text-center leading-tight`}>
@@ -156,6 +157,8 @@ function FlashcardFace({ word, flipped, onFlip, onSwipe }: FaceProps) {
             <div className="text-txt-secondary text-lg">{word.pronunciation ?? word.romanization}</div>
 
             <WordBreakdown word={word} />
+
+            <ToneExplanation word={word} />
 
             <ClassifierNote word={word} className="border-t border-border pt-3 mt-1" />
 
