@@ -219,8 +219,8 @@ export function QuizPage() {
         )}
         {isToneMode && (
           <div className="text-txt-tertiary text-[11px] mt-2">
-            Read a word and pick the tone of each syllable: <span className="whitespace-nowrap">평성 (flat)</span> or{' '}
-            <span className="whitespace-nowrap">1성–4성</span>. Works it out from the
+            Read a word and pick the tone of each syllable, one at a time: mid, low, falling, high or rising. Work it
+            out from the
             spelling, so the pronunciation stays hidden until you answer. Tone progress is kept apart from word
             progress.
           </div>

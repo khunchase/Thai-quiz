@@ -123,8 +123,7 @@ export function ToneQuestion({ question, onAnswered, ...frame }: Props) {
                 className="rounded-xl border border-border bg-app-card py-3 flex flex-col items-center gap-1 text-txt-primary active:scale-95 active:bg-app-surface transition"
               >
                 <Contour tone={tone} />
-                <span className="text-base font-bold">{label}</span>
-                <span className="text-txt-tertiary text-[10px]">{tone === 'mid' ? 'flat' : tone}</span>
+                <span className="text-sm font-bold">{label}</span>
               </button>
             ))}
           </div>

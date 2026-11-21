@@ -17,13 +17,13 @@ export const CONTOUR: Record<Tone, string> = {
   rising: 'M2 8 Q8 11 12 8 T18 1.5',
 };
 
-/** Tones in the order a learner counts them: flat (평성), then 1성–4성 as in Korean and Thai textbooks. */
+/** The five tones in the usual teaching order: mid, low, falling, high, rising. */
 export const TONE_ORDER: { tone: Tone; label: string }[] = [
-  { tone: 'mid', label: '평성' },
-  { tone: 'low', label: '1성' },
-  { tone: 'falling', label: '2성' },
-  { tone: 'high', label: '3성' },
-  { tone: 'rising', label: '4성' },
+  { tone: 'mid', label: 'Mid' },
+  { tone: 'low', label: 'Low' },
+  { tone: 'falling', label: 'Falling' },
+  { tone: 'high', label: 'High' },
+  { tone: 'rising', label: 'Rising' },
 ];
 
 export const TONE_LABEL = Object.fromEntries(TONE_ORDER.map((t) => [t.tone, t.label])) as Record<Tone, string>;

@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import type { Word } from '../../types/word';
 import { explainTones, TONE_MARK_NAMES, type SyllableTone, type Tone } from '../../lib/tone';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
-import { CONTOUR, TONE_LABEL, TONE_STYLE } from './tone-style';
+import { CONTOUR, TONE_STYLE } from './tone-style';
 
 export function ToneChip({ tone }: { tone: Tone }) {
   return (
@@ -10,7 +10,7 @@ export function ToneChip({ tone }: { tone: Tone }) {
       <svg viewBox="0 0 20 12" className="w-4 h-3" aria-hidden>
         <path d={CONTOUR[tone]} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
-      {TONE_LABEL[tone]} {tone === 'mid' ? 'flat' : tone}
+      {tone}
     </span>
   );
 }
@@ -103,7 +103,7 @@ export function SyllableRow({ s, thaiFont }: { s: SyllableTone; thaiFont: string
               </>
             )}
             <span className="pl-5">
-              → <span className={`font-semibold ${TONE_STYLE[s.tone].text}`}>{TONE_LABEL[s.tone]} ({s.tone === 'mid' ? 'flat' : s.tone})</span>
+              → <span className={`font-semibold ${TONE_STYLE[s.tone].text}`}>{s.tone} tone</span>
             </span>
           </span>
         ) : (
