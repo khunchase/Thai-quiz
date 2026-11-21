@@ -272,9 +272,3 @@ export const TONE_MARK_NAMES: Record<ToneMark, string> = {
   '๊': 'mai tri',
   '๋': 'mai chattawa',
 };
-
-/** "ends in -p" / "long vowel, no ending" — why a syllable is live or dead. */
-export function liveReason(s: SyllableTone): string {
-  if (s.final) return `ends in -${s.final}`;
-  return s.live ? (s.longVowel ? 'long vowel' : 'ends in a glide') : 'short vowel, no ending';
-}

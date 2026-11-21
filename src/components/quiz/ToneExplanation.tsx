@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import type { Word } from '../../types/word';
-import { explainTones, liveReason, TONE_MARK_NAMES, type SyllableTone, type Tone } from '../../lib/tone';
+import { explainTones, TONE_MARK_NAMES, type SyllableTone, type Tone } from '../../lib/tone';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
 
 const TONE_STYLE: Record<Tone, { text: string; chip: string }> = {
@@ -57,6 +57,38 @@ function ClassReason({ s, thaiFont }: { s: SyllableTone; thaiFont: string }) {
   );
 }
 
+function Step({ n, children }: { n: number; children: ReactNode }) {
+  return (
+    <span className="flex gap-1.5">
+      <span className="shrink-0 w-3.5 text-txt-tertiary">{'①②③'[n - 1]}</span>
+      <span>{children}</span>
+    </span>
+  );
+}
+
+/** Step ③ of the chart: what the syllable ends with, and so whether it's live or dead. */
+function EndingReason({ s, thaiFont }: { s: SyllableTone; thaiFont: string }) {
+  const t = (text: string) => <span className={`${thaiFont} text-txt-primary`}>{text}</span>;
+  const live = <span className="text-txt-primary">live</span>;
+  const dead = <span className="text-txt-primary">dead</span>;
+  if (s.final) {
+    if (s.live)
+      return s.thai.includes('ำ') ? (
+        <>{t('ำ')} is short but counts as {live}</>
+      ) : (
+        <>ends in -{s.final}: a {live} ending</>
+      );
+    return (
+      <>
+        ends in -{s.final}: a {dead} ending
+        {s.cls === 'low' && <>, {s.longVowel ? 'long' : 'short'} vowel</>}
+      </>
+    );
+  }
+  if (s.live && !s.longVowel) return <>no ending; {t('ไ ใ เา')} are short but count as {live}</>;
+  return s.live ? <>no ending, long vowel: {live}</> : <>no ending, short vowel: {dead}</>;
+}
+
 function SyllableRow({ s, thaiFont }: { s: SyllableTone; thaiFont: string }) {
   return (
     <span className="flex items-start gap-3 py-2 border-t border-border first:border-t-0">
@@ -68,32 +100,34 @@ function SyllableRow({ s, thaiFont }: { s: SyllableTone; thaiFont: string }) {
           <span className="text-txt-primary text-sm font-semibold">{s.pronunciation}</span>
           <ToneChip tone={s.tone} />
         </span>
-        <span className="block text-txt-secondary text-xs leading-relaxed mt-0.5">
-          {s.regular ? (
-            <>
+        {s.regular ? (
+          <span className="mt-1 flex flex-col gap-0.5 text-txt-secondary text-xs leading-relaxed">
+            <Step n={1}>
               <ClassReason s={s} thaiFont={thaiFont} />
-              {' · '}
-              {s.mark ? (
-                <>
-                  {TONE_MARK_NAMES[s.mark]} <span className={`${thaiFont} text-txt-primary text-sm`}>◌{s.mark}</span>
-                </>
-              ) : (
-                <>
-                  {s.live ? 'live' : 'dead'} ({liveReason(s)}
-                  {!s.live && s.final && s.cls === 'low' ? `, ${s.longVowel ? 'long' : 'short'} vowel` : ''}), no tone
-                  mark
-                </>
-              )}
-              {' → '}
-              <span className={`font-semibold ${TONE_STYLE[s.tone].text}`}>{s.tone}</span>
-            </>
-          ) : (
-            <>
-              <span className="text-warning font-semibold">Exception.</span> The spelling rules give {s.ruleTone}, but
-              it's said {s.tone}. Loanwords and a few everyday words (like ก็) do this.
-            </>
-          )}
-        </span>
+            </Step>
+            {s.mark ? (
+              <Step n={2}>
+                tone mark {TONE_MARK_NAMES[s.mark]}{' '}
+                <span className={`${thaiFont} text-txt-primary text-sm`}>◌{s.mark}</span>
+              </Step>
+            ) : (
+              <>
+                <Step n={2}>no tone mark</Step>
+                <Step n={3}>
+                  <EndingReason s={s} thaiFont={thaiFont} />
+                </Step>
+              </>
+            )}
+            <span className="pl-5">
+              → <span className={`font-semibold ${TONE_STYLE[s.tone].text}`}>{s.tone} tone</span>
+            </span>
+          </span>
+        ) : (
+          <span className="block mt-0.5 text-txt-secondary text-xs leading-relaxed">
+            <span className="text-warning font-semibold">Exception.</span> The spelling rules give {s.ruleTone}, but
+            it's said {s.tone}. Loanwords and a few everyday words (like ก็) do this.
+          </span>
+        )}
       </span>
     </span>
   );
@@ -146,8 +180,8 @@ export function ToneExplanation({ word, className = '' }: { word: Word; classNam
             ))}
           </span>
           <span className="block mt-2 pt-2 border-t border-border text-txt-tertiary text-[11px] leading-snug">
-            Tone = consonant class (mid / high / low) + live or dead syllable + tone mark. Dead syllables end in -p,
-            -t, -k or a short vowel.
+            Live: long vowel, or ends in -m -n -ŋ -y -w. Dead: short vowel, or ends in -p -t -k. With a tone mark,
+            live/dead doesn't matter: ◌่ gives low (falling on low class), ◌้ gives falling (high on low class).
           </span>
         </span>
       )}
