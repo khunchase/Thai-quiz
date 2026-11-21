@@ -272,3 +272,12 @@ export const TONE_MARK_NAMES: Record<ToneMark, string> = {
   '๊': 'mai tri',
   '๋': 'mai chattawa',
 };
+
+/** Prefix for tone-quiz progress, so tone practice is scheduled apart from knowing what the word means. */
+export const TONE_ITEM_PREFIX = 'tone:';
+
+/** Syllables to quiz for a word: only words whose every tone follows from the spelling rules. */
+export function toneQuizSyllables(thai: string, pronunciation: string | undefined): SyllableTone[] | null {
+  const syllables = explainTones(thai, pronunciation);
+  return syllables && syllables.every((s) => s.regular) ? syllables : null;
+}

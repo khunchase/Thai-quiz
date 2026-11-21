@@ -2,31 +2,15 @@ import { useMemo, useState, type ReactNode } from 'react';
 import type { Word } from '../../types/word';
 import { explainTones, TONE_MARK_NAMES, type SyllableTone, type Tone } from '../../lib/tone';
 import { useSettingsStore, singleThaiFontClass } from '../../stores/settings-store';
+import { CONTOUR, TONE_LABEL, TONE_STYLE } from './tone-style';
 
-const TONE_STYLE: Record<Tone, { text: string; chip: string }> = {
-  mid: { text: 'text-txt-secondary', chip: 'bg-app-surface text-txt-secondary' },
-  low: { text: 'text-connector', chip: 'bg-connector/15 text-connector' },
-  falling: { text: 'text-warning', chip: 'bg-warning/15 text-warning' },
-  high: { text: 'text-success', chip: 'bg-success/15 text-success' },
-  rising: { text: 'text-purple-400', chip: 'bg-purple-400/15 text-purple-400' },
-};
-
-/** Pitch shapes on a 20×12 box, top = high. */
-const CONTOUR: Record<Tone, string> = {
-  mid: 'M2 6 L18 6',
-  low: 'M2 8 L18 10.5',
-  falling: 'M2 4 Q7 1.5 10 4 T18 11',
-  high: 'M2 4 Q12 4 18 1.5',
-  rising: 'M2 8 Q8 11 12 8 T18 1.5',
-};
-
-function ToneChip({ tone }: { tone: Tone }) {
+export function ToneChip({ tone }: { tone: Tone }) {
   return (
     <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold ${TONE_STYLE[tone].chip}`}>
       <svg viewBox="0 0 20 12" className="w-4 h-3" aria-hidden>
         <path d={CONTOUR[tone]} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </svg>
-      {tone}
+      {TONE_LABEL[tone]} {tone === 'mid' ? 'flat' : tone}
     </span>
   );
 }
@@ -89,7 +73,7 @@ function EndingReason({ s, thaiFont }: { s: SyllableTone; thaiFont: string }) {
   return s.live ? <>no ending, long vowel: {live}</> : <>no ending, short vowel: {dead}</>;
 }
 
-function SyllableRow({ s, thaiFont }: { s: SyllableTone; thaiFont: string }) {
+export function SyllableRow({ s, thaiFont }: { s: SyllableTone; thaiFont: string }) {
   return (
     <span className="flex items-start gap-3 py-2 border-t border-border first:border-t-0">
       <span className={`${thaiFont} shrink-0 min-w-12 text-2xl font-semibold leading-tight ${TONE_STYLE[s.tone].text}`}>
@@ -119,7 +103,7 @@ function SyllableRow({ s, thaiFont }: { s: SyllableTone; thaiFont: string }) {
               </>
             )}
             <span className="pl-5">
-              → <span className={`font-semibold ${TONE_STYLE[s.tone].text}`}>{s.tone} tone</span>
+              → <span className={`font-semibold ${TONE_STYLE[s.tone].text}`}>{TONE_LABEL[s.tone]} ({s.tone === 'mid' ? 'flat' : s.tone})</span>
             </span>
           </span>
         ) : (

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAllWords, useAllCategories } from '../stores/deck-store';
 import { useProgressStore, displayedStreak } from '../stores/progress-store';
 import { useNavigationStore } from '../stores/navigation-store';
-import { classifyWords, filterWords, generateQuiz } from '../lib/quiz-generator';
+import { classifyWords, filterWords, generateQuiz, toneQuizWords } from '../lib/quiz-generator';
 import { ALL_LEVELS, WORD_LEVELS } from '../lib/levels';
 import type { ScheduleOptions } from '../lib/srs';
 import type { QuizQuestion, Grade, Direction } from '../types/quiz';
@@ -21,12 +21,13 @@ interface Answer {
 
 type Phase = 'start' | 'active' | 'caught-up';
 
-type QuizMode = 'multiple-choice' | 'connector' | 'order';
+type QuizMode = 'multiple-choice' | 'connector' | 'order' | 'tone';
 
 const QUIZ_MODES: { id: QuizMode; label: string }[] = [
   { id: 'multiple-choice', label: '🃏 Words' },
   { id: 'connector', label: '🔗 Sentences' },
   { id: 'order', label: '🧩 Order' },
+  { id: 'tone', label: '🎵 Tones' },
 ];
 
 /** Questions picked at a time — small, so each batch reflects the latest answers. */
@@ -59,7 +60,9 @@ export function QuizPage() {
   // The Sentences and Order quizzes have their own word sets, so they ignore the category picks.
   const isConnectorMode = quizMode === 'connector';
   const isOrderMode = quizMode === 'order';
-  const usesCategories = quizMode === 'multiple-choice';
+  const isToneMode = quizMode === 'tone';
+  // The Tones quiz asks the same words as the Words quiz, so it keeps the category and level picks.
+  const usesCategories = quizMode === 'multiple-choice' || isToneMode;
   const available = useMemo(
     () =>
       classifyWords(
@@ -67,7 +70,9 @@ export function QuizPage() {
           ? words.filter((w) => CONNECTOR_INFO[w.id])
           : quizMode === 'order'
             ? words.filter((w) => ORDER_SENTENCES[w.id])
-            : filterWords(words, selectedCategories, selectedLevels),
+            : quizMode === 'tone'
+              ? toneQuizWords(filterWords(words, selectedCategories, selectedLevels))
+              : filterWords(words, selectedCategories, selectedLevels),
         reviewStates
       ),
     [words, reviewStates, selectedCategories, selectedLevels, quizMode]
@@ -188,7 +193,7 @@ export function QuizPage() {
 
       <Card>
         <div className="text-txt-secondary text-xs font-semibold uppercase tracking-wide mb-3">Quiz Mode</div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2">
           {QUIZ_MODES.map((m) => (
             <button
               key={m.id}
@@ -201,7 +206,7 @@ export function QuizPage() {
             </button>
           ))}
         </div>
-        {usesCategories && (
+        {quizMode === 'multiple-choice' && (
           <div className="text-txt-tertiary text-[11px] mt-2">
             See a word and pick its meaning from four choices.
           </div>
@@ -210,6 +215,14 @@ export function QuizPage() {
           <div className="text-txt-tertiary text-[11px] mt-2">
             Fill the blank in a Thai sentence with the right connector (when, before, as long as…) for the
             highlighted English. Uses the Conjunctions &amp; Connectors words.
+          </div>
+        )}
+        {isToneMode && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            Read a word and pick the tone of each syllable: <span className="whitespace-nowrap">평성 (flat)</span> or{' '}
+            <span className="whitespace-nowrap">1성–4성</span>. Works it out from the
+            spelling, so the pronunciation stays hidden until you answer. Tone progress is kept apart from word
+            progress.
           </div>
         )}
         {isOrderMode && (
