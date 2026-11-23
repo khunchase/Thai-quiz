@@ -16,7 +16,7 @@ export function ToneChip({ tone }: { tone: Tone }) {
 }
 
 /** "ข is high class" — or what overrides the letter's own class. */
-function ClassReason({ s, thaiFont }: { s: SyllableTone; thaiFont: string }) {
+function ClassReason({ s, thaiFont, short = false }: { s: SyllableTone; thaiFont: string; short?: boolean }) {
   const t = (text: string) => <span className={`${thaiFont} text-txt-primary font-semibold`}>{text}</span>;
   if (s.leader === 'ห')
     return <>silent {t('ห')} makes {t(s.initial)} high class</>;
@@ -36,7 +36,8 @@ function ClassReason({ s, thaiFont }: { s: SyllableTone; thaiFont: string }) {
     );
   return (
     <>
-      {t(s.initial)} is {s.cls} class
+      {t(s.initial)} {short ? '' : 'is '}
+      {s.cls} class
     </>
   );
 }
@@ -84,24 +85,25 @@ export function SyllableRow({ s, thaiFont }: { s: SyllableTone; thaiFont: string
           <span className="text-txt-primary text-sm font-semibold">{s.pronunciation}</span>
           <ToneChip tone={s.tone} />
         </span>
-        {s.regular ? (
+        {s.regular && s.mark ? (
+          // A tone mark settles it: the class and the mark are all there is to say.
+          <span className="block mt-1 text-txt-secondary text-xs leading-relaxed">
+            <ClassReason s={s} thaiFont={thaiFont} short /> + <span className={`${thaiFont} text-txt-primary text-sm`}>◌{s.mark}</span>{' '}
+            {TONE_MARK_NAMES[s.mark]} →{' '}
+            <span className={`font-semibold ${TONE_STYLE[s.tone].text}`}>{s.tone}</span>
+            {s.cls === 'low' && (s.mark === '่' || s.mark === '้') && (
+              <span className="block text-txt-tertiary">Low class shifts the mark up one: ◌่ → falling, ◌้ → high.</span>
+            )}
+          </span>
+        ) : s.regular ? (
           <span className="mt-1 flex flex-col gap-0.5 text-txt-secondary text-xs leading-relaxed">
             <Step n={1}>
               <ClassReason s={s} thaiFont={thaiFont} />
             </Step>
-            {s.mark ? (
-              <Step n={2}>
-                tone mark {TONE_MARK_NAMES[s.mark]}{' '}
-                <span className={`${thaiFont} text-txt-primary text-sm`}>◌{s.mark}</span>
-              </Step>
-            ) : (
-              <>
-                <Step n={2}>no tone mark</Step>
-                <Step n={3}>
-                  <EndingReason s={s} thaiFont={thaiFont} />
-                </Step>
-              </>
-            )}
+            <Step n={2}>no tone mark</Step>
+            <Step n={3}>
+              <EndingReason s={s} thaiFont={thaiFont} />
+            </Step>
             <span className="pl-5">
               → <span className={`font-semibold ${TONE_STYLE[s.tone].text}`}>{s.tone} tone</span>
             </span>
