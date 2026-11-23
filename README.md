@@ -22,6 +22,11 @@ account or backend required.
   blocks leave a dotted gap so the word bank never shifts. Equally natural
   orders (time words first or last) count as right. 236 sentences covering
   classifiers, question words, particles and everyday verbs.
+- **Tone Rules quiz** — learn the tone rules themselves. Each question is a
+  rule written as a sum ("Low class + dead, short vowel + no tone mark = ?")
+  and you pick the tone; the answer explains why and lists real syllables from
+  the deck that follow it (รัก, นก, คิด…). All 15 rules (class × live/dead ×
+  vowel length, and each tone mark) are tracked as their own review items.
 - **Both directions** — Thai script → English and English → Thai, mixed or
   fixed via Settings.
 - **Spaced repetition** — an SM-2 scheduler tracks per-word ease/interval so

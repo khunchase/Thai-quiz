@@ -13,6 +13,7 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { CONNECTOR_INFO } from '../data/conjunctions';
 import { ORDER_SENTENCES } from '../data/word-order';
+import { ruleQuizWords } from '../lib/tone-rules';
 
 interface Answer {
   question: QuizQuestion;
@@ -21,13 +22,14 @@ interface Answer {
 
 type Phase = 'start' | 'active' | 'caught-up';
 
-type QuizMode = 'multiple-choice' | 'connector' | 'order' | 'tone';
+type QuizMode = 'multiple-choice' | 'connector' | 'order' | 'tone' | 'rule';
 
 const QUIZ_MODES: { id: QuizMode; label: string }[] = [
   { id: 'multiple-choice', label: '🃏 Words' },
   { id: 'connector', label: '🔗 Sentences' },
   { id: 'order', label: '🧩 Order' },
   { id: 'tone', label: '🎵 Tones' },
+  { id: 'rule', label: '📐 Tone Rules' },
 ];
 
 /** Questions picked at a time — small, so each batch reflects the latest answers. */
@@ -70,7 +72,9 @@ export function QuizPage() {
           ? words.filter((w) => CONNECTOR_INFO[w.id])
           : quizMode === 'order'
             ? words.filter((w) => ORDER_SENTENCES[w.id])
-            : quizMode === 'tone'
+            : quizMode === 'rule'
+              ? ruleQuizWords()
+              : quizMode === 'tone'
               ? toneQuizWords(filterWords(words, selectedCategories, selectedLevels))
               : filterWords(words, selectedCategories, selectedLevels),
         reviewStates
@@ -223,6 +227,12 @@ export function QuizPage() {
             out from the
             spelling, so the pronunciation stays hidden until you answer. Tone progress is kept apart from word
             progress.
+          </div>
+        )}
+        {quizMode === 'rule' && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            Learn the tone rules themselves: see a rule like “Low class + dead, short vowel + no tone mark” and
+            pick the tone it gives. After each answer you get the reason and real syllables that follow it.
           </div>
         )}
         {isOrderMode && (
