@@ -1,7 +1,7 @@
 import type { ClozeSentence, Word } from './word';
 import type { OrderSentence } from '../data/word-order';
 
-export type QuestionType = 'multiple-choice' | 'typed' | 'flashcard' | 'connector' | 'order' | 'tone' | 'rule';
+export type QuestionType = 'multiple-choice' | 'typed' | 'flashcard' | 'connector' | 'order' | 'tone' | 'rule' | 'letter-class';
 /** Which side is shown: Thai → English or English → Thai. */
 export type Direction = 'th-en' | 'en-th';
 

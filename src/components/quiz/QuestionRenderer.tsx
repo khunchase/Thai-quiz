@@ -8,6 +8,7 @@ import { ConnectorQuestion } from './ConnectorQuestion';
 import { OrderQuestion } from './OrderQuestion';
 import { ToneQuestion } from './ToneQuestion';
 import { RuleQuestion } from './RuleQuestion';
+import { LetterClassQuestion } from './LetterClassQuestion';
 
 interface Props extends ExerciseFrame {
   question: QuizQuestion;
@@ -31,5 +32,7 @@ export function QuestionRenderer({ question, onMarkWord, ...props }: Props) {
       return <ToneQuestion question={question} {...props} />;
     case 'rule':
       return <RuleQuestion question={question} {...props} />;
+    case 'letter-class':
+      return <LetterClassQuestion question={question} {...props} />;
   }
 }

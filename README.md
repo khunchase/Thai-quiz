@@ -27,6 +27,11 @@ account or backend required.
   and you pick the tone; the answer explains why and lists real syllables from
   the deck that follow it (รัก, นก, คิด…). All 15 rules (class × live/dead ×
   vowel length, and each tone mark) are tracked as their own review items.
+- **Letter Classes quiz** — see a consonant (ข) and pick its class: mid, high
+  or low. The answer shows the letter's name (ข ไข่, egg), every letter in
+  that class, and the classic memory sentence (ไก่จิกเด็กตายบนปากโอ่ง for mid,
+  ผีฝากถุงข้าวสารให้ฉัน for high). Each of the 42 consonants is its own
+  review item.
 - **Both directions** — Thai script → English and English → Thai, mixed or
   fixed via Settings.
 - **Spaced repetition** — an SM-2 scheduler tracks per-word ease/interval so

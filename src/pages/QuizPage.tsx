@@ -14,6 +14,7 @@ import { Badge } from '../components/ui/Badge';
 import { CONNECTOR_INFO } from '../data/conjunctions';
 import { ORDER_SENTENCES } from '../data/word-order';
 import { ruleQuizWords } from '../lib/tone-rules';
+import { classQuizWords } from '../lib/letter-classes';
 
 interface Answer {
   question: QuizQuestion;
@@ -22,7 +23,7 @@ interface Answer {
 
 type Phase = 'start' | 'active' | 'caught-up';
 
-type QuizMode = 'multiple-choice' | 'connector' | 'order' | 'tone' | 'rule';
+type QuizMode = 'multiple-choice' | 'connector' | 'order' | 'tone' | 'rule' | 'letter-class';
 
 const QUIZ_MODES: { id: QuizMode; label: string }[] = [
   { id: 'multiple-choice', label: '🃏 Words' },
@@ -30,6 +31,7 @@ const QUIZ_MODES: { id: QuizMode; label: string }[] = [
   { id: 'order', label: '🧩 Order' },
   { id: 'tone', label: '🎵 Tones' },
   { id: 'rule', label: '📐 Tone Rules' },
+  { id: 'letter-class', label: '🔤 Letter Classes' },
 ];
 
 /** Questions picked at a time — small, so each batch reflects the latest answers. */
@@ -74,6 +76,8 @@ export function QuizPage() {
             ? words.filter((w) => ORDER_SENTENCES[w.id])
             : quizMode === 'rule'
               ? ruleQuizWords()
+              : quizMode === 'letter-class'
+              ? classQuizWords()
               : quizMode === 'tone'
               ? toneQuizWords(filterWords(words, selectedCategories, selectedLevels))
               : filterWords(words, selectedCategories, selectedLevels),
@@ -233,6 +237,12 @@ export function QuizPage() {
           <div className="text-txt-tertiary text-[11px] mt-2">
             Learn the tone rules themselves: see a rule like “Low class + dead, short vowel + no tone mark” and
             pick the tone it gives. After each answer you get the reason and real syllables that follow it.
+          </div>
+        )}
+        {quizMode === 'letter-class' && (
+          <div className="text-txt-tertiary text-[11px] mt-2">
+            See a consonant and say whether it's mid, high or low class — step one of every tone rule. After each
+            answer you see the whole class and a sentence to remember it by.
           </div>
         )}
         {isOrderMode && (

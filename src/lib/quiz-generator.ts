@@ -6,6 +6,7 @@ import { CONNECTOR_INFO } from '../data/conjunctions';
 import { ORDER_SENTENCES, isCorrectOrder, type OrderSentence } from '../data/word-order';
 import { TONE_ITEM_PREFIX, toneQuizSyllables } from './tone';
 import { ruleQuizWords } from './tone-rules';
+import { classQuizWords } from './letter-classes';
 
 export interface GenerateQuizOptions {
   words: Word[];
@@ -202,17 +203,18 @@ export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
     }));
   }
 
-  // Rule questions ask the tone rules themselves, one item per rule; categories and levels don't apply.
-  if (forceType === 'rule') {
+  // Rule and letter-class questions drill the tone rules themselves (one item per rule or per consonant);
+  // categories and levels don't apply.
+  if (forceType === 'rule' || forceType === 'letter-class') {
     return selectSessionWords({
       ...options,
-      words: ruleQuizWords(),
+      words: forceType === 'rule' ? ruleQuizWords() : classQuizWords(),
       categoryFilter: undefined,
       levelFilter: undefined,
     }).map((word, index) => ({
       id: `${word.id}-${index}-${Date.now()}`,
       word,
-      type: 'rule',
+      type: forceType,
       direction: 'th-en',
     }));
   }
