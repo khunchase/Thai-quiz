@@ -8,6 +8,7 @@ import { ThaiWord } from './ThaiWord';
 import { GhostButton } from '../ui/Button';
 import { useSettingsStore } from '../../stores/settings-store';
 import { BreakdownHeadword, WordBreakdown } from './WordBreakdown';
+import { ToneExplanation } from './ToneExplanation';
 import { ExerciseLayout, ExercisePrompt, type ExerciseFrame } from './ExerciseLayout';
 
 interface Props extends ExerciseFrame {
@@ -244,7 +245,7 @@ export function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordD
           else if (info.offset.x < -SWIPE_THRESHOLD) onReview('learn');
         }}
         onClick={(e) => e.stopPropagation()}
-        className={`relative bg-app-card-light border border-border-accent rounded-2xl px-5 py-6 max-w-sm w-full flex flex-col items-center gap-3 overflow-hidden ${
+        className={`relative bg-app-card-light border border-border-accent rounded-2xl px-5 py-6 max-w-sm w-full max-h-full flex flex-col items-center gap-3 overflow-x-hidden overflow-y-auto ${
           draggable ? 'cursor-grab active:cursor-grabbing' : ''
         }`}
       >
@@ -264,6 +265,7 @@ export function WordDetailPopup({ word, reviewStatus, onClose, onReview }: WordD
         <AudioButton text={word.thai} />
 
         <WordBreakdown word={word} />
+        <ToneExplanation word={word} />
 
         {draggable ? (
           <>

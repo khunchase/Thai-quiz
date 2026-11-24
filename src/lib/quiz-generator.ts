@@ -4,6 +4,7 @@ import type { Direction, MultipleChoiceOption, QuestionType, QuizQuestion } from
 import { isDue, isFullyLearned, isKnown } from './srs';
 import { CONNECTOR_INFO } from '../data/conjunctions';
 import { ORDER_SENTENCES, isCorrectOrder, type OrderSentence } from '../data/word-order';
+import { TONE_ITEM_PREFIX, toneQuizSyllables } from './tone';
 
 export interface GenerateQuizOptions {
   words: Word[];
@@ -189,6 +190,17 @@ export function generateQuiz(options: GenerateQuizOptions): QuizQuestion[] {
     });
   }
 
+  // Tone questions ask the tone of each syllable, for words the spelling rules fully explain.
+  // They're tracked under their own ids, apart from knowing the word's meaning.
+  if (forceType === 'tone') {
+    return selectSessionWords({ ...options, words: toneQuizWords(allWords) }).map((word, index) => ({
+      id: `${word.id}-${index}-${Date.now()}`,
+      word,
+      type: 'tone',
+      direction: 'th-en',
+    }));
+  }
+
   const sessionWords = selectSessionWords(options);
 
   // Every other question is multiple choice: recognizing the answer
@@ -215,4 +227,11 @@ export function shuffleBlocks(sentence: OrderSentence): number[] {
     if (!isCorrectOrder(sentence, order.map((i) => sentence.chunks[i]))) return order;
   }
   return indexes.reverse();
+}
+
+/** Words the tone quiz can ask, re-keyed so their progress is separate from the word quiz. */
+export function toneQuizWords(words: Word[]): Word[] {
+  return words
+    .filter((w) => toneQuizSyllables(w.thai, w.pronunciation))
+    .map((w) => ({ ...w, id: `${TONE_ITEM_PREFIX}${w.id}` }));
 }
