@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    VitePWA({
+    // SINGLE_FILE=1 skips the service worker, for hosts that don't allow one.
+    ...(process.env.SINGLE_FILE ? [] : [VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {
@@ -21,6 +22,6 @@ export default defineConfig({
         icons: [{ src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
       },
       workbox: { globPatterns: ['**/*.{js,css,html,svg,png,ico}'] },
-    }),
+    })]),
   ],
 })

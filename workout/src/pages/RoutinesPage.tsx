@@ -1,3 +1,4 @@
+import { ask } from '../components/Dialog'
 import { useState } from 'react'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { IconDown, IconEdit, IconPlay, IconPlus, IconTrash, IconUp } from '../components/icons'
@@ -86,7 +87,7 @@ function RoutineEditor({ initial, onClose }: { initial: Routine; onClose: () => 
       </div>
       <div className="sticky bottom-0 flex gap-2 border-t border-line bg-card p-4">
         {exists && (
-          <button onClick={() => { if (confirm(`Delete “${r.name}”?`)) { del(r.id); onClose() } }} className="rounded-xl bg-danger/15 px-4 font-semibold text-danger">
+          <button onClick={async () => { if (await ask({ message: `Delete “${r.name}”?`, confirmLabel: 'Delete', danger: true })) { del(r.id); onClose() } }} className="rounded-xl bg-danger/15 px-4 font-semibold text-danger">
             Delete
           </button>
         )}

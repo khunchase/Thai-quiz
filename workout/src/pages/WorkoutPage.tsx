@@ -1,3 +1,4 @@
+import { ask } from '../components/Dialog'
 import { useState } from 'react'
 import { ExercisePicker } from '../components/ExercisePicker'
 import { IconCheck, IconDown, IconPlus, IconTrash, IconUp, IconX } from '../components/icons'
@@ -118,15 +119,15 @@ export function WorkoutPage() {
   const total = active.exercises.reduce((n, we) => n + we.sets.length, 0)
   const done = active.exercises.reduce((n, we) => n + we.sets.filter((s) => s.done).length, 0)
 
-  const finish = () => {
+  const finish = async () => {
     if (done === 0) {
-      if (confirm('No sets completed yet. Discard this workout?')) {
+      if (await ask({ message: 'No sets completed yet. Discard this workout?', confirmLabel: 'Discard', danger: true })) {
         discardWorkout()
         setWorkoutOpen(false)
       }
       return
     }
-    if (done < total && !confirm(`${total - done} unfinished set${total - done === 1 ? '' : 's'} will be dropped. Finish workout?`)) return
+    if (done < total && !(await ask({ message: `${total - done} unfinished set${total - done === 1 ? '' : 's'} will be dropped. Finish workout?`, confirmLabel: 'Finish' }))) return
     const w = finishWorkout()
     setWorkoutOpen(false)
     if (w) setSummary(w)
@@ -172,7 +173,7 @@ export function WorkoutPage() {
           <IconPlus size={18} /> Add exercise
         </button>
         <button
-          onClick={() => { if (confirm('Discard this workout? Nothing will be saved.')) { discardWorkout(); setWorkoutOpen(false) } }}
+          onClick={async () => { if (await ask({ message: 'Discard this workout? Nothing will be saved.', confirmLabel: 'Discard', danger: true })) { discardWorkout(); setWorkoutOpen(false) } }}
           className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium text-danger"
         >
           <IconX size={16} /> Discard workout
