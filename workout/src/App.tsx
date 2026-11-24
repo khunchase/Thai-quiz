@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { IconChart, IconHistory, IconHome, IconList, IconTimer } from './components/icons'
+import { DialogHost } from './components/Dialog'
 import { RestBar } from './components/RestBar'
 import { SummarySheet } from './components/SummarySheet'
 import { fmtClock } from './lib/format'
@@ -71,6 +72,7 @@ export default function App() {
 
       <RestBar raised={!showWorkout} />
       <SummarySheet />
+      <DialogHost />
     </>
   )
 }

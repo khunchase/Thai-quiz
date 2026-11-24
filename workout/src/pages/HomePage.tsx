@@ -1,3 +1,4 @@
+import { ask } from '../components/Dialog'
 import { useRef } from 'react'
 import { IconDumbbell, IconFlame, IconPlay, IconPlus } from '../components/icons'
 import { WorkoutCard } from '../components/WorkoutCard'
@@ -42,10 +43,10 @@ export function HomePage() {
   const importData = async (file: File) => {
     try {
       const data = JSON.parse(await file.text())
-      if (!confirm('Replace your routines and history with this backup?')) return
+      if (!(await ask({ message: 'Replace your routines and history with this backup?', confirmLabel: 'Replace', danger: true }))) return
       s.importData(data)
     } catch {
-      alert('That file is not a valid backup.')
+      void ask({ message: 'That file is not a valid backup.', alert: true })
     }
   }
 

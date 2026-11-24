@@ -1,3 +1,4 @@
+import { ask } from './Dialog'
 import { useState } from 'react'
 import { fmtDate, fmtDuration, fmtNum } from '../lib/format'
 import { doneSetCount, workoutVolume } from '../lib/stats'
@@ -53,7 +54,7 @@ export function WorkoutCard({ w, deletable = false }: { w: Workout; deletable?: 
           })}
           {deletable && (
             <button
-              onClick={() => confirm('Delete this workout from history?') && del(w.id)}
+              onClick={async () => { if (await ask({ message: 'Delete this workout from history?', confirmLabel: 'Delete', danger: true })) del(w.id) }}
               className="mt-2 flex items-center gap-1.5 text-sm text-danger"
             >
               <IconTrash size={15} /> Delete workout
